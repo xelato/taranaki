@@ -1,0 +1,13 @@
+[package]
+name = "taranaki"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+base64 = "0.22.1"
+redis-module ={ git="https://github.com/RedisLabsModules/redismodule-rs", tag="v2.1.2", default-features = false, features = ["min-redis-compatibility-version-7-4"] }
+redis-module-macros = { git="https://github.com/RedisLabsModules/redismodule-rs", tag="v2.1.2" }
+wasmtime = "33.0.0"
