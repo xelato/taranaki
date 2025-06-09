@@ -1,0 +1,55 @@
+package taranaki:redis;
+
+interface types {
+    variant error {
+        /// Operation against a key holding the wrong kind of value
+        wrongtype,
+        other(string),
+    }
+}
+
+
+interface generic {
+
+    use types.{error};
+
+    /// Determine whether key exists
+    exists: func(key: string) -> result<bool, error>;
+
+    /// Deletes a key
+    /// Returns the number of keys deleted
+    delete: func(key: string) -> result<u32, error>;
+
+    /// Copies a key
+    copy: func(source: string, destination: string) -> result<bool, error>;
+
+    /// Return a serialized representation
+    dump: func(key: string) -> result<option<list<u8>>, error>;
+
+    /// Sets the expiration time of a key in seconds
+    /// Return true if timeout was set, false otherwise
+    expire: func(key: string, seconds: u32) -> result<bool, error>;
+
+    /// Removes the expiration time of a key
+    /// Return true if the timeout has been removed, false otherwise
+    persist: func(key: string) -> result<bool, error>;
+
+    /// Returns a random key name from the database
+    /// Return none when the database is empty
+    randomkey: func() -> result<option<string>, error>;
+
+    /// Returns the expiration time in seconds of a key
+    ttl: func(key: string) -> result<u32, error>;
+}
+
+
+interface strings {
+    use types.{error};
+
+    /// Returns the string value of a key
+    get: func(key: string) -> result<string, error>;
+
+    /// Sets the string value of a key, ignoring its type.
+    /// The key is created if it does not exist.
+    set: func(key: string, value: string) -> result<_, error>;
+}

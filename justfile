@@ -16,4 +16,10 @@ cli:
 
 # install macos dependencies
 macos-brew-deps:
-    brew install wasmtime wabt
+    brew install wasmtime
+    brew install wabt  # https://github.com/WebAssembly/wabt
+    cargo install --locked wasm-tools
+
+# validate .wit definitions
+wit:
+    wasm-tools component wit wit/
