@@ -7,6 +7,7 @@ https://github.com/WebAssembly/component-model
 
 WIT files:
 https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md
+https://component-model.bytecodealliance.org/design/wit.html
 
 Types:
 https://component-model.bytecodealliance.org/design/wit.html#primitive-types
