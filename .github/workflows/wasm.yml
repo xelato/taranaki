@@ -17,4 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Validate .wit files
-      run: wasm-tools component wit wit/
+      run:
+        - which cargo
+        - cargo install --locked wasm-tools
+        - wasm-tools component wit wit/
