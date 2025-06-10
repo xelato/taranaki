@@ -57,6 +57,7 @@ interface generic {
 }
 
 
+/// identifiers that happen to be a WIT keyword need to be prefixed with %
 interface %string {
     use types.{error, key-type, value-type};
 
