@@ -142,3 +142,10 @@ interface %string {
     /// Returns the value of the key after decrementing it.
     decrby: func(key: key-type, decrement: s64) -> result<s64, error>;
 }
+
+
+world redis {
+    export types;
+    export generic;
+    export %string;
+}
