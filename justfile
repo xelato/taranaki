@@ -22,6 +22,7 @@ brew-deps:
 
 # development tools
 cargo-deps:
+    cargo install wasmtime-cli
     cargo install wit-bindgen-cli
 
 # validate .wit definitions
