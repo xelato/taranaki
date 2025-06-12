@@ -1,4 +1,4 @@
-name: Rust
+name: Wasm
 
 on:
   push:
@@ -16,5 +16,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
+    - name: Validate .wit files
+      run: |
+        cargo install wasm-tools
+        wasm-tools component wit wit/

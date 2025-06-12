@@ -14,6 +14,17 @@ serve:
 cli:
     redis-cli
 
-# install macos dependencies
-macos-brew-deps:
-    brew install wasmtime wabt
+# install dependencies with brew
+brew-deps:
+    brew install wasmtime
+    brew install wasm-tools
+    brew install wabt
+
+# development tools
+cargo-deps:
+    cargo install wasmtime-cli
+    cargo install wit-bindgen-cli
+
+# validate .wit definitions
+wit:
+    wasm-tools component wit wit/
