@@ -19,5 +19,6 @@ jobs:
     - name: Validate .wit files
       run: |
         which cargo
+        which cargo-binstall
         cargo install --locked wasm-tools
         wasm-tools component wit wit/
