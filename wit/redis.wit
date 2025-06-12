@@ -22,130 +22,19 @@ interface types {
 
 }
 
-
-interface generic {
-
-    use types.{error, key-type};
-
-    /// Determine whether key exists
-    exists: func(key: key-type) -> result<bool, error>;
-
-    /// Deletes a key
-    /// Returns the number of keys deleted
-    delete: func(key: key-type) -> result<u32, error>;
-
-    /// Copies a key
-    copy: func(source: key-type, destination: key-type) -> result<bool, error>;
-
-    /// Return a serialized representation
-    dump: func(key: key-type) -> result<option<list<u8>>, error>;
-
-    /// Sets the expiration time of a key in seconds
-    /// Return true if timeout was set, false otherwise
-    expire: func(key: key-type, seconds: u32) -> result<bool, error>;
-
-    /// Removes the expiration time of a key
-    /// Return true if the timeout has been removed, false otherwise
-    persist: func(key: key-type) -> result<bool, error>;
-
-    /// Returns a random key name from the database
-    /// Return none when the database is empty
-    randomkey: func() -> result<option<key-type>, error>;
-
-    /// Returns the expiration time in seconds of a key
-    ttl: func(key: key-type) -> result<u32, error>;
-}
-
-
 /// identifiers that happen to be a WIT keyword need to be prefixed with %
 interface %string {
     use types.{error, key-type, value-type};
-
-    variant set-option {
-        /// Only set the key if it does not already exist.
-        NX,
-
-        /// Only set the key if it already exists.
-        XX,
-
-        /// Return the old string stored at key, or nil if key did not exist.
-        /// An error is returned and SET aborted if the value stored at key is not a string.
-        GET,
-
-        /// Set the specified expire time, in seconds (a positive integer).
-        EX(u64),
-
-        /// Set the specified expire time, in milliseconds (a positive integer).
-        PX(u64),
-
-        /// Set the specified Unix time at which the key will expire, in seconds (a positive integer).
-        EXAT(u64),
-
-        /// Set the specified Unix time at which the key will expire, in milliseconds (a positive integer).
-        PXAT(u64),
-
-        /// Retain the time to live associated with the key.
-        KEEPTTL,
-    }
 
     /// Returns the string value of a key
     get: func(key: key-type) -> result<string, error>;
 
     /// Sets the string value of a key, ignoring its type.
     set: func(key: key-type, value: value-type) -> result<_, error>;
-
-    /// set key with options
-    set-with-options: func(key: key-type, value: value-type, options: list<set-option>);
-
-    /// Atomically returns the string values of one or more keys.
-    mget: func(keys: list<key-type>) -> result<list<value-type>, error>;
-
-    /// Atomically creates or modifies the string values of one or more keys.
-    mset: func(items: list<tuple<key-type, value-type>>) -> result<_, error>;
-
-    /// Returns a substring of the string stored at a key.
-    getrange: func(key: key-type, start: s32, end: s32) -> result<string, error>;
-
-    /// Overwrites a part of a string value with another by an offset.
-    /// Creates the key if it doesn't exist.
-    /// Return the length of the string after it was modified by the command.
-    setrange: func(key: key-type, offset: u32, value: string) -> result<u32, error>;
-
-    /// Returns the length of a string value.
-    strlen: func(key: key-type) -> result<u32, error>;
-
-    /// Finds the longest common substring.
-    lcs: func(key1: key-type, key2: key-type) -> result<string, error>;
-    lcs-len: func(key1: key-type, key2: key-type) -> result<u32, error>;
-
-    /// Appends a string to the value of a key.
-    /// Return the length of the string after the append operation.
-    append: func(key: key-type, value: string) -> result<u32, error>;
-
-    /// Increments the integer value of a key by one.
-    /// Returns the value of the key after the increment.
-    incr: func(key: key-type) -> result<s64, error>;
-
-    /// Increments the integer value of a key by a number.
-    /// Returns the value of the key after the increment.
-    incrby: func(key: key-type, increment: s64) -> result<s64, error>;
-
-    /// Increment the floating point value of a key by a number.
-    /// Return the value of the key after the increment.
-    incrbyfloat: func(key: key-type, increment: f64) -> result<f64, error>;
-
-    /// Decrements the integer value of a key by one.
-    /// Returns the value of the key after decrementing it.
-    decr: func(key: key-type) -> result<s64, error>;
-
-    /// Decrements a number from the integer value of a key.
-    /// Returns the value of the key after decrementing it.
-    decrby: func(key: key-type, decrement: s64) -> result<s64, error>;
 }
 
 
 world redis {
     export types;
-    export generic;
     export %string;
 }
