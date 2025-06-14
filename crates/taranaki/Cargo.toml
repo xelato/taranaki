@@ -1,9 +1,9 @@
 [package]
 name = "taranaki"
 version.workspace = true
+edition.workspace = true
 authors.workspace = true
 description.workspace = true
-edition.workspace = true
 repository.workspace = true
 
 [dependencies]
