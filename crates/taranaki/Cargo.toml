@@ -1,8 +1,10 @@
 [package]
 name = "taranaki"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
 
 [dependencies]
 redis = "0.32.0"
-wasmtime = "33.0.0"
+wasmtime.workspace = true
