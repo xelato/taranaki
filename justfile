@@ -6,6 +6,10 @@ default:
 build:
     cargo build --release
 
+# format source code
+fmt:
+    cargo fmt --all --verbose
+
 # serve local redis with module
 serve:
     redis-server --loadmodule "target/release/libtaranaki.dylib"

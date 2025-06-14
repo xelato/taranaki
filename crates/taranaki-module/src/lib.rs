@@ -1,12 +1,10 @@
-
-use base64::engine::general_purpose;
 use base64::Engine;
-use redis_module::redis_module;
-use redis_module::{NextArg, RedisValue};
-use redis_module::{Context, RedisError, RedisResult, RedisString};
+use base64::engine::general_purpose;
 use redis_module::key::RedisKey;
+use redis_module::redis_module;
+use redis_module::{Context, RedisError, RedisResult, RedisString};
+use redis_module::{NextArg, RedisValue};
 use wasmtime::{Instance, Store, ValType};
-
 
 /// WASM.LOAD KEY WASM_BYTES_B64
 /// Store a wasm function at specified KEY.
@@ -33,7 +31,7 @@ pub fn wasm_load(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     // SET key value
     let rk = ctx.open_key_writable(&key);
     match rk.write(b64wasm) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(error) => return Err(error),
     };
 
@@ -44,18 +42,15 @@ pub fn wasm_load(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     Ok(RedisValue::Array(result))
 }
 
-
 /// WASM.INFO KEY
 /// Get info about a wasm function stored at KEY.
 pub fn wasm_info(_: &Context, args: Vec<RedisString>) -> RedisResult {
     Ok(RedisValue::Integer(args.len() as i64))
 }
 
-
 fn err_wasm2redis(_error: wasmtime::Error) -> RedisError {
     RedisError::String(_error.to_string())
 }
-
 
 /// WASM.CALL KEY [ARGS]
 /// Call a wasm function stored at KEY.
@@ -71,7 +66,7 @@ pub fn wasm_call(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     let key_name = args.next_arg()?;
     let key: RedisKey = ctx.open_key(&key_name);
     if key.is_null() {
-        return Err(RedisError::String(String::from("key not found")))
+        return Err(RedisError::String(String::from("key not found")));
     }
 
     // FUNC_NAME
@@ -89,38 +84,43 @@ pub fn wasm_call(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     let engine = wasmtime::Engine::default();
     let module = wasmtime::Module::from_binary(&engine, &wasm_bytes).map_err(err_wasm2redis)?;
     let mut store = Store::new(&engine, ());
-    let wasm_instance =  Instance::new(&mut store, &module, &[]).map_err(err_wasm2redis)?;
+    let wasm_instance = Instance::new(&mut store, &module, &[]).map_err(err_wasm2redis)?;
 
     // find func by its name
-    let func  = wasm_instance.get_func(&mut store, func_name);
+    let func = wasm_instance.get_func(&mut store, func_name);
     let func = match func {
-        None => return Err(RedisError::String(String::from(format!("Function {} not exported inside wasm module", func_name)))),
+        None => {
+            return Err(RedisError::String(String::from(format!(
+                "Function {} not exported inside wasm module",
+                func_name
+            ))));
+        }
         Some(x) => x,
     };
 
     // construct input params based on the method signature
-    let mut params  = vec![];
+    let mut params = vec![];
     for t in func.ty(&mut store).params() {
         match t {
             ValType::I32 => {
                 let v = args.next_i64()? as i32;
                 params.push(wasmtime::Val::I32(v));
-            },
+            }
 
             ValType::I64 => {
                 let v = args.next_i64()?;
                 params.push(wasmtime::Val::I64(v));
-            },
+            }
 
             ValType::F32 => {
                 let v = args.next_f64()? as f32;
                 params.push(wasmtime::Val::F32(v.to_bits()));
-            },
+            }
 
             ValType::F64 => {
                 let v = args.next_f64()?;
                 params.push(wasmtime::Val::F64(v.to_bits()));
-            },
+            }
 
             // The type  corresponds to a 128 bit vector of packed integer or floating-point data.
             // The packed data can be interpreted as signed or unsigned integers, single or double precision
@@ -128,13 +128,13 @@ pub fn wasm_call(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
             // The interpretation is determined by individual operations.
             ValType::V128 => {
                 // todo: vector type
-            },
+            }
 
             ValType::Ref(_) => {
                 // todo: reference type
-            },
+            }
         }
-    };
+    }
 
     // call
     // `func_results` must have the same length as the number of results for this function
@@ -163,9 +163,7 @@ pub fn wasm_call(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
 
     // return
     Ok(RedisValue::Array(results))
-
 }
-
 
 redis_module! {
     name: "taranaki",

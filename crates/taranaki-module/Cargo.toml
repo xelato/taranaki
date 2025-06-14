@@ -1,0 +1,16 @@
+[package]
+name = "taranaki-module"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Redis module for the Taranaki WebAssembly runtime"
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+base64 = "0.22.1"
+redis-module = {git="https://github.com/RedisLabsModules/redismodule-rs", tag="v2.1.2", default-features = false, features = ["min-redis-compatibility-version-7-4"] }
+redis-module-macros = {git="https://github.com/RedisLabsModules/redismodule-rs", tag="v2.1.2" }
+wasmtime.workspace = true
