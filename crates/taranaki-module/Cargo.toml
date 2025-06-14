@@ -1,9 +1,10 @@
 [package]
 name = "taranaki-module"
+description = "Redis module for the Taranaki WebAssembly runtime"
 version.workspace = true
 authors.workspace = true
-description.workspace = true
 edition.workspace = true
+repository.workspace = true
 
 [lib]
 crate-type = ["cdylib"]
