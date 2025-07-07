@@ -53,3 +53,7 @@ wit-build:
     just wkg wit build -d providers/ngrok
     just wkg wit build -d interfaces/taranaki/redis
     just wkg wit build -d components/hello
+
+#wit-publish:
+#    warg publish release --name rocketniko:redis --version 0.0.1 rocketniko:redis@0.0.1.wasm
+#    warg publish release --name rocketniko:hello --version 0.0.1 rocketniko:hello@0.0.1.wasm

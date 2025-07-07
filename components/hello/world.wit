@@ -4,7 +4,7 @@ package rocketniko:hello@0.0.1;
 
 world hello {
 
-    ///import rocketniko:redis;
+    import rocketniko:redis/%string@0.0.1;
 
     /// handle http requests
     export wasi:http/incoming-handler@0.2.6;
