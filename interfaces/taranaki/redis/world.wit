@@ -1,4 +1,4 @@
-package taranaki:redis;
+package rocketniko:redis@0.0.1;
 
 interface types {
     variant error {

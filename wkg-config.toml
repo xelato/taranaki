@@ -1,0 +1,23 @@
+# config file format:
+# https://github.com/bytecodealliance/wasm-pkg-tools
+
+# https://wa.dev/.well-known/wasm-pkg/registry.json
+## { "wargUrl": "https://warg.wa.dev" }
+
+# https://wasi.dev/.well-known/wasm-pkg/registry.json
+## {"ociRegistry": "ghcr.io", "ociNamespacePrefix": "webassembly/"}
+
+# https://wasmcloud.com/.well-known/wasm-pkg/registry.json
+## {"preferredProtocol": "oci", "oci": {"registry": "ghcr.io", "namespacePrefix": "wasmcloud/interfaces/"}}
+
+default_registry = "wa.dev"
+
+[namespace_registries]
+wasi = "wasi.dev"
+wasmcloud = "wasmcloud.com"
+# todo: change to taranaki.io
+taranaki = "xelato.cloud"
+
+[package_registry_overrides]
+
+[registry]

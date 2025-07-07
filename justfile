@@ -18,17 +18,39 @@ serve:
 cli:
     redis-cli
 
-# install dependencies with brew
+
+# dev tools installed with brew
 brew-deps:
     brew install wasmtime
     brew install wasm-tools
     brew install wabt
+    brew install wasm3
 
-# development tools
+
+# dev tools installed with cargo
 cargo-deps:
     cargo install wasmtime-cli
+    cargo install wasmer-cli --features "singlepass,cranelift"
     cargo install wit-bindgen-cli
+    cargo install wit-deps-cli
+    cargo install warg-cli
+    cargo install wkg
+
 
 # validate .wit definitions
-wit:
-    wasm-tools component wit wit/
+wit-validate:
+    wasm-tools component wit interfaces/taranaki/component
+    wasm-tools component wit interfaces/taranaki/redis
+
+
+# wkg command wrapper
+export WKG_CONFIG_FILE := 'wkg-config.toml'
+wkg *ARGS:
+    echo $WKG_CONFIG_FILE
+    wkg {{ARGS}}
+
+
+wit-build:
+    just wkg wit build -d providers/ngrok
+    just wkg wit build -d interfaces/taranaki/redis
+    just wkg wit build -d components/hello
