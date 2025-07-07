@@ -45,7 +45,6 @@ wit-validate:
 # wkg command wrapper
 export WKG_CONFIG_FILE := 'wkg-config.toml'
 wkg *ARGS:
-    echo $WKG_CONFIG_FILE
     wkg {{ARGS}}
 
 
