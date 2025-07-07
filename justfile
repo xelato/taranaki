@@ -32,7 +32,6 @@ cargo-deps:
     cargo install wasmtime-cli
     cargo install wasmer-cli --features "singlepass,cranelift"
     cargo install wit-bindgen-cli
-    cargo install wit-deps-cli
     cargo install warg-cli
     cargo install wkg
 
