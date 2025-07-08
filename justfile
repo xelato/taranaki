@@ -56,3 +56,4 @@ wit-build:
 #wit-publish:
 #    warg publish release --name rocketniko:redis --version 0.0.1 rocketniko:redis@0.0.1.wasm
 #    warg publish release --name rocketniko:hello --version 0.0.1 rocketniko:hello@0.0.1.wasm
+# wkg oci push -u user -p pass ghcr.io/xelato/taranaki/redis:0.0.1 redis.wasm

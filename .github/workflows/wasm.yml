@@ -23,4 +23,4 @@ jobs:
         cargo binstall wasm-tools
         cargo binstall wkg
         cargo binstall warg-cli
-        apt install just
+        apt-get install just
