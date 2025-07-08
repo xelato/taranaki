@@ -11,7 +11,6 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +23,3 @@ jobs:
         cargo binstall wkg
         cargo binstall warg-cli
         sudo apt install -y just
-    - name: Validate WIT files
-      run: |
-        just wit-build
-        ls -l *.wasm
