@@ -19,7 +19,10 @@ jobs:
       uses: cargo-bins/cargo-binstall@main
     - name: Install dependencies
       run: |
-        cargo binstall wasm-tools
         cargo binstall wkg
         cargo binstall warg-cli
-        sudo apt install -y just
+        sudo apt-get install -y just
+    - name: Validate WIT
+      run: |
+        just wit-build
+        ls -l *.wasm
