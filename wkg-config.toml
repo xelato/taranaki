@@ -10,6 +10,9 @@
 # https://wasmcloud.com/.well-known/wasm-pkg/registry.json
 ## {"preferredProtocol": "oci", "oci": {"registry": "ghcr.io", "namespacePrefix": "wasmcloud/interfaces/"}}
 
+# https://bytecodealliance.org/.well-known/wasm-pkg/registry.json
+## {"ociRegistry": "ghcr.io", "ociNamespacePrefix": "bytecodealliance/wasm-pkg/"}
+
 default_registry = "wa.dev"
 
 [namespace_registries]
