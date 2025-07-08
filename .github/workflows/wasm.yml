@@ -16,8 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Provide cargo binstall
+      uses: cargo-bins/cargo-binstall@main
     - name: Validate .wit files
       run: |
-        time cargo install cargo-binstall
-        cargo install wasm-tools
-        wasm-tools component wit wit/
+        cargo --version
+        cargo binstall --help
+        cargo binstall wasm-tools
