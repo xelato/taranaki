@@ -25,10 +25,7 @@ jobs:
         cargo binstall wkg
         cargo binstall warg-cli
         apt install just
-
     - name: Validate .wit files
-      run: |
-        just wit-build
+      run: just wit-build
     - name: Publish
-      run: |
-        ls -l *.wasm
+      run: ls -l *.wasm
