@@ -18,12 +18,14 @@ jobs:
     - uses: actions/checkout@v4
     - name: Provide cargo binstall
       uses: cargo-bins/cargo-binstall@main
-    - name : Install dependencies
+
+    - name: Install dependencies
       run: |
         cargo binstall wasm-tools
         cargo binstall wkg
         cargo binstall warg-cli
         apt install just
+
     - name: Validate .wit files
       run: |
         just wit-build
