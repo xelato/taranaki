@@ -17,12 +17,16 @@ jobs:
     - uses: actions/checkout@v4
     - name: Provide cargo binstall
       uses: cargo-bins/cargo-binstall@main
+
     - name: Install dependencies
       run: |
         cargo binstall wkg
-        cargo binstall warg-cli
         sudo apt-get install -y just
+
     - name: Validate WIT
       run: |
         just wit-build
         ls -l *.wasm
+
+    - name: Publish packages
+      uses: xelato/wasm-publish-action
