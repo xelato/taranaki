@@ -11,12 +11,26 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: Validate .wit files
+    - name: Provide cargo binstall
+      uses: cargo-bins/cargo-binstall@main
+
+    - name: Install dependencies
       run: |
-        cargo install wasm-tools
-        wasm-tools component wit wit/
+        cargo binstall wkg
+        sudo apt-get install -y just
+
+    - name: Validate WIT
+      run: |
+        just wit-build
+        ls -l *.wasm
+
+    - name: Pull wit definition
+      uses: xelato/wasm-action@main
+      with:
+        action: pull
+        registry: wa.dev
+        package: ao:kv@0.0.1

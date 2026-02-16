@@ -1,0 +1,46 @@
+package taranaki:component@0.1.0;
+
+/// A Taranaki component provides a way to be configured.
+
+interface config {
+
+    variant error {
+        other(string),
+    }
+
+    /// option
+    record %option {
+        name: string,
+        description: option<string>,
+        %type: option-type,
+        value: option-value,
+        required: bool,
+    }
+
+    /// named option of the corresponding type
+    variant option-type {
+        %bool(string),
+        int(string),
+        float(string),
+        %string(string),
+    }
+
+    /// option value
+    variant option-value {
+        %bool(bool),
+        int(s64),
+        float(f64),
+        %string(string),
+    }
+
+    /// Get supported configuration options
+    get-options: func() -> list<option-type>;
+
+    /// Apply configuration
+    set-config: func(options: list<%option>) -> result<_, error>;
+
+}
+
+world component {
+    export config;
+}

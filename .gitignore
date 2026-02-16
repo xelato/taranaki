@@ -24,3 +24,6 @@ target/
 /wasm/target
 dump.rdb
 *.gro
+
+/wkg.lock
+/*.wasm
