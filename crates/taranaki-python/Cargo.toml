@@ -3,7 +3,6 @@ name = "taranaki-python"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
-description.workspace = true
 description = "Redis module for Taranaki Python"
 repository.workspace = true
 
