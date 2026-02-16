@@ -4,6 +4,9 @@
 # https://wa.dev/.well-known/wasm-pkg/registry.json
 ## { "wargUrl": "https://warg.wa.dev" }
 
+# https://warg.wa.dev/.well-known/wasm-pkg/registry.json
+## {"preferredProtocol":"warg","wargUrl":"https://warg.wa.dev","warg":{"url":"https://warg.wa.dev"}}
+
 # https://wasi.dev/.well-known/wasm-pkg/registry.json
 ## {"ociRegistry": "ghcr.io", "ociNamespacePrefix": "webassembly/"}
 
