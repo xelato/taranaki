@@ -15,18 +15,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Provide cargo binstall
-      uses: cargo-bins/cargo-binstall@main
-
-    - name: Install dependencies
-      run: |
-        cargo binstall wkg
-        sudo apt-get install -y just
-
-    - name: Validate WIT
-      run: |
-        just wit-build
-        ls -l *.wasm
 
     - name: Pull wit definition
       uses: xelato/wasm-action@main
