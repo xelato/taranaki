@@ -5,6 +5,10 @@ default:
 # build module with cargo
 build:
     uv build
+    cargo build
+
+release:
+    uv build
     cargo build --release
 
 # format source code
