@@ -28,5 +28,9 @@ jobs:
         just wit-build
         ls -l *.wasm
 
-    - name: Publish packages
+    - name: Pull wit definition
       uses: xelato/wasm-action@main
+      with:
+        action: pull
+        registry: wa.dev
+        package: ao:kv@0.0.1
