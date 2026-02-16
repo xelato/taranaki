@@ -1,9 +1,9 @@
 [package]
-name = "taranaki-module"
+name = "taranaki-wasm"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
-description = "Redis module for the Taranaki WebAssembly runtime"
+description = "Redis module for Taranaki WebAssembly"
 repository.workspace = true
 
 [lib]
