@@ -4,11 +4,12 @@ default:
 
 # build module with cargo
 build:
-    cargo build --release
+    uv build
+    cargo build
 
-# format source code
-fmt:
-    cargo fmt --all --verbose
+release:
+    uv build
+    cargo build --release
 
 # serve local redis with module
 serve:
@@ -18,42 +19,14 @@ serve:
 cli:
     redis-cli
 
+clean:
+    rm -rf .venv
+    rm -rf .ruff_cache
+    find . -name "__pycache__" | xargs -n1 rm -rf
+    rm -rf dist
 
-# dev tools installed with brew
-brew-deps:
-    brew install wasmtime
-    brew install wasm-tools
-    brew install wabt
-    brew install wasm3
-
-
-# dev tools installed with cargo
-cargo-deps:
-    cargo install wasmtime-cli
-    cargo install wasmer-cli --features "singlepass,cranelift"
-    cargo install wit-bindgen-cli
-    cargo install warg-cli
-    cargo install wkg
-
-
-# validate .wit definitions
-wit-validate:
-    wasm-tools component wit interfaces/taranaki/component
-    wasm-tools component wit interfaces/taranaki/redis
-
-
-# wkg command wrapper
-export WKG_CONFIG_FILE := 'wkg-config.toml'
-wkg *ARGS:
-    wkg {{ARGS}}
-
-
-wit-build:
-    just wkg wit build -d providers/ngrok
-    just wkg wit build -d interfaces/taranaki/redis
-    #just wkg wit build -d components/hello
-
-#wit-publish:
-#    warg publish release --name rocketniko:redis --version 0.0.1 rocketniko:redis@0.0.1.wasm
-#    warg publish release --name rocketniko:hello --version 0.0.1 rocketniko:hello@0.0.1.wasm
-# wkg oci push -u user -p pass ghcr.io/xelato/taranaki/redis:0.0.1 redis.wasm
+check:
+    uvx ruff format
+    uvx ruff check
+    cargo fmt --all
+    cargo fmt --check

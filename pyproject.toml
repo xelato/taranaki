@@ -1,0 +1,36 @@
+[project]
+name = "taranaki"
+version = "0.0.0"
+description = "Taranaki CLI"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "click>=8.3.1",
+    "pydantic-monty>=0.0.6",
+    "redis>=7.1.1",
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+
+[project.scripts]
+taranaki = "taranaki.cli:cli"
+
+[project.urls]
+Repository = "https://github.com/xelato/taranaki"
+
+[build-system]
+requires = ["uv_build>=0.10.2,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.1",
+    "wasm-action>=0.0.11",
+]
