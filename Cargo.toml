@@ -1,6 +1,6 @@
 [workspace]
 members = ["crates/*"]
-resolver = "3"
+resolver = "2"
 
 [workspace.package]
 version = "0.0.1"
@@ -10,4 +10,4 @@ description = "Taranaki: Python and WebAssembly for Redis"
 repository = "https://github.com/xelato/taranaki"
 
 [workspace.dependencies]
-wasmtime = "33.0.0"
+wasmtime = "40.0.0"
