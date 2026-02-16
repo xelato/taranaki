@@ -17,3 +17,7 @@ target/
 dump.rdb
 
 /*.wasm
+
+.venv
+dist
+.ruff_cache

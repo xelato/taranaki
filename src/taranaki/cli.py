@@ -1,7 +1,11 @@
-#!/usr/bin/env -S uv run --with redis  --script
-
 import redis
+import click
 import base64
+
+
+@click.group()
+def cli():
+    pass
 
 
 class Client:
@@ -10,11 +14,11 @@ class Client:
 
     def wasm_load_bytes(self, key, wasm_bytes):
         if not isinstance(wasm_bytes, bytes):
-            raise ValueError('bytes required')
+            raise ValueError("bytes required")
 
-        command = 'wasm.load {} {}'.format(
-            key,
-            base64.b64encode(wasm_bytes).decode('ascii'))
+        command = "wasm.load {} {}".format(
+            key, base64.b64encode(wasm_bytes).decode("ascii")
+        )
         print(">", command[:20])
 
         res = self.r.execute_command(command)
@@ -23,14 +27,14 @@ class Client:
 
     def wasm_info(self, key):
         # custom command
-        command = 'wasm.info /wasm/gcd'
+        command = "wasm.info /wasm/gcd"
         print(">", command)
         res = self.r.execute_command(command)
         print(res)
         print()
 
     def wasm_call(self, key, func_name, *args):
-        command = 'wasm.call {} {}'.format(key, func_name)
+        command = "wasm.call {} {}".format(key, func_name)
         if args:
             command = "{} {}".format(command, " ".join(str(x) for x in args))
         print(">", command)
@@ -41,10 +45,10 @@ class Client:
 
 
 def main():
-    r = redis.Redis(host='localhost', port=6379, db=0)
+    r = redis.Redis(host="localhost", port=6379, db=0)
     c = Client(r)
 
-    with open("wasm/gcd.wasm", 'rb') as f:
+    with open("wasm/gcd.wasm", "rb") as f:
         data = f.read()
 
     c.wasm_load_bytes(key="/wasm/gcd", wasm_bytes=data)
