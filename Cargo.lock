@@ -1513,6 +1513,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "taranaki-python"
+version = "0.0.1"
+dependencies = [
+ "base64",
+ "redis-module",
+ "redis-module-macros",
+ "wasmtime",
+]
+
+[[package]]
 name = "taranaki-wasm"
 version = "0.0.1"
 dependencies = [
