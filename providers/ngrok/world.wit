@@ -1,9 +1,0 @@
-package rocketniko:ngrok@0.0.1;
-
-/// Put an app online with ngrok.
-
-world ngrok {
-
-    /// deliver http traffic downstream
-    import wasi:http/incoming-handler@0.2.6;
-}
