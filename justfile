@@ -11,10 +11,6 @@ release:
     uv build
     cargo build --release
 
-# format source code
-fmt:
-    cargo fmt --all --verbose
-
 # serve local redis with module
 serve:
     redis-server --loadmodule "target/release/libtaranaki.dylib"
@@ -32,3 +28,5 @@ clean:
 check:
     uvx ruff format
     uvx ruff check
+    cargo fmt --all
+    cargo fmt --check
