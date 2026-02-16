@@ -29,4 +29,4 @@ jobs:
         ls -l *.wasm
 
     - name: Publish packages
-      uses: xelato/wasm-publish-action@dev
+      uses: xelato/wasm-action@main
