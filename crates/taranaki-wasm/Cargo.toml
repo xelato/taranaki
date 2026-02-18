@@ -3,7 +3,7 @@ name = "taranaki-wasm"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
-description = "Redis module for Taranaki WebAssembly"
+description.workspace = true
 repository.workspace = true
 
 [lib]

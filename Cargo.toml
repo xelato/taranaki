@@ -6,7 +6,7 @@ resolver = "2"
 version = "0.0.1"
 edition = "2024"
 authors = ["xelato"]
-description = "Taranaki: Python and WebAssembly for Redis"
+description = "Taranaki: Python and WebAssembly in Redis"
 repository = "https://github.com/xelato/taranaki"
 
 [workspace.dependencies]
