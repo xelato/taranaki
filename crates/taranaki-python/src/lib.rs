@@ -1,11 +1,11 @@
 mod convert;
 
 use monty::{MontyObject, MontyRun};
+use redis_module::NextArg;
 use redis_module::redis_module;
 use redis_module::{Context, RedisError, RedisResult, RedisString};
-use redis_module::{NextArg};
 
-/// PYTHON.EVAL EXPRESSION
+/// PY.EVAL <EXPRESSION>
 /// Evaluate a Python expression.
 pub fn python_eval(_ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     if args.len() < 2 {
@@ -20,12 +20,7 @@ pub fn python_eval(_ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     let code: &str = args.next_str()?;
 
     // evaluate expression
-    let runner = match MontyRun::new(
-        code.to_owned(),
-        "expression.py",
-        vec![],
-        vec![],
-    ) {
+    let runner = match MontyRun::new(code.to_owned(), "expression.py", vec![], vec![]) {
         Ok(x) => x,
         Err(error) => {
             return Err(RedisError::String(match error.message() {

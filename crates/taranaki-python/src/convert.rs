@@ -7,11 +7,11 @@ Convert Monty interpreter objects to Redis objects suitable for external consump
 Any generic binary serialization format could work, however it is preferable to
 choose "transport" over Redis types.
 
- 1. Unamboguous conversion in both directions for correct representation of Python objects as 
+ 1. Unambiguous conversion in both directions for correct representation of Python objects as
  they cross the Redis instance or Monty interpreter boundary.
- 2. Use RedisValue types where possible. 
-    Simple types map well (None, Int, Float), 
- 3. Use envelope format for objects that don't have a corresponding RedisValue or it would be ambiguous to use it 
+ 2. Use RedisValue types where possible.
+    Simple types map well (None, Int, Float),
+ 3. Use envelope format for objects that don't have a corresponding RedisValue or it would be ambiguous to use it
  without additional type information.
 
 Not implemented in Monty:
@@ -37,7 +37,10 @@ fn as_array(items: Vec<MontyObject>) -> RedisValue {
 fn dict_pairs(pairs: DictPairs) -> RedisValue {
     let mut items: Vec<RedisValue> = Vec::new();
     for (key, value) in pairs {
-        items.push(RedisValue::Array(vec![monty_to_redis(key), monty_to_redis(value)]));
+        items.push(RedisValue::Array(vec![
+            monty_to_redis(key),
+            monty_to_redis(value),
+        ]));
     }
     RedisValue::Array(items)
 }

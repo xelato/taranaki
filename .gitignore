@@ -22,3 +22,4 @@ dump.rdb
 dist
 .ruff_cache
 .todo
+__pycache__
