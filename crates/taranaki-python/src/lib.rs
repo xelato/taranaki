@@ -1,7 +1,9 @@
+mod convert;
+
 use monty::{MontyObject, MontyRun};
 use redis_module::redis_module;
 use redis_module::{Context, RedisError, RedisResult, RedisString};
-use redis_module::{NextArg, RedisValue};
+use redis_module::{NextArg};
 
 /// PYTHON.EVAL EXPRESSION
 /// Evaluate a Python expression.
@@ -18,7 +20,12 @@ pub fn python_eval(_ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     let code: &str = args.next_str()?;
 
     // evaluate expression
-    let runner = match MontyRun::new(code.to_owned(), "expression.py", vec![], vec![]) {
+    let runner = match MontyRun::new(
+        code.to_owned(),
+        "expression.py",
+        vec![],
+        vec![],
+    ) {
         Ok(x) => x,
         Err(error) => {
             return Err(RedisError::String(match error.message() {
@@ -40,16 +47,7 @@ pub fn python_eval(_ctx: &Context, args: Vec<RedisString>) -> RedisResult {
         }
     };
 
-    //let mut result = Vec::new();
-    //result.push(RedisValue::SimpleStringStatic(code));
-
-    let result = monty_to_redis(value);
-
-    Ok(result)
-}
-
-pub fn monty_to_redis(monty: MontyObject) -> RedisValue {
-    RedisValue::SimpleString(MontyObject::to_string(&monty))
+    Ok(convert::monty_to_redis(value))
 }
 
 redis_module! {
@@ -58,7 +56,6 @@ redis_module! {
     allocator: (redis_module::alloc::RedisAlloc, redis_module::alloc::RedisAlloc),
     data_types: [],
     commands: [
-        ["python.eval", python_eval, "", 0, 0, 0, ""],
         ["py.eval", python_eval, "", 0, 0, 0, ""],
     ],
 }
