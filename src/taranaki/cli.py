@@ -1,52 +1,33 @@
-import redis
 import click
-import base64
+
+from . import client
+from . import wasm
+from . import python
+from .util import cli_error_handler
 
 
 @click.group()
-def cli():
-    pass
+@click.option(
+    "--host", default="localhost", help='instance hostname (default "localhost")'
+)
+@click.option("--port", default=6379, help="instance port (default 6379)")
+@click.option("--db", default=0, help="instance db number (default 0)")
+@click.option("--url", default="", help="configure with url")
+def cli(host, port, db, url):
+    client.configure(host=host, port=port, db=db, url=url)
 
 
-class Client:
-    def __init__(self, redis_client):
-        self.r = redis_client
-
-    def wasm_load_bytes(self, key, wasm_bytes):
-        if not isinstance(wasm_bytes, bytes):
-            raise ValueError("bytes required")
-
-        command = "wasm.load {} {}".format(
-            key, base64.b64encode(wasm_bytes).decode("ascii")
-        )
-        print(">", command[:20])
-
-        res = self.r.execute_command(command)
-        print(res)
-        print()
-
-    def wasm_info(self, key):
-        # custom command
-        command = "wasm.info /wasm/gcd"
-        print(">", command)
-        res = self.r.execute_command(command)
-        print(res)
-        print()
-
-    def wasm_call(self, key, func_name, *args):
-        command = "wasm.call {} {}".format(key, func_name)
-        if args:
-            command = "{} {}".format(command, " ".join(str(x) for x in args))
-        print(">", command)
-        res = self.r.execute_command(command)
-        print(res)
-        print()
-        return res
+@cli.command(name="eval", help="Evaluate Python expression")
+@click.argument("expression", required=True)
+@cli_error_handler
+def py_eval(expression):
+    print(python.py_eval(client.get_instance(), expression))
 
 
-def main():
-    r = redis.Redis(host="localhost", port=6379, db=0)
-    c = Client(r)
+@cli.command(name="wasm", help="Invoke wasm function")
+def wa_eval():
+    r = client.get_instance()
+    c = wasm.WasmClient(r)
 
     with open("wasm/gcd.wasm", "rb") as f:
         data = f.read()
@@ -54,7 +35,3 @@ def main():
     c.wasm_load_bytes(key="/wasm/gcd", wasm_bytes=data)
     c.wasm_info(key="/wasm/gcd")
     c.wasm_call("/wasm/gcd", "gcd", 15, 24)
-
-
-if __name__ == "__main__":
-    main()

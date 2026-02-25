@@ -30,7 +30,7 @@ fn envelope(name: String, value: RedisValue) -> RedisValue {
     RedisValue::Array(vec![name.into(), value])
 }
 
-fn as_array(items: Vec<MontyObject>) -> RedisValue {
+fn sequence(items: Vec<MontyObject>) -> RedisValue {
     RedisValue::Array(items.iter().map(|x| monty_to_redis(x.clone())).collect())
 }
 
@@ -52,32 +52,34 @@ pub fn monty_to_redis(object: MontyObject) -> RedisValue {
         MontyObject::Int(value) => RedisValue::Integer(value),
         MontyObject::Float(value) => RedisValue::Float(value),
         MontyObject::BigInt(value) => RedisValue::BigNumber(value.to_string()),
-        MontyObject::Bytes(bytes) => RedisValue::StringBuffer(bytes),
-
-        // todo: booleans are converted to int type, use envelope instead
+        // note: booleans end as ints on the client unless using protocol version 3, consider envelope?
         MontyObject::Bool(value) => RedisValue::Bool(value),
 
         // ellipsis instance singleton
         MontyObject::Ellipsis => singleton("ellipsis".to_string()),
 
+        // pack bytes inside envelope to distinguish from strings (that end as bytes on the client)
+        MontyObject::Bytes(bytes) => envelope("bytes".to_string(), RedisValue::StringBuffer(bytes)),
+
         // string
-        MontyObject::String(value) => RedisValue::SimpleString(value),
+        MontyObject::String(value) => RedisValue::BulkString(value),
 
         // list
-        MontyObject::List(items) => envelope("list".to_string(), as_array(items)),
+        MontyObject::List(items) => envelope("list".to_string(), sequence(items)),
 
         // tuple
-        MontyObject::Tuple(items) => envelope("tuple".to_string(), as_array(items)),
+        MontyObject::Tuple(items) => envelope("tuple".to_string(), sequence(items)),
 
         // set
-        MontyObject::Set(items) => envelope("set".to_string(), as_array(items)),
+        MontyObject::Set(items) => envelope("set".to_string(), sequence(items)),
 
         // frozenset
-        MontyObject::FrozenSet(items) => envelope("frozenset".to_string(), as_array(items)),
+        MontyObject::FrozenSet(items) => envelope("frozenset".to_string(), sequence(items)),
 
         // dict
         MontyObject::Dict(pairs) => envelope("dict".to_string(), dict_pairs(pairs)),
 
-        _ => RedisValue::SimpleString(object.to_string()),
+        // unsupported
+        _ => RedisValue::BulkString(object.to_string()),
     }
 }
