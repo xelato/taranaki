@@ -19,6 +19,7 @@ dev:
     # apt-get install -y libclang-dev
     mkdir -p .cargo/{registry,git}
     docker run --rm -it \
+        --name dev \
         --memory 4G \
         --volume $PWD:/app \
         --volume .cargo/registry:/usr/local/cargo/registry \
@@ -29,9 +30,10 @@ dev:
 # run Redis container
 redis:
     docker run --rm -it \
+        --name redis \
         -p 127.0.0.1:6379:6379 \
         --volume $PWD:/app \
-        redis:8.6 \
+        redis:7.2.13 \
         redis-server \
         --loadmodule "/app/target/release/libtaranaki_python.so" \
         --loadmodule "/app/target/release/libtaranaki_wasm.so" \
@@ -39,6 +41,7 @@ redis:
 # run Valkey container
 valkey:
     docker run --rm -it \
+        --name valkey \
         -p 127.0.0.1:6379:6379 \
         --volume $PWD:/app \
         valkey/valkey:9.0.2 \
@@ -67,4 +70,4 @@ check:
 
 # test
 pytest:
-    PYTHONPATH=. uv run --with pytest pytest
+    uv run --with pytest pytest
