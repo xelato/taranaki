@@ -64,3 +64,7 @@ check:
     uvx ruff check
     cargo fmt --all
     cargo fmt --check
+
+# test
+pytest:
+    PYTHONPATH=. uv run --with pytest pytest

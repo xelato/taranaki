@@ -14,4 +14,6 @@ def configure(host="localhost", port=6379, db=0, url=""):
 
 def get_instance():
     global __instance
+    if not __instance:
+        configure()
     return __instance

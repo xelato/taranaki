@@ -17,12 +17,14 @@ def convert(value: object):
     At this point, the incoming value has undergone several transformations
     - converted from MontyObject to RedisValue in the server instance
         * this is where the envelope format was applied
-    - serialized to binary according to protocol specification on the "wire"
+    - serialized to binary according to protocol specification on the "wire" (either RESP2 or RESP3)
     https://redis.io/docs/latest/develop/reference/protocol-spec/
         The connection is required to use protocol version 3 as it has a wider variety of types.
     - converted back to object from binary format in redis client according to its rules
     -> this step: apply in reverse - open evelopes, etc.
     """
+
+    # envelope
     if isinstance(value, list):
         # list is always used as envelope
         if len(value) == 0:
@@ -50,10 +52,12 @@ def convert(value: object):
                 return SEQUENCE_TYPES[name](convert(x) for x in value[1])
             raise ProtocolError(value)
 
+    # str
     elif isinstance(value, bytes):
         # those originated as strings and were utf8 encoded
         return value.decode("utf8")
 
+    # None, int, float, bool, bigint(as int)
     return value
 
 
