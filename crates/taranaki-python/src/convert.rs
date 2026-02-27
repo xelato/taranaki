@@ -1,4 +1,4 @@
-use monty::{DictPairs, MontyObject};
+use monty::{DictPairs, ExcType, MontyException, MontyObject};
 use redis_module::RedisValue;
 
 /*
@@ -45,6 +45,26 @@ fn dict_pairs(pairs: DictPairs) -> RedisValue {
     RedisValue::Array(items)
 }
 
+pub fn raise(exception: MontyException) -> RedisValue {
+    envelope(
+        "raise".to_string(),
+        exception_envelope(exception.exc_type(), exception.message().map(String::from)),
+    )
+}
+
+pub fn exception_envelope(exc_type: ExcType, arg: Option<String>) -> RedisValue {
+    envelope(
+        "exception".to_string(),
+        RedisValue::Array(vec![
+            RedisValue::SimpleString(exc_type.to_string()),
+            match arg {
+                Some(x) => RedisValue::BulkString(x.to_string()),
+                None => RedisValue::Null,
+            },
+        ]),
+    )
+}
+
 pub fn monty_to_redis(object: MontyObject) -> RedisValue {
     match object {
         // types that can be mapped to an existing RedisValue type unambiguously
@@ -78,6 +98,9 @@ pub fn monty_to_redis(object: MontyObject) -> RedisValue {
 
         // dict
         MontyObject::Dict(pairs) => envelope("dict".to_string(), dict_pairs(pairs)),
+
+        // exception
+        MontyObject::Exception { exc_type, arg } => exception_envelope(exc_type, arg),
 
         // unsupported
         _ => RedisValue::BulkString(object.to_string()),
