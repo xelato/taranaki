@@ -103,6 +103,6 @@ pub fn monty_to_redis(object: MontyObject) -> RedisValue {
         MontyObject::Exception { exc_type, arg } => exception_envelope(exc_type, arg),
 
         // unsupported
-        _ => RedisValue::BulkString(object.to_string()),
+        _ => envelope("unsupported".to_string(), RedisValue::BulkString(object.to_string())),
     }
 }
