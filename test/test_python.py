@@ -48,6 +48,13 @@ class TestPython(unittest.TestCase):
         "raise ValueError()": ValueError,
         "raise ValueError('')": ValueError,
         "raise ValueError('foo')": ValueError,
+        "2+'foo'": TypeError,
+        "assert False is True": AssertionError,
+        "str.foo": AttributeError,
+        "from sys import foo": ImportError,
+        "import foo": ModuleNotFoundError,
+        "[][1]": IndexError,
+        "{}['foo']": KeyError,
     }
 
     def test_py_eval(self):
