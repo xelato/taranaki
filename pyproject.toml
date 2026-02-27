@@ -3,7 +3,7 @@ name = "taranaki"
 version = "0.0.0"
 description = "Taranaki CLI"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 dependencies = [
     "click>=8.3.1",
     "pydantic-monty>=0.0.6",
@@ -12,10 +12,6 @@ dependencies = [
 
 classifiers = [
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
 

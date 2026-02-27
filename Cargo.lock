@@ -1153,12 +1153,13 @@ dependencies = [
 
 [[package]]
 name = "monty"
-version = "0.0.6"
-source = "git+https://github.com/pydantic/monty/?tag=v0.0.6#60a6ee9cad6d0f873dfd222f35ecbdb238e14a1e"
+version = "0.0.7"
+source = "git+https://github.com/pydantic/monty/?tag=v0.0.7#24dad053ac36cef25951370001c57a5c5bc5a64d"
 dependencies = [
  "ahash",
  "hashbrown 0.16.1",
  "indexmap",
+ "itertools",
  "num-bigint",
  "num-integer",
  "num-traits 0.2.19",
