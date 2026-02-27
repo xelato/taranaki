@@ -87,6 +87,9 @@ def maybe_bytes(value):
         return value
     if isinstance(value, bytes):
         return value.decode("utf8")
+    if isinstance(value, str):
+        return value
+    raise ProtocolError(value)
 
 
 class ProtocolError(Exception):
