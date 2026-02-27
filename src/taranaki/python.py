@@ -57,9 +57,9 @@ def convert_envelope(value: list) -> object:
     name = maybe_bytes(value[0])
 
     if name == "bytes":
-        if not isinstance(value[1], bytes):
-            raise ProtocolError(value)
-        return value[1]
+        if isinstance(value[1], bytes):
+            return value[1]
+        raise ProtocolError(value)
     elif name == "dict":
         return dict((convert(k), convert(v)) for (k, v) in value[1])
     elif name in SEQUENCE_TYPES:
