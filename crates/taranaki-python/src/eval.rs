@@ -126,13 +126,5 @@ fn execute_command(
     args: Vec<MontyObject>,
     kwargs: Vec<(MontyObject, MontyObject)>,
 ) -> ExternalResult {
-    let mut kwitems: Vec<MontyObject> = Vec::new();
-    for (k, v) in kwargs {
-        kwitems.push(MontyObject::Tuple(vec![k, v]));
-    }
-    ExternalResult::Return(MontyObject::Tuple(vec![
-        MontyObject::String(name.into()),
-        MontyObject::Tuple(args),
-        MontyObject::Tuple(kwitems),
-    ]))
+    crate::commands::call_server_command(name, args, kwargs)
 }
