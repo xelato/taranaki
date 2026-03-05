@@ -8,9 +8,32 @@ use redis_module::RedisString;
 use redis_module::RedisValue;
 
 // commands that modify state
-static RESTRICTED: &[&str] = &["SET", "INCR", "DECR"];
+static RESTRICTED: &[&str] = &[
+    "APPEND",
+    "COPY",
+    "DECR",
+    "DECRBY",
+    "DEL",
+    "DELEX",
+    "EXPIRE",
+    "GETDEL",
+    "GETEX",
+    "GETSET",
+    "INCR",
+    "INCRBY",
+    "INCRBYFLOAT",
+    "MSET",
+    "MSETEX",
+    "PERSIST",
+    "RENAME",
+    "SET",
+    "SETRANGE",
+    "UNLINK",
+];
 // commands without effects
-static UNRESTRICTED: &[&str] = &["DEBUG", "EXISTS", "GET"];
+static UNRESTRICTED: &[&str] = &[
+    "DEBUG", "DIGEST", "EXISTS", "GET", "GETRANGE", "MGET", "PTTL", "STRLEN", "TIME", "TTL",
+];
 
 pub fn get_ro() -> Vec<String> {
     let mut items: Vec<String> = Vec::new();
@@ -28,6 +51,8 @@ pub fn get_rw() -> Vec<String> {
     for item in RESTRICTED {
         items.push(item.to_string());
     }
+    // generic CALL command, only available in RW
+    items.push(String::from("CALL"));
     items
 }
 
