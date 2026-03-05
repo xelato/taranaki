@@ -16,7 +16,7 @@ use crate::eval::Mode;
 ///     RW - access to all available commands (default)
 ///     RO - access to read-only commands
 ///     RX - restricted execution, no commands access
-pub fn python_eval(_ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn python_eval(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     let num_args = args.len();
     if num_args < 2 || num_args > 3 {
         return Err(RedisError::WrongArity);
@@ -39,7 +39,7 @@ pub fn python_eval(_ctx: &Context, args: Vec<RedisString>) -> RedisResult {
         }
     };
 
-    Ok(eval::eval(code.to_owned(), mode))
+    Ok(eval::eval(ctx, code.to_owned(), mode))
 }
 
 redis_module! {

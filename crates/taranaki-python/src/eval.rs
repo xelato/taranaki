@@ -1,5 +1,6 @@
 use monty::{ExternalResult, MontyException, PrintWriter};
 use monty::{MontyObject, MontyRun, NoLimitTracker, RunProgress};
+use redis_module::Context;
 use redis_module::RedisValue;
 use std::str::FromStr;
 use std::string::ToString;
@@ -37,11 +38,11 @@ impl ToString for Mode {
     }
 }
 
-pub fn eval(code: String, mode: Mode) -> RedisValue {
+pub fn eval(ctx: &Context, code: String, mode: Mode) -> RedisValue {
     match mode {
         Mode::RX => eval_rx(code),
-        Mode::RO => eval_ro(code),
-        Mode::RW => eval_rw(code),
+        Mode::RO => eval_ro(ctx, code),
+        Mode::RW => eval_rw(ctx, code),
     }
 }
 
@@ -67,16 +68,16 @@ fn eval_rx(code: String) -> RedisValue {
 }
 
 /// Evaluate in RO mode
-fn eval_ro(code: String) -> RedisValue {
-    eval_with_commands(code, crate::commands::get_ro())
+fn eval_ro(ctx: &Context, code: String) -> RedisValue {
+    eval_with_commands(ctx, code, crate::commands::get_ro())
 }
 
 /// Evaluate in RW mode
-fn eval_rw(code: String) -> RedisValue {
-    eval_with_commands(code, crate::commands::get_rw())
+fn eval_rw(ctx: &Context, code: String) -> RedisValue {
+    eval_with_commands(ctx, code, crate::commands::get_rw())
 }
 
-fn eval_with_commands(code: String, allowed_commands: Vec<String>) -> RedisValue {
+fn eval_with_commands(ctx: &Context, code: String, allowed_commands: Vec<String>) -> RedisValue {
     let runner = match MontyRun::new(code.to_owned(), "expression.py", vec![], allowed_commands) {
         Ok(run) => run,
         Err(error) => {
@@ -107,7 +108,8 @@ fn eval_with_commands(code: String, allowed_commands: Vec<String>) -> RedisValue
                 method_call: _,
                 state,
             } => {
-                let result: ExternalResult = execute_command(function_name.into(), args, kwargs);
+                let result: ExternalResult =
+                    execute_command(ctx, function_name.into(), args, kwargs);
                 state.run(result, &mut PrintWriter::Stdout)
             }
 
@@ -122,9 +124,10 @@ fn eval_with_commands(code: String, allowed_commands: Vec<String>) -> RedisValue
 }
 
 fn execute_command(
+    ctx: &Context,
     name: String,
     args: Vec<MontyObject>,
     kwargs: Vec<(MontyObject, MontyObject)>,
 ) -> ExternalResult {
-    crate::commands::call_server_command(name, args, kwargs)
+    crate::commands::call_server_command(ctx, name, args, kwargs)
 }

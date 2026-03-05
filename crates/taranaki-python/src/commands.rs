@@ -2,6 +2,10 @@ use monty::ExcType;
 use monty::ExternalResult;
 use monty::MontyException;
 use monty::MontyObject;
+use redis_module::Context;
+use redis_module::RedisError;
+use redis_module::RedisString;
+use redis_module::RedisValue;
 
 // commands that modify state
 static RESTRICTED: &[&str] = &["SET", "INCR", "DECR"];
@@ -28,16 +32,15 @@ pub fn get_rw() -> Vec<String> {
 }
 
 pub fn call_server_command(
+    ctx: &Context,
     name: String,
     args: Vec<MontyObject>,
     kwargs: Vec<(MontyObject, MontyObject)>,
 ) -> ExternalResult {
     match name.as_str() {
         "DEBUG" => Debug {}.call(args, kwargs),
-        "EXISTS" => Exists {}.call(args, kwargs),
-        "SET" => Set {}.call(args, kwargs),
-        "GET" => Get {}.call(args, kwargs),
-        _ => CommandNotImplemented {}.call(args, kwargs),
+        "EXISTS" => Exists { ctx }.call(args, kwargs),
+        _ => CommandNotImplemented { name: name }.call(args, kwargs),
     }
 }
 
@@ -57,8 +60,25 @@ pub trait Callable {
     }
 }
 
-struct CommandNotImplemented {}
-impl Callable for CommandNotImplemented {}
+struct CommandNotImplemented {
+    name: String,
+}
+impl Callable for CommandNotImplemented {
+    fn call(
+        &self,
+        _args: Vec<MontyObject>,
+        _kwargs: Vec<(MontyObject, MontyObject)>,
+    ) -> ExternalResult {
+        let command_name = self.name.to_owned();
+        MontyException::new(
+            ExcType::NotImplementedError,
+            Some(String::from(format!(
+                "command {command_name} not implemented"
+            ))),
+        )
+        .into()
+    }
+}
 
 struct Debug {}
 impl Callable for Debug {
@@ -75,20 +95,81 @@ impl Callable for Debug {
     }
 }
 
-struct Exists {}
-impl Callable for Exists {
+struct Exists<'a> {
+    ctx: &'a Context,
+}
+impl<'a> Callable for Exists<'a> {
     fn call(
         &self,
-        _args: Vec<MontyObject>,
-        _kwargs: Vec<(MontyObject, MontyObject)>,
+        args: Vec<MontyObject>,
+        kwargs: Vec<(MontyObject, MontyObject)>,
     ) -> ExternalResult {
-        // todo: implement
-        MontyObject::Bool(false).into()
+        // no keyword arguments allowed, raise TypeError
+        for (k, _v) in kwargs {
+            let name = k.to_string();
+            return MontyException::new(
+                ExcType::TypeError,
+                Some(format!(
+                    "exists() got an unexpected keyword argument '{name}'"
+                )),
+            )
+            .into();
+        }
+
+        // prepare args
+        let mut keys: Vec<RedisString> = Vec::new();
+        for arg in args {
+            match arg {
+                MontyObject::String(value) => {
+                    keys.push(self.ctx.create_string(value));
+                }
+                MontyObject::Int(value) => {
+                    keys.push(self.ctx.create_string(value.to_string()));
+                }
+                _ => {}
+            }
+        }
+
+        // invoke command
+        let items = keys.iter().map(|x| x).collect::<Vec<_>>();
+        let result = self.ctx.call("EXISTS", items.as_slice());
+
+        // complete call
+        to_external_result(result)
     }
 }
 
-struct Set {}
-impl Callable for Set {}
+fn to_external_result(result: Result<RedisValue, RedisError>) -> ExternalResult {
+    match result {
+        Ok(value) => redis_to_monty(value).into(),
+        Err(error) => redis_error_to_monty_exception(error).into(),
+    }
+}
 
-struct Get {}
-impl Callable for Get {}
+/*
+For converting RedisValue objects which are the result of command invocations back for processing inside the interpreter.
+*/
+fn redis_to_monty(redis_value: RedisValue) -> MontyObject {
+    match redis_value {
+        RedisValue::Integer(value) => MontyObject::Int(value),
+        // todo:
+        _ => MontyObject::None,
+    }
+}
+
+fn redis_error_to_monty_exception(error: RedisError) -> MontyException {
+    match error {
+        RedisError::WrongArity => {
+            MontyException::new(ExcType::ValueError, Some(String::from("Wrong arity")))
+        }
+        RedisError::Str(value) => {
+            MontyException::new(ExcType::ValueError, Some(String::from(value)))
+        }
+        RedisError::String(value) => {
+            MontyException::new(ExcType::ValueError, Some(String::from(value)))
+        }
+        RedisError::WrongType => {
+            MontyException::new(ExcType::TypeError, Some(String::from("Wrong type")))
+        }
+    }
+}
