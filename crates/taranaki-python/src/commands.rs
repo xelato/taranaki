@@ -129,6 +129,13 @@ impl<'a> Callable for Exists<'a> {
         args: Vec<MontyObject>,
         kwargs: Vec<(MontyObject, MontyObject)>,
     ) -> ExternalResult {
+        if args.len() == 0 {
+            return MontyException::new(
+                ExcType::TypeError,
+                Some(format!("wrong number of arguments for 'exists' command")),
+            )
+            .into();
+        }
         // no keyword arguments allowed, raise TypeError
         for (k, _v) in kwargs {
             let name = k.to_string();
@@ -151,7 +158,22 @@ impl<'a> Callable for Exists<'a> {
                 MontyObject::Int(value) => {
                     keys.push(self.ctx.create_string(value.to_string()));
                 }
-                _ => {}
+                MontyObject::Float(value) => {
+                    keys.push(self.ctx.create_string(value.to_string()));
+                }
+                MontyObject::Bytes(value) => {
+                    keys.push(self.ctx.create_string(value));
+                }
+                _ => {
+                    let type_name = arg.type_name();
+                    return MontyException::new(
+                        ExcType::TypeError,
+                        Some(format!(
+                            "Invalid input of type: '{type_name}'. Convert to a bytes, string, int or float first."
+                        )),
+                    )
+                    .into();
+                }
             }
         }
 
@@ -164,37 +186,36 @@ impl<'a> Callable for Exists<'a> {
     }
 }
 
-fn to_external_result(result: Result<RedisValue, RedisError>) -> ExternalResult {
-    match result {
-        Ok(value) => redis_to_monty(value).into(),
-        Err(error) => redis_error_to_monty_exception(error).into(),
-    }
-}
-
 /*
 For converting RedisValue objects which are the result of command invocations back for processing inside the interpreter.
 */
-fn redis_to_monty(redis_value: RedisValue) -> MontyObject {
-    match redis_value {
-        RedisValue::Integer(value) => MontyObject::Int(value),
-        // todo:
-        _ => MontyObject::None,
-    }
-}
+fn to_external_result(result: Result<RedisValue, RedisError>) -> ExternalResult {
+    match result {
+        Ok(redis_value) => {
+            let object = match redis_value {
+                RedisValue::Integer(value) => MontyObject::Int(value),
+                // todo: handle all types
+                _ => MontyObject::None,
+            };
+            object.into()
+        }
 
-fn redis_error_to_monty_exception(error: RedisError) -> MontyException {
-    match error {
-        RedisError::WrongArity => {
-            MontyException::new(ExcType::ValueError, Some(String::from("Wrong arity")))
-        }
-        RedisError::Str(value) => {
-            MontyException::new(ExcType::ValueError, Some(String::from(value)))
-        }
-        RedisError::String(value) => {
-            MontyException::new(ExcType::ValueError, Some(String::from(value)))
-        }
-        RedisError::WrongType => {
-            MontyException::new(ExcType::TypeError, Some(String::from("Wrong type")))
+        Err(error) => {
+            let exception = match error {
+                RedisError::WrongArity => {
+                    MontyException::new(ExcType::ValueError, Some(String::from("Wrong arity")))
+                }
+                RedisError::Str(value) => {
+                    MontyException::new(ExcType::ValueError, Some(String::from(value)))
+                }
+                RedisError::String(value) => {
+                    MontyException::new(ExcType::ValueError, Some(String::from(value)))
+                }
+                RedisError::WrongType => {
+                    MontyException::new(ExcType::TypeError, Some(String::from("Wrong type")))
+                }
+            };
+            exception.into()
         }
     }
 }
