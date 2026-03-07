@@ -1,11 +1,18 @@
+mod execute;
+mod exists;
+mod not_implemented;
+
+use std::str::FromStr;
+
 use monty::ExcType;
 use monty::ExternalResult;
 use monty::MontyException;
 use monty::MontyObject;
+use num_bigint::BigInt;
 use redis_module::Context;
 use redis_module::RedisError;
-use redis_module::RedisString;
 use redis_module::RedisValue;
+use redis_module::redisvalue::RedisValueKey;
 
 // commands that modify state
 static RESTRICTED: &[&str] = &[
@@ -32,7 +39,7 @@ static RESTRICTED: &[&str] = &[
 ];
 // commands without effects
 static UNRESTRICTED: &[&str] = &[
-    "DEBUG", "DIGEST", "EXISTS", "GET", "GETRANGE", "MGET", "PTTL", "STRLEN", "TIME", "TTL",
+    "DIGEST", "EXISTS", "GET", "GETRANGE", "MGET", "PTTL", "STRLEN", "TIME", "TTL",
 ];
 
 pub fn get_ro() -> Vec<String> {
@@ -51,8 +58,8 @@ pub fn get_rw() -> Vec<String> {
     for item in RESTRICTED {
         items.push(item.to_string());
     }
-    // generic CALL command, only available in RW
-    items.push(String::from("CALL"));
+    // generic EXECUTE command, only available in RW
+    items.push(String::from("EXECUTE"));
     items
 }
 
@@ -63,9 +70,9 @@ pub fn call_server_command(
     kwargs: Vec<(MontyObject, MontyObject)>,
 ) -> ExternalResult {
     match name.as_str() {
-        "DEBUG" => Debug {}.call(args, kwargs),
-        "EXISTS" => Exists { ctx }.call(args, kwargs),
-        _ => CommandNotImplemented { name: name }.call(args, kwargs),
+        "EXECUTE" => execute::Execute { ctx }.call(args, kwargs),
+        "EXISTS" => exists::Exists { ctx }.call(args, kwargs),
+        _ => not_implemented::CommandNotImplemented { name: name }.call(args, kwargs),
     }
 }
 
@@ -85,120 +92,12 @@ pub trait Callable {
     }
 }
 
-struct CommandNotImplemented {
-    name: String,
-}
-impl Callable for CommandNotImplemented {
-    fn call(
-        &self,
-        _args: Vec<MontyObject>,
-        _kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
-        let command_name = self.name.to_owned();
-        MontyException::new(
-            ExcType::NotImplementedError,
-            Some(String::from(format!(
-                "command {command_name} not implemented"
-            ))),
-        )
-        .into()
-    }
-}
-
-struct Debug {}
-impl Callable for Debug {
-    fn call(
-        &self,
-        args: Vec<MontyObject>,
-        kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
-        let mut kwitems: Vec<MontyObject> = Vec::new();
-        for (k, v) in kwargs {
-            kwitems.push(MontyObject::Tuple(vec![k, v]));
-        }
-        MontyObject::Tuple(vec![MontyObject::Tuple(args), MontyObject::Tuple(kwitems)]).into()
-    }
-}
-
-struct Exists<'a> {
-    ctx: &'a Context,
-}
-impl<'a> Callable for Exists<'a> {
-    fn call(
-        &self,
-        args: Vec<MontyObject>,
-        kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
-        if args.len() == 0 {
-            return MontyException::new(
-                ExcType::TypeError,
-                Some(format!("wrong number of arguments for 'exists' command")),
-            )
-            .into();
-        }
-        // no keyword arguments allowed, raise TypeError
-        for (k, _v) in kwargs {
-            let name = k.to_string();
-            return MontyException::new(
-                ExcType::TypeError,
-                Some(format!(
-                    "exists() got an unexpected keyword argument '{name}'"
-                )),
-            )
-            .into();
-        }
-
-        // prepare args
-        let mut keys: Vec<RedisString> = Vec::new();
-        for arg in args {
-            match arg {
-                MontyObject::String(value) => {
-                    keys.push(self.ctx.create_string(value));
-                }
-                MontyObject::Int(value) => {
-                    keys.push(self.ctx.create_string(value.to_string()));
-                }
-                MontyObject::Float(value) => {
-                    keys.push(self.ctx.create_string(value.to_string()));
-                }
-                MontyObject::Bytes(value) => {
-                    keys.push(self.ctx.create_string(value));
-                }
-                _ => {
-                    let type_name = arg.type_name();
-                    return MontyException::new(
-                        ExcType::TypeError,
-                        Some(format!(
-                            "Invalid input of type: '{type_name}'. Convert to a bytes, string, int or float first."
-                        )),
-                    )
-                    .into();
-                }
-            }
-        }
-
-        // invoke command
-        let items = keys.iter().map(|x| x).collect::<Vec<_>>();
-        let result = self.ctx.call("EXISTS", items.as_slice());
-
-        // complete call
-        to_external_result(result)
-    }
-}
-
 /*
 For converting RedisValue objects which are the result of command invocations back for processing inside the interpreter.
 */
 fn to_external_result(result: Result<RedisValue, RedisError>) -> ExternalResult {
     match result {
-        Ok(redis_value) => {
-            let object = match redis_value {
-                RedisValue::Integer(value) => MontyObject::Int(value),
-                // todo: handle all types
-                _ => MontyObject::None,
-            };
-            object.into()
-        }
+        Ok(redis_value) => rv_to_mo(redis_value).into(),
 
         Err(error) => {
             let exception = match error {
@@ -217,5 +116,83 @@ fn to_external_result(result: Result<RedisValue, RedisError>) -> ExternalResult 
             };
             exception.into()
         }
+    }
+}
+
+/*
+Convert RedisValue to MontyObject.
+Returned Python objects are immutable where a suitable corresponding type exists (e.g. tuple instead of list for RedisArray)
+ */
+fn rv_to_mo(redis_value: RedisValue) -> MontyObject {
+    match redis_value {
+        RedisValue::NoReply => MontyObject::None,
+        RedisValue::Null => MontyObject::None,
+        RedisValue::Bool(value) => MontyObject::Bool(value),
+        RedisValue::Integer(value) => MontyObject::Int(value),
+        RedisValue::Float(value) => MontyObject::Float(value),
+
+        // str
+        RedisValue::BulkString(value) => MontyObject::String(value),
+        RedisValue::SimpleString(value) => MontyObject::String(value),
+        RedisValue::SimpleStringStatic(value) => MontyObject::String(String::from(value)),
+
+        // bytes
+        RedisValue::BulkRedisString(value) => MontyObject::Bytes(value.as_slice().into()),
+        RedisValue::StringBuffer(value) => MontyObject::Bytes(value),
+        // format ignored
+        RedisValue::VerbatimString((_format, value)) => MontyObject::Bytes(value),
+
+        // do not raise an exception, just return one
+        RedisValue::StaticError(value) => MontyObject::Exception {
+            exc_type: ExcType::Exception,
+            arg: Some(String::from(value)),
+        },
+        RedisValue::Array(values) => {
+            MontyObject::Tuple(values.iter().map(|x| rv_to_mo(x.to_owned())).collect())
+        }
+        RedisValue::Set(values) => {
+            MontyObject::FrozenSet(values.iter().map(|x| rvk_to_mo(x.to_owned())).collect())
+        }
+        RedisValue::Map(items) => {
+            let mut pairs: Vec<(MontyObject, MontyObject)> = Vec::new();
+            for (key, value) in items {
+                pairs.push((rvk_to_mo(key), rv_to_mo(value)));
+            }
+            MontyObject::Dict(pairs.into())
+        }
+
+        // `tuple` instead of `set` to preserve order
+        RedisValue::OrderedSet(values) => {
+            MontyObject::Tuple(values.iter().map(|x| rvk_to_mo(x.to_owned())).collect())
+        }
+        // `tuple` instead of `dict` to preserve order
+        RedisValue::OrderedMap(items) => {
+            let mut pairs: Vec<MontyObject> = Vec::new();
+            for (key, value) in items {
+                pairs.push(MontyObject::Tuple(vec![rvk_to_mo(key), rv_to_mo(value)]))
+            }
+            MontyObject::Tuple(pairs)
+        }
+
+        RedisValue::BigNumber(value) => {
+            match BigInt::from_str(&value) {
+                Ok(bigint) => MontyObject::BigInt(bigint),
+                // should not happen
+                Err(_error) => MontyObject::BigInt(BigInt::ZERO),
+            }
+        }
+    }
+}
+
+/*
+Convert RedisValueKey to MontyObject
+*/
+fn rvk_to_mo(key: RedisValueKey) -> MontyObject {
+    match key {
+        RedisValueKey::Bool(value) => MontyObject::Bool(value),
+        RedisValueKey::BulkRedisString(value) => MontyObject::Bytes(value.as_slice().into()),
+        RedisValueKey::BulkString(value) => MontyObject::Bytes(value),
+        RedisValueKey::Integer(value) => MontyObject::Int(value),
+        RedisValueKey::String(value) => MontyObject::String(value),
     }
 }

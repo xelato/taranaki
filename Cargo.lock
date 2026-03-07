@@ -1990,6 +1990,7 @@ name = "taranaki-python"
 version = "0.0.1"
 dependencies = [
  "monty",
+ "num-bigint",
  "redis-module",
  "redis-module-macros",
 ]
