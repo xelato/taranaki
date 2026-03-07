@@ -21,13 +21,6 @@ impl<'a> Callable for Exists<'a> {
         args: Vec<MontyObject>,
         kwargs: Vec<(MontyObject, MontyObject)>,
     ) -> ExternalResult {
-        if args.len() == 0 {
-            return MontyException::new(
-                ExcType::TypeError,
-                Some(format!("wrong number of arguments for 'exists' command")),
-            )
-            .into();
-        }
         // no keyword arguments allowed, raise TypeError
         for (k, _v) in kwargs {
             let name = k.to_string();
@@ -36,6 +29,14 @@ impl<'a> Callable for Exists<'a> {
                 Some(format!(
                     "exists() got an unexpected keyword argument '{name}'"
                 )),
+            )
+            .into();
+        }
+        // validate
+        if args.len() == 0 {
+            return MontyException::new(
+                ExcType::TypeError,
+                Some(format!("wrong number of arguments for 'exists' command")),
             )
             .into();
         }
