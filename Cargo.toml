@@ -11,3 +11,4 @@ repository = "https://github.com/xelato/taranaki"
 
 [workspace.dependencies]
 wasmtime = "40.0.0"
+num-bigint = { version = "0.4"}
