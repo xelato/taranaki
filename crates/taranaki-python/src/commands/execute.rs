@@ -5,7 +5,7 @@ use monty::MontyObject;
 use redis_module::Context;
 use redis_module::RedisString;
 
-use crate::commands::Callable;
+use crate::commands::callable::Callable;
 use crate::convert::to_external_result;
 
 /*

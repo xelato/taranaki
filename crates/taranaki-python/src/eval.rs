@@ -1,54 +1,19 @@
+use crate::mode::Mode;
 use monty::{ExternalResult, MontyException, PrintWriter};
 use monty::{MontyObject, MontyRun, NoLimitTracker, RunProgress};
 use redis_module::Context;
 use redis_module::RedisValue;
-use std::str::FromStr;
-use std::string::ToString;
-
-#[derive(Debug)]
-pub enum Mode {
-    // restricted execution, no commands access
-    RX,
-    // access to read-only commands
-    RO,
-    // access to all available commands (the default)
-    RW,
-}
-
-impl FromStr for Mode {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_uppercase().as_str() {
-            "RX" => Ok(Mode::RX),
-            "RO" => Ok(Mode::RO),
-            "RW" => Ok(Mode::RW),
-            _ => Err("Allowed modes: RX|RO|RW".to_string()),
-        }
-    }
-}
-
-impl ToString for Mode {
-    fn to_string(&self) -> String {
-        match self {
-            Mode::RX => "RX".to_string(),
-            Mode::RW => "RW".to_string(),
-            Mode::RO => "RO".to_string(),
-        }
-    }
-}
 
 pub fn eval(ctx: &Context, code: String, mode: Mode) -> RedisValue {
     match mode {
-        Mode::RX => eval_rx(code),
-        Mode::RO => eval_ro(ctx, code),
-        Mode::RW => eval_rw(ctx, code),
+        Mode::RX => eval_simple(code),
+        Mode::RO | Mode::RW => eval_with_commands(ctx, code, mode),
     }
 }
 
 /// evaluate in RX mode
-fn eval_rx(code: String) -> RedisValue {
-    let runner = match MontyRun::new(code.to_owned(), "expression.py", vec![], vec![]) {
+fn eval_simple(code: String) -> RedisValue {
+    let runner = match MontyRun::new(code.to_owned(), "main.py", vec![], vec![]) {
         Ok(x) => x,
         Err(error) => {
             return crate::convert::raise(error);
@@ -67,18 +32,15 @@ fn eval_rx(code: String) -> RedisValue {
     crate::convert::monty_to_redis(value)
 }
 
-/// Evaluate in RO mode
-fn eval_ro(ctx: &Context, code: String) -> RedisValue {
-    eval_with_commands(ctx, code, crate::commands::get_ro())
-}
-
-/// Evaluate in RW mode
-fn eval_rw(ctx: &Context, code: String) -> RedisValue {
-    eval_with_commands(ctx, code, crate::commands::get_rw())
-}
-
-fn eval_with_commands(ctx: &Context, code: String, allowed_commands: Vec<String>) -> RedisValue {
-    let runner = match MontyRun::new(code.to_owned(), "expression.py", vec![], allowed_commands) {
+fn eval_with_commands(ctx: &Context, code: String, mode: Mode) -> RedisValue {
+    let commander = crate::commander::Commander::get_instance();
+    let allowed_commands: Vec<String> = commander.get_commands(mode);
+    let runner = match MontyRun::new(
+        commander.get_code(code.to_owned()),
+        "main.py",
+        vec![],
+        allowed_commands,
+    ) {
         Ok(run) => run,
         Err(error) => {
             return crate::convert::raise(error);
@@ -109,7 +71,7 @@ fn eval_with_commands(ctx: &Context, code: String, allowed_commands: Vec<String>
                 state,
             } => {
                 let result: ExternalResult =
-                    execute_command(ctx, function_name.into(), args, kwargs);
+                    commander.execute_command(ctx, function_name.into(), args, kwargs);
                 state.run(result, &mut PrintWriter::Stdout)
             }
 
@@ -121,13 +83,4 @@ fn eval_with_commands(ctx: &Context, code: String, allowed_commands: Vec<String>
             }
         };
     }
-}
-
-fn execute_command(
-    ctx: &Context,
-    name: String,
-    args: Vec<MontyObject>,
-    kwargs: Vec<(MontyObject, MontyObject)>,
-) -> ExternalResult {
-    crate::commands::call_server_command(ctx, name, args, kwargs)
 }

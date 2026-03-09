@@ -1,14 +1,13 @@
+mod commander;
 mod commands;
 mod convert;
 mod eval;
+mod mode;
 
-use std::str::FromStr;
-
-use redis_module::NextArg;
+use crate::mode::Mode;
 use redis_module::redis_module;
-use redis_module::{Context, RedisError, RedisResult, RedisString};
-
-use crate::eval::Mode;
+use redis_module::{Context, NextArg, RedisError, RedisResult, RedisString};
+use std::str::FromStr;
 
 /// PY.EVAL <EXPRESSION> [RO|RX]
 /// Evaluate a Python expression.
@@ -31,7 +30,7 @@ pub fn python_eval(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     let code: &str = args_iter.next_str()?;
 
     // mode
-    let mut mode: Mode = Mode::RW;
+    let mut mode = Mode::RW;
     if num_args == 3 {
         mode = match Mode::from_str(args_iter.next_str()?) {
             Ok(value) => value,
@@ -39,7 +38,7 @@ pub fn python_eval(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
         }
     };
 
-    Ok(eval::eval(ctx, code.to_owned(), mode))
+    Ok(crate::eval::eval(ctx, code.to_owned(), mode))
 }
 
 redis_module! {
