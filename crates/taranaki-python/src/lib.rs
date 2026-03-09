@@ -3,6 +3,7 @@ mod commands;
 mod convert;
 mod eval;
 mod mode;
+mod serialize;
 
 use crate::mode::Mode;
 use redis_module::redis_module;

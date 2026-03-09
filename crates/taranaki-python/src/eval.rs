@@ -16,7 +16,7 @@ fn eval_simple(code: String) -> RedisValue {
     let runner = match MontyRun::new(code.to_owned(), "main.py", vec![], vec![]) {
         Ok(x) => x,
         Err(error) => {
-            return crate::convert::raise(error);
+            return crate::serialize::raise(error);
         }
     };
 
@@ -25,11 +25,11 @@ fn eval_simple(code: String) -> RedisValue {
     let value: MontyObject = match monty_result {
         Ok(value) => value,
         Err(error) => {
-            return crate::convert::raise(error);
+            return crate::serialize::raise(error);
         }
     };
 
-    crate::convert::monty_to_redis(value)
+    crate::serialize::monty_to_redis(value)
 }
 
 fn eval_with_commands(ctx: &Context, code: String, mode: Mode) -> RedisValue {
@@ -43,7 +43,7 @@ fn eval_with_commands(ctx: &Context, code: String, mode: Mode) -> RedisValue {
     ) {
         Ok(run) => run,
         Err(error) => {
-            return crate::convert::raise(error);
+            return crate::serialize::raise(error);
         }
     };
 
@@ -53,13 +53,13 @@ fn eval_with_commands(ctx: &Context, code: String, mode: Mode) -> RedisValue {
         let progress: RunProgress<NoLimitTracker> = match progress_result {
             Ok(pr) => pr.into(),
             Err(error) => {
-                return crate::convert::raise(error);
+                return crate::serialize::raise(error);
             }
         };
 
         progress_result = match progress {
             RunProgress::Complete(value) => {
-                return crate::convert::monty_to_redis(value.clone());
+                return crate::serialize::monty_to_redis(value.clone());
             }
 
             RunProgress::FunctionCall {
@@ -76,7 +76,7 @@ fn eval_with_commands(ctx: &Context, code: String, mode: Mode) -> RedisValue {
             }
 
             _ => {
-                return crate::convert::raise(MontyException::new(
+                return crate::serialize::raise(MontyException::new(
                     monty::ExcType::NotImplementedError,
                     Some(String::from("RunProgress not implemented")),
                 ));
