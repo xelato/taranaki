@@ -6,17 +6,17 @@ from taranaki import client, python
 class TestCommands(unittest.TestCase):
     EXAMPLES = {
         # exists
-        "EXISTS()": TypeError("wrong number of arguments for 'exists' command"),
-        "EXISTS([])": TypeError(
+        "exists()": TypeError("wrong number of arguments for 'exists' command"),
+        "exists([])": TypeError(
             "Invalid input of type: 'list'. Convert to a bytes, string, int or float first."
         ),
-        "EXISTS(key='foo')": TypeError(
+        "exists(key='foo')": TypeError(
             "exists() got an unexpected keyword argument 'key'"
         ),
-        "EXISTS(b'key')": 0,
-        "EXISTS('key')": 0,
-        "EXISTS(1)": 0,
-        "EXISTS(3.14)": 0,
+        "exists(b'key')": 0,
+        "exists('key')": 0,
+        "exists(1)": 0,
+        "exists(3.14)": 0,
     }
 
     def test_commands(self):
