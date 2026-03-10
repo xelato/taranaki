@@ -1,4 +1,4 @@
-use crate::commands::Callable;
+use crate::commands::callable::Callable;
 use monty::ExcType;
 use monty::ExternalResult;
 use monty::MontyException;

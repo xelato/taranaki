@@ -1,111 +1,118 @@
-use monty::{DictPairs, ExcType, MontyException, MontyObject};
+use monty::{ExcType, ExternalResult, MontyException, MontyObject};
+use num_bigint::BigInt;
+use redis_module::RedisError;
 use redis_module::RedisValue;
+use redis_module::redisvalue::RedisValueKey;
+use std::str::FromStr;
 
 /*
-Convert Monty interpreter objects to Redis objects suitable for external consumption.
-
-Any generic binary serialization format could work, however it is preferable to
-choose "transport" over Redis types.
-
- 1. Unambiguous conversion in both directions for correct representation of Python objects as
- they cross the Redis instance or Monty interpreter boundary.
- 2. Use RedisValue types where possible.
-    Simple types map well (None, Int, Float),
- 3. Use envelope format for objects that don't have a corresponding RedisValue or it would be ambiguous to use it
- without additional type information.
-
-Not implemented in Monty:
- - NotImplemented
- - str.format
- - complex
- - bytearray, memoryview
- - union: int | str
+For converting RedisValue objects which are the result of command invocations back for processing inside the interpreter.
 */
+pub fn to_external_result(result: Result<RedisValue, RedisError>) -> ExternalResult {
+    match result {
+        Ok(redis_value) => rv_to_mo(redis_value).into(),
 
-fn singleton(name: String) -> RedisValue {
-    RedisValue::Array(vec![name.into()])
-}
-
-fn envelope(name: String, value: RedisValue) -> RedisValue {
-    RedisValue::Array(vec![name.into(), value])
-}
-
-fn sequence(items: Vec<MontyObject>) -> RedisValue {
-    RedisValue::Array(items.iter().map(|x| monty_to_redis(x.clone())).collect())
-}
-
-fn dict_pairs(pairs: DictPairs) -> RedisValue {
-    let mut items: Vec<RedisValue> = Vec::new();
-    for (key, value) in pairs {
-        items.push(RedisValue::Array(vec![
-            monty_to_redis(key),
-            monty_to_redis(value),
-        ]));
+        Err(error) => {
+            let exception = match error {
+                RedisError::WrongArity => {
+                    MontyException::new(ExcType::ValueError, Some(String::from("Wrong arity")))
+                }
+                RedisError::Str(value) => {
+                    MontyException::new(ExcType::ValueError, Some(String::from(value)))
+                }
+                RedisError::String(value) => {
+                    MontyException::new(ExcType::ValueError, Some(String::from(value)))
+                }
+                RedisError::WrongType => {
+                    MontyException::new(ExcType::TypeError, Some(String::from("Wrong type")))
+                }
+            };
+            exception.into()
+        }
     }
-    RedisValue::Array(items)
 }
 
-pub fn raise(exception: MontyException) -> RedisValue {
-    envelope(
-        "raise".to_string(),
-        exception_envelope(exception.exc_type(), exception.message().map(String::from)),
-    )
+/*
+Convert RedisValue to MontyObject.
+Returned Python objects are immutable where a suitable corresponding type exists (e.g. tuple instead of list for RedisArray)
+ */
+fn rv_to_mo(redis_value: RedisValue) -> MontyObject {
+    match redis_value {
+        RedisValue::NoReply => MontyObject::None,
+        RedisValue::Null => MontyObject::None,
+        RedisValue::Bool(value) => MontyObject::Bool(value),
+        RedisValue::Integer(value) => MontyObject::Int(value),
+        RedisValue::Float(value) => MontyObject::Float(value),
+
+        // str
+        RedisValue::BulkString(value) => MontyObject::String(value),
+        RedisValue::SimpleString(value) => MontyObject::String(value),
+        RedisValue::SimpleStringStatic(value) => MontyObject::String(String::from(value)),
+
+        // bytes
+        RedisValue::BulkRedisString(value) => MontyObject::Bytes(value.as_slice().into()),
+        RedisValue::StringBuffer(value) => MontyObject::Bytes(value),
+        // format ignored
+        RedisValue::VerbatimString((_format, value)) => MontyObject::Bytes(value),
+
+        // do not raise an exception, just return one
+        RedisValue::StaticError(value) => MontyObject::Exception {
+            exc_type: ExcType::Exception,
+            arg: Some(String::from(value)),
+        },
+        RedisValue::Array(values) => {
+            MontyObject::Tuple(values.iter().map(|x| rv_to_mo(x.to_owned())).collect())
+        }
+        RedisValue::Set(values) => {
+            MontyObject::FrozenSet(values.iter().map(|x| rvk_to_mo(x.to_owned())).collect())
+        }
+        RedisValue::Map(items) => {
+            let mut pairs: Vec<(MontyObject, MontyObject)> = Vec::new();
+            for (key, value) in items {
+                pairs.push((rvk_to_mo(key), rv_to_mo(value)));
+            }
+            MontyObject::Dict(pairs.into())
+        }
+
+        // `tuple` instead of `set` to preserve order
+        RedisValue::OrderedSet(values) => {
+            MontyObject::Tuple(values.iter().map(|x| rvk_to_mo(x.to_owned())).collect())
+        }
+        // `tuple` instead of `dict` to preserve order
+        RedisValue::OrderedMap(items) => {
+            let mut pairs: Vec<MontyObject> = Vec::new();
+            for (key, value) in items {
+                pairs.push(MontyObject::Tuple(vec![rvk_to_mo(key), rv_to_mo(value)]))
+            }
+            MontyObject::Tuple(pairs)
+        }
+
+        RedisValue::BigNumber(value) => {
+            match BigInt::from_str(&value) {
+                Ok(bigint) => MontyObject::BigInt(bigint),
+                // should not happen
+                Err(_error) => MontyObject::BigInt(BigInt::ZERO),
+            }
+        }
+    }
 }
 
-pub fn exception_envelope(exc_type: ExcType, arg: Option<String>) -> RedisValue {
-    envelope(
-        "exception".to_string(),
-        RedisValue::Array(vec![
-            RedisValue::SimpleString(exc_type.to_string()),
-            match arg {
-                Some(x) => RedisValue::BulkString(x.to_string()),
-                None => RedisValue::Null,
-            },
-        ]),
-    )
+/*
+Convert RedisValueKey to MontyObject
+*/
+fn rvk_to_mo(key: RedisValueKey) -> MontyObject {
+    match key {
+        RedisValueKey::Bool(value) => MontyObject::Bool(value),
+        RedisValueKey::BulkRedisString(value) => MontyObject::Bytes(value.as_slice().into()),
+        RedisValueKey::BulkString(value) => MontyObject::Bytes(value),
+        RedisValueKey::Integer(value) => MontyObject::Int(value),
+        RedisValueKey::String(value) => MontyObject::String(value),
+    }
 }
 
-pub fn monty_to_redis(object: MontyObject) -> RedisValue {
-    match object {
-        // types that can be mapped to an existing RedisValue type unambiguously
-        MontyObject::None => RedisValue::Null,
-        MontyObject::Int(value) => RedisValue::Integer(value),
-        MontyObject::Float(value) => RedisValue::Float(value),
-        MontyObject::BigInt(value) => RedisValue::BigNumber(value.to_string()),
-        // note: booleans end as ints on the client unless using protocol version 3, consider envelope?
-        MontyObject::Bool(value) => RedisValue::Bool(value),
-
-        // ellipsis instance singleton
-        MontyObject::Ellipsis => singleton("ellipsis".to_string()),
-
-        // pack bytes inside envelope to distinguish from strings (that end as bytes on the client)
-        MontyObject::Bytes(bytes) => envelope("bytes".to_string(), RedisValue::StringBuffer(bytes)),
-
-        // string
-        MontyObject::String(value) => RedisValue::BulkString(value),
-
-        // list
-        MontyObject::List(items) => envelope("list".to_string(), sequence(items)),
-
-        // tuple
-        MontyObject::Tuple(items) => envelope("tuple".to_string(), sequence(items)),
-
-        // set
-        MontyObject::Set(items) => envelope("set".to_string(), sequence(items)),
-
-        // frozenset
-        MontyObject::FrozenSet(items) => envelope("frozenset".to_string(), sequence(items)),
-
-        // dict
-        MontyObject::Dict(pairs) => envelope("dict".to_string(), dict_pairs(pairs)),
-
-        // exception
-        MontyObject::Exception { exc_type, arg } => exception_envelope(exc_type, arg),
-
-        // unsupported
-        _ => envelope(
-            "unsupported".to_string(),
-            RedisValue::BulkString(object.to_string()),
-        ),
+pub fn rv_try_string(redis_value: RedisValue) -> Option<String> {
+    match rv_to_mo(redis_value) {
+        MontyObject::String(value) => Some(value),
+        _ => None,
     }
 }
