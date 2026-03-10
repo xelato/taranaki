@@ -1,13 +1,13 @@
+use crate::commander::Commander;
 use crate::mode::Mode;
 use monty::{ExternalResult, MontyException, PrintWriter};
 use monty::{MontyObject, MontyRun, NoLimitTracker, RunProgress};
-use redis_module::Context;
 use redis_module::RedisValue;
 
-pub fn eval(ctx: &Context, code: String, mode: Mode) -> RedisValue {
+pub fn eval(commander: &Commander, code: String, mode: Mode) -> RedisValue {
     match mode {
         Mode::RX => eval_simple(code),
-        Mode::RO | Mode::RW => eval_with_commands(ctx, code, mode),
+        Mode::RO | Mode::RW => eval_with_commands(commander, code),
     }
 }
 
@@ -32,14 +32,12 @@ fn eval_simple(code: String) -> RedisValue {
     crate::serialize::monty_to_redis(value)
 }
 
-fn eval_with_commands(ctx: &Context, code: String, mode: Mode) -> RedisValue {
-    let commander = crate::commander::Commander::get_instance();
-    let allowed_commands: Vec<String> = commander.get_commands(mode);
+fn eval_with_commands(commander: &Commander, code: String) -> RedisValue {
     let runner = match MontyRun::new(
         commander.get_code(code.to_owned()),
         "main.py",
         vec![],
-        allowed_commands,
+        commander.commands.clone(),
     ) {
         Ok(run) => run,
         Err(error) => {
@@ -71,7 +69,7 @@ fn eval_with_commands(ctx: &Context, code: String, mode: Mode) -> RedisValue {
                 state,
             } => {
                 let result: ExternalResult =
-                    commander.execute_command(ctx, function_name.into(), args, kwargs);
+                    commander.execute_command(function_name.into(), args, kwargs);
                 state.run(result, &mut PrintWriter::Stdout)
             }
 

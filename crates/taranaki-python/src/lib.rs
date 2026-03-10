@@ -39,7 +39,9 @@ pub fn python_eval(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
         }
     };
 
-    Ok(crate::eval::eval(ctx, code.to_owned(), mode))
+    let commander = commander::Commander::get_instance(ctx, mode.clone())?;
+
+    Ok(crate::eval::eval(&commander, code.to_owned(), mode.clone()))
 }
 
 redis_module! {

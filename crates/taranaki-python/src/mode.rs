@@ -10,6 +10,16 @@ pub enum Mode {
     RW,
 }
 
+impl Clone for Mode {
+    fn clone(&self) -> Self {
+        match self {
+            Mode::RX => Mode::RX,
+            Mode::RO => Mode::RO,
+            Mode::RW => Mode::RW,
+        }
+    }
+}
+
 impl FromStr for Mode {
     type Err = String;
 

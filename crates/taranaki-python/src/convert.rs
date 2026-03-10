@@ -109,3 +109,10 @@ fn rvk_to_mo(key: RedisValueKey) -> MontyObject {
         RedisValueKey::String(value) => MontyObject::String(value),
     }
 }
+
+pub fn rv_try_string(redis_value: RedisValue) -> Option<String> {
+    match rv_to_mo(redis_value) {
+        MontyObject::String(value) => Some(value),
+        _ => None,
+    }
+}
