@@ -31,3 +31,8 @@ dev = [
     "ruff>=0.15.1",
     "wasm-action>=0.0.11",
 ]
+
+[tool.ruff]
+exclude = [
+    "src/taranaki/compat.py",
+]
