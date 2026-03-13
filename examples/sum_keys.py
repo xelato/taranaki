@@ -1,5 +1,5 @@
 import taranaki
-from taranaki.compat import set_, scan, dbsize, mget
+from taranaki.compat import set_, scan, dbsize, mget, get
 
 
 @taranaki.function()
@@ -18,6 +18,11 @@ def sum_all_keys():
             break
 
     return total
+
+
+@taranaki.function()
+def sum_keys(*keys):
+    return sum(int(get(key)) for key in keys)
 
 
 @taranaki.function()

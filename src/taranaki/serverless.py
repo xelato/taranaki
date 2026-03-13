@@ -21,14 +21,14 @@ class function(object):
     """Serverless function decorator.
 
     Functions decorated with @taranaki.function() will execute remotely.
-    Such functions have access to the commands of the remote dictionary server.
+    Such functions have access to the commands of the remote dictionary server they run on.
 
     import taranaki
     from taranaki.compat import get
 
-    @taranaki.function
-    def sum_all(key1, key2):
-        return get(key1) + get(key2)
+    @taranaki.function()
+    def sum_keys(*keys):
+        return sum(int(get(key)) for key in keys)
     """
 
     class wrapper(object):
