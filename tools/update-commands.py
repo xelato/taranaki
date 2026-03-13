@@ -43,7 +43,11 @@ def command_to_method(cmd):
         return "eval_"
     if cmd == "copy":
         return "copy_"
-    return cmd.replace("-", "_")
+
+    cmd = cmd.replace("-", "_")
+    cmd = cmd.replace(".", "_")
+    cmd = cmd.lower()
+    return cmd
 
 
 def main():
@@ -58,9 +62,16 @@ def main():
         commands.add("time")
 
     print("# this file is auto-generated")
-    for command in sorted(commands):
-        def_command = DEF_COMMAND.format(name=command_to_method(command)).strip()
-        print(def_command)
+    transformed = set()
+    for command in commands:
+        if "._" in command:
+            continue
+        if command.startswith("_"):
+            continue
+        transformed.add(command_to_method(command))
+
+    for command in sorted(transformed):
+        print(DEF_COMMAND.format(name=command).strip())
 
 
 if __name__ == "__main__":
