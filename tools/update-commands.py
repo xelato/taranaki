@@ -15,7 +15,7 @@ class Commander:
     def with_flag(self, flag):
         return sorted([name for name in self.info if flag in self.info[name]["flags"]])
 
-    def non_data(self):
+    def others(self):
         return sorted(
             [
                 name
@@ -51,10 +51,14 @@ def main():
 
     ro = c.with_flag("readonly")
     rw = c.with_flag("write")
-    commands = sorted(set.union(set(ro), set(rw)))
+    others = c.others()
+
+    commands = set.union(set(ro), set(rw))
+    if "time" in others:
+        commands.add("time")
 
     print("# this file is auto-generated")
-    for command in commands:
+    for command in sorted(commands):
         def_command = DEF_COMMAND.format(name=command_to_method(command)).strip()
         print(def_command)
 
