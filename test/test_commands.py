@@ -13,10 +13,15 @@ class TestCommands(unittest.TestCase):
         "exists(key='foo')": TypeError(
             "exists() got an unexpected keyword argument 'key'"
         ),
-        "exists(b'key')": 0,
-        "exists('key')": 0,
-        "exists(1)": 0,
-        "exists(3.14)": 0,
+        "delete(b'key'); exists(b'key')": 0,
+        "set_(b'key', 'foo'); exists(b'key')": 1,
+        "delete('key'); exists('key')": 0,
+        "set_('key', 'foo'); exists('key')": 1,
+        "delete(1); exists(1)": 0,
+        "set_(1, 'foo'); exists(1)": 1,
+        "delete(3.14); exists(3.14)": 0,
+        "set_(3.14, 'π'); exists(3.14)": 1,
+        "set_(1, 1); set_('foo', 2); set_(b'bar', 3); exists(1, 'foo', b'bar')": 3,
     }
 
     def test_commands(self):
