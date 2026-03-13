@@ -1,38 +1,23 @@
 import taranaki
-from taranaki.compat import get, set_, scan, keys, dbsize, time
+from taranaki.compat import set_, scan, dbsize, mget
 
 
 @taranaki.function()
 def sum_all_keys():
-    """Get the sum of all number values"""
-    total = 0
-    for key in keys("*"):
-        try:
-            total += int(get(key))
-        except ValueError:
-            pass
-    return total
-
-
-@taranaki.function()
-def sum_all_scan():
-    """Get the sum of all number values"""
-    start = time()
+    """Get the sum of all number values in the db"""
     total = 0
     cursor = 0
     while True:
-        cursor, keys = scan(cursor, 100)
-        for key in keys:
+        cursor, keys = scan(cursor, count=999)
+        for value in mget(*keys):
             try:
-                total += int(get(key))
+                total += int(value)
             except ValueError:
                 pass
-        if cursor == 0:
+        if int(cursor) == 0:
             break
 
-    end = time()
-
-    return total, start, end
+    return total
 
 
 @taranaki.function()
