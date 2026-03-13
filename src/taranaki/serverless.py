@@ -36,7 +36,7 @@ class function(object):
             self.parent = parent
 
         def __call__(self, *args, **kwargs):
-            return self.parent.invoke(*args, **kwargs)
+            return self.parent.call(*args, **kwargs)
 
     def __init__(self, **params):
         # configure
@@ -73,7 +73,7 @@ class function(object):
     def initialize(self, persist=False):
         self.persist = persist
 
-    def invoke(self, *args, **kwargs):
+    def get_snippet(self, *args, **kwargs):
         if self.persist:
             raise NotImplementedError("persisting a function is not supported (yet)")
 
@@ -83,13 +83,14 @@ class function(object):
         for k, v in kwargs:
             params.append("{}={}".format(k, repr(v)))
 
-        snippet = EVAL_INVOCATION.format(
+        return EVAL_INVOCATION.format(
             source=self.function_code,
             name=self.function_name,
             params=", ".join(params),
         ).strip()
 
-        # invoke remotely
+    def call(self, *args, **kwargs):
+        snippet = self.get_snippet(*args, **kwargs)
         client = get_instance()
         return python.py_eval(client, snippet)
 
