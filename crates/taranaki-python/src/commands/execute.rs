@@ -19,8 +19,8 @@ Generic EXECUTE command for invoking other commands.
 
 static KEYWORD_ARGUMENTS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     [
-        // SCAN command
-        "count", "match", "type",
+        "count", "match", "type", // SCAN
+        "ex", "px", "exat", // SET
     ]
     .into()
 });
@@ -127,7 +127,9 @@ impl<'a> Callable for Execute<'a> {
 
         // invoke command
         let items = params.iter().map(|x| x).collect::<Vec<_>>();
-        let result = self.ctx.call(command_name.as_str(), items.as_slice());
+        let result = self
+            .ctx
+            .call(command_name.to_uppercase().as_str(), items.as_slice());
 
         // complete call
         to_external_result(result)
