@@ -161,7 +161,7 @@ fn cmd_to_method(cmd: String) -> String {
     if cmd == "copy" {
         return String::from("copy_");
     }
-    cmd
+    cmd.replace("-", "_")
 }
 
 fn method_to_cmd(method: String) -> String {
@@ -180,5 +180,5 @@ fn method_to_cmd(method: String) -> String {
     if method == "copy_" {
         return String::from("copy");
     }
-    method
+    method.replace("_", "-")
 }
