@@ -1,5 +1,5 @@
 import taranaki
-from taranaki.compat import get, set_, exists
+from taranaki.compat.commands import get, set_, exists
 
 
 @taranaki.function()
