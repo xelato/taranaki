@@ -1,5 +1,5 @@
 import taranaki
-from taranaki.compat import set_, scan, dbsize, mget, get
+from taranaki.compat.commands import set_, scan, dbsize, mget, get
 
 
 @taranaki.function()

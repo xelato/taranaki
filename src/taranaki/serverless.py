@@ -24,7 +24,7 @@ class function(object):
     Such functions have access to the commands of the remote dictionary server they run on.
 
     import taranaki
-    from taranaki.compat import get
+    from taranaki.compat.commands import get
 
     @taranaki.function()
     def sum_keys(*keys):
