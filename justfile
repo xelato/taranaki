@@ -50,7 +50,7 @@ valkey:
         --loadmodule "/app/target/release/libtaranaki_wasm.so" \
 
 update-commands:
-    uv run tools/update-commands.py > src/taranaki/compat.py
+    uv run tools/update-commands.py > src/taranaki/compat/commands.py
 
 # run the redis cli
 cli:

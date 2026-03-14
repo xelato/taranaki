@@ -34,5 +34,5 @@ dev = [
 
 [tool.ruff]
 exclude = [
-    "src/taranaki/compat.py",
+    "src/taranaki/compat/commands.py",
 ]
