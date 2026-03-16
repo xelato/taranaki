@@ -17,8 +17,8 @@ Code needs to be saved to a key before sending a request.
 127.0.0.1:6379> SET /app/hello "r=http_request(); http_response(200, text='Hello, ' + r.args['name'])"
 
 ## Invoke by key
-127.0.0.1:6379> PY.HTTPCALL /app/hello GET /hello?name=World
-127.0.0.1:6379> PY.HTTPCALL /app/hello GET /hello?name=Taranaki
+127.0.0.1:6379> PY.HTTP /app/hello GET /hello?name=World
+127.0.0.1:6379> PY.HTTP /app/hello GET /hello?name=Taranaki
 """
 
 import sys
