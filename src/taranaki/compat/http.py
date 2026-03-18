@@ -2,14 +2,14 @@
 HTTP request processing in Taranaki.
 
 An HTTP "request" is simply a command invocation with special signature for encoding HTTP request parameters:
-<METHOD> <URL> [HEADER <name>:<value>] [CONTENT <CONTENT>]
+<method> <url> [HEADER <name>:<value>] [CONTENT <content>]
 
 It is expected that the code/function responding will interpret those as `HTTPRequest` and return an appropriate `HTTPResponse`. To do so, such code can be assisted by the special platform functions `http_request()` and `http_response()`. Any exceptions raised during processing of the request will be converted to a 503-style `HTTPResponse` under the `PY.HTTP` command invocation.
 
 Code needs to be saved to a key before sending a request.
 
-127.0.0.1:6379> SET <KEY> <CODE>
-127.0.0.1:6379> PY.HTTP <KEY> <METHOD> <URL> [HEADER <name>:<value>] [CONTENT <CONTENT>]
+127.0.0.1:6379> SET <key> <code>
+127.0.0.1:6379> PY.HTTP <key> <method> <url> [HEADER <name>:<value>] [CONTENT <content>]
 
 # Hello, world!
 
@@ -234,7 +234,7 @@ def main():
     redirect = http_redirect(location="https://example.com")
     print(redirect)
 
-    r = http_request(
+    req = http_request(
         [
             "/app/httpbin",
             "GET",
@@ -247,7 +247,7 @@ def main():
             "the content",
         ]
     )
-    print(r)
+    print(req)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,8 @@ Run Python at a remote Taranaki-enabled instance.
 
 import builtins
 
+from .compat import http
+
 
 def py_eval(redis_client, expression: str) -> object:
     """Evaluate python expression at a remote Taranaki-enabled instance.
@@ -11,6 +13,26 @@ def py_eval(redis_client, expression: str) -> object:
     Return the result as a python object.
     """
     return convert(redis_client.execute_command("PY.EVAL", expression))
+
+
+def py_http(redis_client, key: str, request: http.HTTPRequest) -> http.HTTPResponse:
+    assert isinstance(request, http.HTTPRequest)
+    argv = []
+    argv.append(key)
+    argv.append(request.method)
+    argv.append(request.url)
+    for header_name in request.headers:
+        argv.append("HEADER")
+        argv.append("{}:{}".format(header_name, request.headers[header_name]))
+    if request.content:
+        argv.append("CONTENT")
+        argv.append(request.content)
+    command = ["PY.HTTP", *argv]
+    print()
+    print(command)
+    # todo: run command
+    # redis_client.execute_command("PY.HTTP", *argv)
+    return http.http_response(200, json={'hello': 'fooo!!!!!'})
 
 
 def convert(value: object):
