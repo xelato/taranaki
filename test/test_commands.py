@@ -21,7 +21,20 @@ class TestCommands(unittest.TestCase):
         "set_(1, 'foo'); exists(1)": 1,
         "delete(3.14); exists(3.14)": 0,
         "set_(3.14, 'π'); exists(3.14)": 1,
+        "set_(1, 1); set_('foo', 2); delete(b'bar'); exists(1, 'foo', b'bar')": 2,
         "set_(1, 1); set_('foo', 2); set_(b'bar', 3); exists(1, 'foo', b'bar')": 3,
+    }
+
+    WITH_ARGS = [
+        ("sysargv()", [], ["main.py"]),
+        ("sysargv()", ["a", "b", "c"], ["main.py", "a", "b", "c"]),
+        ("sysargv()", [1, 2, 3], ["main.py", "1", "2", "3"]),
+        ("[int(x) for x in sysargv()[1:]]", [1, 2, 3], [1, 2, 3]),
+    ]
+
+    READONLY_MODE = {
+        "set_(1, 1)": NameError("name 'set_' is not defined"),
+        "exists('does not exist')": 0,
     }
 
     def test_commands(self):
@@ -34,4 +47,22 @@ class TestCommands(unittest.TestCase):
                 self.assertEqual(str(cm.exception), str(value))
             else:
                 result = python.py_eval(client_instance, expression)
+                self.assertEqual(result, value)
+
+    def test_with_args(self):
+        client_instance = client.get_instance()
+        for expression, args, expected in self.WITH_ARGS:
+            result = python.py_eval(client_instance, expression, args)
+            self.assertEqual(result, expected)
+
+    def test_commands_readonly(self):
+        client_instance = client.get_instance()
+        for expression, value in self.READONLY_MODE.items():
+            if isinstance(value, Exception):
+                exc_type = type(value)
+                with self.assertRaises(exc_type) as cm:
+                    python.py_eval(client_instance, expression, readonly=True)
+                self.assertEqual(str(cm.exception), str(value))
+            else:
+                result = python.py_eval(client_instance, expression, readonly=True)
                 self.assertEqual(result, value)
