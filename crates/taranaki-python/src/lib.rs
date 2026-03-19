@@ -9,13 +9,6 @@ use crate::mode::Mode;
 use redis_module::redis_module;
 use redis_module::{Context, NextArg, RedisError, RedisResult, RedisString};
 
-/// PY.EVAL <EXPRESSION> [RO|RX]
-/// Evaluate a Python expression.
-/// Optional flags:
-///     RW - access to all available commands (default)
-///     RO - access to read-only commands
-///     RX - restricted execution, no commands access
-
 /*
 PY.EVAL <EXPRESSION> [ARG [ARG [...]]]
 PY.EVAL_RO <EXPRESSION> [ARG [ARG [...]]]
@@ -45,6 +38,7 @@ fn python_eval(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult
         let Some(value) = args_iter.next() else {
             break;
         };
+        // arguments are expected to be encoded in utf-8
         argv.push(value.to_string_lossy());
     }
 

@@ -5,7 +5,7 @@ Run Python at a remote Taranaki-enabled instance.
 import builtins
 
 
-def py_eval(redis_client, expression: str, args: tuple[str]) -> object:
+def py_eval(redis_client, expression: str, args: tuple[str]=tuple()) -> object:
     """Evaluate python expression at a remote Taranaki-enabled instance.
 
     Return the result as a python object.
