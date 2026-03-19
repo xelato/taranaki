@@ -87,13 +87,7 @@ impl<'a> Commander<'a> {
             .into(),
 
             // sys.argv: list[str]
-            "sysargv" => MontyObject::List(
-                self.argv
-                    .iter()
-                    .map(|x| MontyObject::String(x.clone()))
-                    .collect(),
-            )
-            .into(),
+            "sysargv" => commands::sysargv::Sysargv { argv: &self.argv }.call(args, kwargs),
 
             // custom impl
             "exists" => commands::exists::Exists { ctx: self.ctx }.call(args, kwargs),
