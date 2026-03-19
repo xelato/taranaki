@@ -19,9 +19,10 @@ def cli(host, port, db, url):
 
 @cli.command(name="eval", help="Evaluate Python expression")
 @click.argument("expression", required=True)
+@click.argument("args", nargs=-1, type=click.UNPROCESSED)
 @cli_error_handler
-def py_eval(expression):
-    print(python.py_eval(client.get_instance(), expression))
+def py_eval(expression, args):
+    print(python.py_eval(client.get_instance(), expression, args))
 
 
 @cli.command(name="wasm", help="Invoke wasm function")
