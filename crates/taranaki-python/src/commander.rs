@@ -9,14 +9,20 @@ use redis_module::{Context, RedisError, RedisString, RedisValue};
 pub struct Commander<'a> {
     ctx: &'a Context,
     pub commands: Vec<String>,
+    argv: Vec<String>,
 }
 
 impl<'a> Commander<'a> {
-    pub fn get_instance(ctx: &'a Context, mode: Mode) -> Result<Self, RedisError> {
+    pub fn get_instance(
+        ctx: &'a Context,
+        mode: Mode,
+        argv: Vec<String>,
+    ) -> Result<Self, RedisError> {
         if let Mode::RX = mode {
             return Ok(Self {
                 ctx: ctx,
                 commands: vec![],
+                argv: argv,
             });
         }
 
@@ -51,6 +57,7 @@ impl<'a> Commander<'a> {
         Ok(Self {
             ctx: ctx,
             commands: commands,
+            argv: argv,
         })
     }
 
