@@ -27,6 +27,7 @@ impl<'a> Commander<'a> {
         }
 
         let result = ctx.call("COMMAND", (vec![] as Vec<&RedisString>).as_slice())?;
+        // todo: cache info the first time it is used
         let info = parse_command_info(result)?;
 
         let mut commands: Vec<String> = Vec::new();
@@ -53,6 +54,8 @@ impl<'a> Commander<'a> {
 
         // additional custom
         commands.push(String::from("commands"));
+        // todo: naming this "sys_argv" leads to problems...
+        commands.push(String::from("sysargv"));
 
         Ok(Self {
             ctx: ctx,
@@ -77,6 +80,15 @@ impl<'a> Commander<'a> {
             // custom command
             "commands" => MontyObject::Tuple(
                 self.commands
+                    .iter()
+                    .map(|x| MontyObject::String(x.clone()))
+                    .collect(),
+            )
+            .into(),
+
+            // sys.argv: list[str]
+            "sysargv" => MontyObject::List(
+                self.argv
                     .iter()
                     .map(|x| MontyObject::String(x.clone()))
                     .collect(),
