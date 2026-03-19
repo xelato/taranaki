@@ -1,6 +1,7 @@
 import unittest
 
 import taranaki
+from taranaki import python, client
 
 
 @taranaki.function()
@@ -26,6 +27,14 @@ def gcd(a: int, b: int) -> int:
 gcd(10, 25)
 """
 
+GCD_SNIPPET_ARGV = """
+def gcd(a: int, b: int) -> int:
+    while b:
+        a, b = (b, a % b)
+    return abs(a)
+gcd(*[int(x) for x in sysargv()])
+"""
+
 
 class TestFunction(unittest.TestCase):
     def test_function(self):
@@ -39,3 +48,11 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(gcd.parent.function_name, "gcd")
         self.assertEqual(gcd.parent.function_code, GCD_CODE.strip())
         self.assertEqual(gcd.parent.get_snippet(10, 25), GCD_SNIPPET.strip())
+
+        # eval args inlined
+        self.assertEqual(python.py_eval(client.get_instance(), GCD_SNIPPET), 5)
+
+        # eval args commandline
+        self.assertEqual(
+            python.py_eval(client.get_instance(), GCD_SNIPPET_ARGV, (10, 25)), 5
+        )

@@ -21,8 +21,16 @@ class TestCommands(unittest.TestCase):
         "set_(1, 'foo'); exists(1)": 1,
         "delete(3.14); exists(3.14)": 0,
         "set_(3.14, 'π'); exists(3.14)": 1,
+        "set_(1, 1); set_('foo', 2); delete(b'bar'); exists(1, 'foo', b'bar')": 2,
         "set_(1, 1); set_('foo', 2); set_(b'bar', 3); exists(1, 'foo', b'bar')": 3,
     }
+
+    WITH_ARGS = [
+        ("sysargv()", [], []),
+        ("sysargv()", ["a", "b", "c"], ['a', 'b', 'c']),
+        ("sysargv()", [1, 2, 3], ['1', '2', '3']),
+        ("[int(x) for x in sysargv()]", [1, 2, 3], [1, 2, 3]),
+    ]
 
     def test_commands(self):
         client_instance = client.get_instance()
@@ -35,3 +43,9 @@ class TestCommands(unittest.TestCase):
             else:
                 result = python.py_eval(client_instance, expression)
                 self.assertEqual(result, value)
+
+    def test_with_args(self):
+        client_instance = client.get_instance()
+        for expression, args, expected in self.WITH_ARGS:
+            result = python.py_eval(client_instance, expression, args)
+            self.assertEqual(result, expected)
