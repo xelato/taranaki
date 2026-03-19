@@ -34,7 +34,8 @@ fn python_eval(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult
 
     // arguments
     let mut argv: Vec<String> = Vec::new();
-    //argv.push(String::from("main.py"));
+    // first argument is script name matching cpython behaviour
+    argv.push(String::from("main.py"));
     loop {
         let Some(value) = args_iter.next() else {
             break;

@@ -26,10 +26,10 @@ class TestCommands(unittest.TestCase):
     }
 
     WITH_ARGS = [
-        ("sysargv()", [], []),
-        ("sysargv()", ["a", "b", "c"], ["a", "b", "c"]),
-        ("sysargv()", [1, 2, 3], ["1", "2", "3"]),
-        ("[int(x) for x in sysargv()]", [1, 2, 3], [1, 2, 3]),
+        ("sysargv()", [], ["main.py"]),
+        ("sysargv()", ["a", "b", "c"], ["main.py", "a", "b", "c"]),
+        ("sysargv()", [1, 2, 3], ["main.py", "1", "2", "3"]),
+        ("[int(x) for x in sysargv()[1:]]", [1, 2, 3], [1, 2, 3]),
     ]
 
     def test_commands(self):
