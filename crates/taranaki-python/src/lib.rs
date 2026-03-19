@@ -27,7 +27,7 @@ Evaluate a Python expression in RW, RO or RX mode.
 */
 fn python_eval(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {
     let num_args = args.len();
-    if num_args < 2 || num_args > 3 {
+    if num_args < 2 {
         return Err(RedisError::WrongArity);
     }
 
