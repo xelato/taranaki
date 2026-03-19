@@ -32,6 +32,11 @@ class TestCommands(unittest.TestCase):
         ("[int(x) for x in sysargv()[1:]]", [1, 2, 3], [1, 2, 3]),
     ]
 
+    READONLY_MODE = {
+        "set_(1, 1)": NameError("name 'set_' is not defined"),
+        "exists('does not exist')": 0,
+    }
+
     def test_commands(self):
         client_instance = client.get_instance()
         for expression, value in self.EXAMPLES.items():
@@ -49,3 +54,15 @@ class TestCommands(unittest.TestCase):
         for expression, args, expected in self.WITH_ARGS:
             result = python.py_eval(client_instance, expression, args)
             self.assertEqual(result, expected)
+
+    def test_commands_readonly(self):
+        client_instance = client.get_instance()
+        for expression, value in self.READONLY_MODE.items():
+            if isinstance(value, Exception):
+                exc_type = type(value)
+                with self.assertRaises(exc_type) as cm:
+                    python.py_eval(client_instance, expression, readonly=True)
+                self.assertEqual(str(cm.exception), str(value))
+            else:
+                result = python.py_eval(client_instance, expression, readonly=True)
+                self.assertEqual(result, value)

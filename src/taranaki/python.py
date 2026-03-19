@@ -5,13 +5,16 @@ Run Python at a remote Taranaki-enabled instance.
 import builtins
 
 
-def py_eval(redis_client, expression: str, args: tuple[str] = tuple()) -> object:
+def py_eval(
+    redis_client, expression: str, args: tuple[str] = tuple(), readonly=False
+) -> object:
     """Evaluate python expression at a remote Taranaki-enabled instance.
 
     Return the result as a python object.
     """
+    command = "PY.EVAL_RO" if readonly else "PY.EVAL"
     argv = [expression, *args]
-    return convert(redis_client.execute_command("PY.EVAL", *argv))
+    return convert(redis_client.execute_command(command, *argv))
 
 
 def convert(value: object):
