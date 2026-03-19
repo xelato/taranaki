@@ -1,0 +1,52 @@
+use crate::commands::callable::Callable;
+use monty::ExcType;
+use monty::ExternalResult;
+use monty::MontyException;
+use monty::MontyObject;
+
+/*
+sysargv() -> list[str]
+First argument is the name of the script, matching cpython behaviour.
+*/
+pub struct Sysargv<'a> {
+    pub argv: &'a Vec<String>,
+}
+impl<'a> Callable for Sysargv<'a> {
+    fn call(
+        &self,
+        args: Vec<MontyObject>,
+        kwargs: Vec<(MontyObject, MontyObject)>,
+    ) -> ExternalResult {
+        // validate args
+        if args.len() > 0 {
+            let num_args = args.len();
+            return MontyException::new(
+                ExcType::TypeError,
+                Some(format!(
+                    "sysargv() takes 0 positional arguments but {num_args} was given"
+                )),
+            )
+            .into();
+        }
+
+        // validate kwargs
+        for (k, _v) in kwargs {
+            let name = k.to_string();
+            return MontyException::new(
+                ExcType::TypeError,
+                Some(format!(
+                    "sysargv() got an unexpected keyword argument '{name}'"
+                )),
+            )
+            .into();
+        }
+
+        // complete call
+        ExternalResult::Return(MontyObject::List(
+            self.argv
+                .iter()
+                .map(|x| MontyObject::String(x.clone()))
+                .collect(),
+        ))
+    }
+}

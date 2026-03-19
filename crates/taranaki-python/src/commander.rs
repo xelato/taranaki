@@ -9,18 +9,25 @@ use redis_module::{Context, RedisError, RedisString, RedisValue};
 pub struct Commander<'a> {
     ctx: &'a Context,
     pub commands: Vec<String>,
+    argv: Vec<String>,
 }
 
 impl<'a> Commander<'a> {
-    pub fn get_instance(ctx: &'a Context, mode: Mode) -> Result<Self, RedisError> {
+    pub fn get_instance(
+        ctx: &'a Context,
+        mode: Mode,
+        argv: Vec<String>,
+    ) -> Result<Self, RedisError> {
         if let Mode::RX = mode {
             return Ok(Self {
                 ctx: ctx,
                 commands: vec![],
+                argv: argv,
             });
         }
 
         let result = ctx.call("COMMAND", (vec![] as Vec<&RedisString>).as_slice())?;
+        // todo: cache info the first time it is used
         let info = parse_command_info(result)?;
 
         let mut commands: Vec<String> = Vec::new();
@@ -47,10 +54,13 @@ impl<'a> Commander<'a> {
 
         // additional custom
         commands.push(String::from("commands"));
+        // todo: naming this "sys_argv" leads to problems...
+        commands.push(String::from("sysargv"));
 
         Ok(Self {
             ctx: ctx,
             commands: commands,
+            argv: argv,
         })
     }
 
@@ -75,6 +85,9 @@ impl<'a> Commander<'a> {
                     .collect(),
             )
             .into(),
+
+            // sys.argv: list[str]
+            "sysargv" => commands::sysargv::Sysargv { argv: &self.argv }.call(args, kwargs),
 
             // custom impl
             "exists" => commands::exists::Exists { ctx: self.ctx }.call(args, kwargs),
