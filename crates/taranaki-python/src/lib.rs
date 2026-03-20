@@ -31,13 +31,7 @@ PY.HTTP <key> <method> <url> [HEADER <name>:<value> [HEADER <name>:<value> [...]
 127.0.0.1:6379> PY.HTTP /app/hello GET /hello?name=Taranaki
 */
 
-fn call_or_eval(
-    ctx: &Context,
-    args: Vec<RedisString>,
-    mode: Mode,
-    is_call: bool,
-    is_http: bool,
-) -> RedisResult {
+fn call_or_eval(ctx: &Context, args: Vec<RedisString>, mode: Mode, is_call: bool) -> RedisResult {
     let num_args = args.len();
     if num_args < 2 {
         return Err(RedisError::WrongArity);
@@ -80,44 +74,48 @@ fn call_or_eval(
     }
 
     let commander = commander::Commander::get_instance(ctx, mode.clone(), argv)?;
+    Ok(crate::eval::eval(&commander, code, mode.clone()))
+}
+
+fn http_call(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {
     // todo: lossless/lossy serialization
     // todo: convert exceptions/errors and incorrect return types to 503
     // todo: namedtuple support
     // todo: implement http_request()
     // todo: implement http_response()
-    Ok(crate::eval::eval(&commander, code, mode.clone()))
+    call_or_eval(ctx, args, mode, true)
 }
 
 pub fn python_eval_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    call_or_eval(ctx, args, Mode::RW, false, false)
+    call_or_eval(ctx, args, Mode::RW, false)
 }
 
 pub fn python_eval_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    call_or_eval(ctx, args, Mode::RO, false, false)
+    call_or_eval(ctx, args, Mode::RO, false)
 }
 
 pub fn python_eval_rx(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    call_or_eval(ctx, args, Mode::RX, false, false)
+    call_or_eval(ctx, args, Mode::RX, false)
 }
 
 pub fn python_call_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    call_or_eval(ctx, args, Mode::RW, true, false)
+    call_or_eval(ctx, args, Mode::RW, true)
 }
 
 pub fn python_call_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    call_or_eval(ctx, args, Mode::RO, true, false)
+    call_or_eval(ctx, args, Mode::RO, true)
 }
 
 pub fn python_call_rx(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    call_or_eval(ctx, args, Mode::RX, true, false)
+    call_or_eval(ctx, args, Mode::RX, true)
 }
 
 pub fn python_http_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    call_or_eval(ctx, args, Mode::RO, true, true)
+    http_call(ctx, args, Mode::RO)
 }
 
 pub fn python_http_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    call_or_eval(ctx, args, Mode::RW, true, true)
+    http_call(ctx, args, Mode::RW)
 }
 
 redis_module! {
