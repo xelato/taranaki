@@ -130,9 +130,7 @@ fn http_call(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {
     // todo: implement http_request()
     // todo: implement http_response()
     let result = call_or_eval(ctx, args, mode, true)?;
-    // todo: convert exceptions and incorrect return types to 503
-    // todo:
-    // return
+    // todo: convert exceptions and incorrect return types to 500
     lossy::serialize(result)
 }
 
@@ -163,12 +161,12 @@ pub fn py_call_rx(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
 }
 
 // HTTP calls
-pub fn py_http_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
-    http_call(ctx, args, Mode::RO)
-}
-
 pub fn py_http_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     http_call(ctx, args, Mode::RW)
+}
+
+pub fn py_http_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+    http_call(ctx, args, Mode::RO)
 }
 
 // Lossless
