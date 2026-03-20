@@ -74,7 +74,9 @@ fn call_or_eval(ctx: &Context, args: Vec<RedisString>, mode: Mode, is_call: bool
     }
 
     let commander = commander::Commander::get_instance(ctx, mode.clone(), argv)?;
-    Ok(crate::eval::eval(&commander, code, mode.clone()))
+    let monty_result = crate::eval::eval(&commander, code, mode.clone());
+    // result
+    serialize::serialize_result(monty_result)
 }
 
 fn http_call(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {

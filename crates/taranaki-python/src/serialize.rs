@@ -1,5 +1,5 @@
 use monty::{DictPairs, ExcType, MontyException, MontyObject};
-use redis_module::RedisValue;
+use redis_module::{RedisResult, RedisValue};
 
 /*
 Convert Monty interpreter objects to Redis objects suitable for external consumption.
@@ -107,5 +107,14 @@ pub fn monty_to_redis(object: MontyObject) -> RedisValue {
             "unsupported".to_string(),
             RedisValue::BulkString(object.to_string()),
         ),
+    }
+}
+
+pub fn serialize_result(monty_result: Result<MontyObject, MontyException>) -> RedisResult {
+    match monty_result {
+        Ok(value) => Ok(crate::serialize::monty_to_redis(value)),
+        Err(error) => {
+            return Ok(crate::serialize::raise(error));
+        }
     }
 }

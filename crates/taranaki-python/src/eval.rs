@@ -2,9 +2,12 @@ use crate::commander::Commander;
 use crate::mode::Mode;
 use monty::{ExternalResult, MontyException, PrintWriter};
 use monty::{MontyObject, MontyRun, NoLimitTracker, RunProgress};
-use redis_module::RedisValue;
 
-pub fn eval(commander: &Commander, code: String, mode: Mode) -> RedisValue {
+pub fn eval(
+    commander: &Commander,
+    code: String,
+    mode: Mode,
+) -> Result<MontyObject, MontyException> {
     match mode {
         Mode::RX => eval_simple(code),
         Mode::RO | Mode::RW => eval_with_commands(commander, code),
@@ -12,27 +15,18 @@ pub fn eval(commander: &Commander, code: String, mode: Mode) -> RedisValue {
 }
 
 /// evaluate in RX mode
-fn eval_simple(code: String) -> RedisValue {
+fn eval_simple(code: String) -> Result<MontyObject, MontyException> {
     let runner = match MontyRun::new(code.to_owned(), "main.py", vec![], vec![]) {
         Ok(x) => x,
         Err(error) => {
-            return crate::serialize::raise(error);
+            return Err(error);
         }
     };
 
-    let monty_result = runner.run_no_limits(vec![]);
-
-    let value: MontyObject = match monty_result {
-        Ok(value) => value,
-        Err(error) => {
-            return crate::serialize::raise(error);
-        }
-    };
-
-    crate::serialize::monty_to_redis(value)
+    runner.run_no_limits(vec![])
 }
 
-fn eval_with_commands(commander: &Commander, code: String) -> RedisValue {
+fn eval_with_commands(commander: &Commander, code: String) -> Result<MontyObject, MontyException> {
     let runner = match MontyRun::new(
         commander.get_code(code.to_owned()),
         "main.py",
@@ -41,7 +35,7 @@ fn eval_with_commands(commander: &Commander, code: String) -> RedisValue {
     ) {
         Ok(run) => run,
         Err(error) => {
-            return crate::serialize::raise(error);
+            return Err(error);
         }
     };
 
@@ -51,13 +45,13 @@ fn eval_with_commands(commander: &Commander, code: String) -> RedisValue {
         let progress: RunProgress<NoLimitTracker> = match progress_result {
             Ok(pr) => pr.into(),
             Err(error) => {
-                return crate::serialize::raise(error);
+                return Err(error);
             }
         };
 
         progress_result = match progress {
             RunProgress::Complete(value) => {
-                return crate::serialize::monty_to_redis(value.clone());
+                return Ok(value);
             }
 
             RunProgress::FunctionCall {
@@ -74,7 +68,7 @@ fn eval_with_commands(commander: &Commander, code: String) -> RedisValue {
             }
 
             _ => {
-                return crate::serialize::raise(MontyException::new(
+                return Err(MontyException::new(
                     monty::ExcType::NotImplementedError,
                     Some(String::from("RunProgress not implemented")),
                 ));
