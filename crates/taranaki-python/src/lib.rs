@@ -119,37 +119,37 @@ fn http_call(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {
 }
 
 // Eval calls
-pub fn python_eval_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn py_eval_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     function_call(ctx, args, Mode::RW, false, true)
 }
 
-pub fn python_eval_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn py_eval_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     function_call(ctx, args, Mode::RO, false, true)
 }
 
-pub fn python_eval_rx(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn py_eval_rx(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     function_call(ctx, args, Mode::RX, false, true)
 }
 
 // Function calls
-pub fn python_call_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn py_call_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     function_call(ctx, args, Mode::RW, true, true)
 }
 
-pub fn python_call_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn py_call_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     function_call(ctx, args, Mode::RO, true, true)
 }
 
-pub fn python_call_rx(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn py_call_rx(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     function_call(ctx, args, Mode::RX, true, true)
 }
 
 // HTTP calls
-pub fn python_http_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn py_http_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     http_call(ctx, args, Mode::RO)
 }
 
-pub fn python_http_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+pub fn py_http_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     http_call(ctx, args, Mode::RW)
 }
 
@@ -159,15 +159,15 @@ redis_module! {
     allocator: (redis_module::alloc::RedisAlloc, redis_module::alloc::RedisAlloc),
     data_types: [],
     commands: [
-        ["py.eval", python_eval_rw, "", 0, 0, 0, ""],
-        ["py.eval_ro", python_eval_ro, "", 0, 0, 0, ""],
-        ["py.eval_rx", python_eval_rx, "", 0, 0, 0, ""],
+        ["py.eval", py_eval_rw, "", 0, 0, 0, ""],
+        ["py.eval_ro", py_eval_ro, "", 0, 0, 0, ""],
+        ["py.eval_rx", py_eval_rx, "", 0, 0, 0, ""],
 
-        ["py.call", python_call_rw, "", 0, 0, 0, ""],
-        ["py.call_ro", python_call_ro, "", 0, 0, 0, ""],
-        ["py.call_rx", python_call_rx, "", 0, 0, 0, ""],
+        ["py.call", py_call_rw, "", 0, 0, 0, ""],
+        ["py.call_ro", py_call_ro, "", 0, 0, 0, ""],
+        ["py.call_rx", py_call_rx, "", 0, 0, 0, ""],
 
-        ["py.http", python_http_rw, "", 0, 0, 0, ""],
-        ["py.http_ro", python_http_ro, "", 0, 0, 0, ""],
+        ["py.http", py_http_rw, "", 0, 0, 0, ""],
+        ["py.http_ro", py_http_ro, "", 0, 0, 0, ""],
     ],
 }
