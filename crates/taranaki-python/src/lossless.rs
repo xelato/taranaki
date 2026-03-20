@@ -103,10 +103,11 @@ fn monty_to_redis(object: MontyObject) -> RedisValue {
     }
 }
 
-pub fn serialize_result(monty_result: Result<MontyObject, MontyException>) -> RedisResult {
-    match monty_result {
+pub fn serialize(result: Result<MontyObject, MontyException>) -> RedisResult {
+    match result {
         Ok(value) => Ok(monty_to_redis(value)),
         Err(error) => {
+            // that's correct
             return Ok(raise(error));
         }
     }

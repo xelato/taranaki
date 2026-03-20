@@ -2,8 +2,8 @@ mod commander;
 mod commands;
 mod convert;
 mod eval;
+mod lossless;
 mod mode;
-mod serialize;
 
 use crate::mode::Mode;
 use redis_module::redis_module;
@@ -74,9 +74,9 @@ fn call_or_eval(ctx: &Context, args: Vec<RedisString>, mode: Mode, is_call: bool
     }
 
     let commander = commander::Commander::get_instance(ctx, mode.clone(), argv)?;
-    let monty_result = crate::eval::eval(&commander, code, mode.clone());
+    let result = crate::eval::eval(&commander, code, mode.clone());
     // result
-    serialize::serialize_result(monty_result)
+    lossless::serialize(result)
 }
 
 fn http_call(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {
