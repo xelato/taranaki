@@ -32,8 +32,18 @@ def py_call(
 
 
 def py_http(
-    redis_client, key: str, method, url, headers=None, content=None, readonly=False
+    redis_client,
+    key: str,
+    method: str,
+    url: str,
+    headers=None,
+    content=None,
+    readonly=False,
 ) -> http.HTTPResponse:
+    """Send an HTTP "request" to be processed by Python code stored at `key`.
+
+    Return an HTTP "response".
+    """
     argv = []
     argv.append(key)
     argv.append(method)
