@@ -1,4 +1,4 @@
-import os
+# import os
 import ngrok
 import aiohttp
 from aiohttp import web
@@ -30,21 +30,15 @@ class AIOHTTPServer:
         web.run_app(self.app, sock=listener)
 
     async def handle(self, request: aiohttp.web_request.Request):
-        http_request = await self.from_aiohttp(request)
         http_response = python.py_http(
-            client.get_instance(), key=self.key, request=http_request
-        )
-        return self.to_aiohttp(http_response)
-
-    async def from_aiohttp(
-        self, request: aiohttp.web_request.Request
-    ) -> http.HTTPRequest:
-        return http.HTTPRequest(
+            client.get_instance(),
+            key=self.key,
             method=request.method,
             url=str(request.url),
             headers=request.headers,
             content=await request.read(),
         )
+        return self.to_aiohttp(http_response)
 
     def to_aiohttp(self, response: http.HTTPResponse) -> aiohttp.web_response.Response:
         print(response)
@@ -59,9 +53,9 @@ class AIOHTTPServer:
 def run(key: str):
     """Drive HTTP traffic to the app deployed at `key`."""
 
-    #builder = ngrok.HttpListenerBuilder(domain=os.environ.get('NGROK_DOMAIN'))
-    #print(builder, type(builder))
-    #print(dir(builder))
+    # builder = ngrok.HttpListenerBuilder(domain=os.environ.get('NGROK_DOMAIN'))
+    # print(builder, type(builder))
+    # print(dir(builder))
     # ngrok.set_auth_token(token)
 
     listener = ngrok.listen()

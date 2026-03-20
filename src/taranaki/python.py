@@ -19,24 +19,39 @@ def py_eval(
     return convert(redis_client.execute_command(command, *argv))
 
 
-def py_http(redis_client, key: str, request: http.HTTPRequest) -> http.HTTPResponse:
-    assert isinstance(request, http.HTTPRequest)
+def py_call(
+    redis_client, key: str, args: tuple[str] = tuple(), readonly=False
+) -> object:
+    """Call a python code snippet stored at `key`.
+
+    Return the result as a python object.
+    """
+    command = "PY.CALL_RO" if readonly else "PY.CALL"
+    argv = [key, *args]
+    return convert(redis_client.execute_command(command, *argv))
+
+
+def py_http(
+    redis_client, key: str, method, url, headers=None, content=None, readonly=False
+) -> http.HTTPResponse:
     argv = []
     argv.append(key)
-    argv.append(request.method)
-    argv.append(request.url)
-    for header_name in request.headers:
-        argv.append("HEADER")
-        argv.append("{}:{}".format(header_name, request.headers[header_name]))
-    if request.content:
+    argv.append(method)
+    argv.append(url)
+    if headers:
+        for header_name in headers:
+            argv.append("HEADER")
+            argv.append("{}:{}".format(header_name, headers[header_name]))
+    if content:
         argv.append("CONTENT")
-        argv.append(request.content)
-    command = ["PY.HTTP", *argv]
+        argv.append(content)
+
+    command = "PY.HTTP_RO" if readonly else "PY.HTTP"
     print()
-    print(command)
-    # todo: run command
-    # redis_client.execute_command("PY.HTTP", *argv)
-    return http.http_response(200, json={'hello': 'fooo!!!!!'})
+    print([command, *argv])
+    redis_client.execute_command(command, *argv)
+    # todo: convert to HTTPResponse
+    return http.http_response(200, json={"hello": "fooo!!!!!"})
 
 
 def convert(value: object):
