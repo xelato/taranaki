@@ -13,13 +13,6 @@ choose "transport" over Redis types.
     Simple types map well (None, Int, Float),
  3. Use envelope format for objects that don't have a corresponding RedisValue or it would be ambiguous to use it
  without additional type information.
-
-Not implemented in Monty:
- - NotImplemented
- - str.format
- - complex
- - bytearray, memoryview
- - union: int | str
 */
 
 fn singleton(name: String) -> RedisValue {
@@ -45,14 +38,14 @@ fn dict_pairs(pairs: DictPairs) -> RedisValue {
     RedisValue::Array(items)
 }
 
-pub fn raise(exception: MontyException) -> RedisValue {
+fn raise(exception: MontyException) -> RedisValue {
     envelope(
         "raise".to_string(),
         exception_envelope(exception.exc_type(), exception.message().map(String::from)),
     )
 }
 
-pub fn exception_envelope(exc_type: ExcType, arg: Option<String>) -> RedisValue {
+fn exception_envelope(exc_type: ExcType, arg: Option<String>) -> RedisValue {
     envelope(
         "exception".to_string(),
         RedisValue::Array(vec![
@@ -65,7 +58,7 @@ pub fn exception_envelope(exc_type: ExcType, arg: Option<String>) -> RedisValue 
     )
 }
 
-pub fn monty_to_redis(object: MontyObject) -> RedisValue {
+fn monty_to_redis(object: MontyObject) -> RedisValue {
     match object {
         // types that can be mapped to an existing RedisValue type unambiguously
         MontyObject::None => RedisValue::Null,
@@ -112,9 +105,9 @@ pub fn monty_to_redis(object: MontyObject) -> RedisValue {
 
 pub fn serialize_result(monty_result: Result<MontyObject, MontyException>) -> RedisResult {
     match monty_result {
-        Ok(value) => Ok(crate::serialize::monty_to_redis(value)),
+        Ok(value) => Ok(monty_to_redis(value)),
         Err(error) => {
-            return Ok(crate::serialize::raise(error));
+            return Ok(raise(error));
         }
     }
 }
