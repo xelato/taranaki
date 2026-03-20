@@ -9,13 +9,13 @@ pub fn eval(
     mode: Mode,
 ) -> Result<MontyObject, MontyException> {
     match mode {
-        Mode::RX => eval_simple(code),
+        Mode::RX => eval_restricted(code),
         Mode::RO | Mode::RW => eval_with_commands(commander, code),
     }
 }
 
 /// evaluate in RX mode
-fn eval_simple(code: String) -> Result<MontyObject, MontyException> {
+fn eval_restricted(code: String) -> Result<MontyObject, MontyException> {
     let runner = match MontyRun::new(code.to_owned(), "main.py", vec![], vec![]) {
         Ok(x) => x,
         Err(error) => {

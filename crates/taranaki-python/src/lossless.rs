@@ -108,7 +108,7 @@ pub fn serialize(result: Result<MontyObject, MontyException>) -> RedisResult {
         Ok(value) => Ok(monty_to_redis(value)),
         Err(error) => {
             // that's correct
-            return Ok(raise(error));
+            Ok(raise(error))
         }
     }
 }

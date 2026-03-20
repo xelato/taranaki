@@ -1,10 +1,9 @@
-use std::collections::{HashMap, HashSet};
-
+use crate::command_info::CommandInfo;
+use crate::commands;
 use crate::commands::callable::Callable;
 use crate::mode::Mode;
-use crate::{commands, convert};
 use monty::{ExternalResult, MontyObject};
-use redis_module::{Context, RedisError, RedisString, RedisValue};
+use redis_module::Context;
 
 pub struct Commander<'a> {
     ctx: &'a Context,
@@ -17,18 +16,15 @@ impl<'a> Commander<'a> {
         ctx: &'a Context,
         mode: Mode,
         argv: Vec<String>,
-    ) -> Result<Self, RedisError> {
+        command_info: &CommandInfo,
+    ) -> Self {
         if let Mode::RX = mode {
-            return Ok(Self {
+            return Self {
                 ctx: ctx,
                 commands: vec![],
                 argv: argv,
-            });
+            };
         }
-
-        let result = ctx.call("COMMAND", (vec![] as Vec<&RedisString>).as_slice())?;
-        // todo: cache info the first time it is used
-        let info = parse_command_info(result)?;
 
         let mut commands: Vec<String> = Vec::new();
 
@@ -36,7 +32,7 @@ impl<'a> Commander<'a> {
         if let Mode::RW = mode {
             rw = true;
         }
-        for (name, flags) in info {
+        for (name, flags) in command_info {
             let mut add = false;
             if flags.contains(&String::from("readonly")) {
                 add = true;
@@ -48,7 +44,7 @@ impl<'a> Commander<'a> {
                 add = true;
             }
             if add {
-                commands.push(cmd_to_method(name));
+                commands.push(cmd_to_method(name.to_string()));
             }
         }
 
@@ -57,11 +53,11 @@ impl<'a> Commander<'a> {
         // todo: naming this "sys_argv" leads to problems...
         commands.push(String::from("sysargv"));
 
-        Ok(Self {
+        Self {
             ctx: ctx,
             commands: commands,
             argv: argv,
-        })
+        }
     }
 
     pub fn get_code(&self, user_code: String) -> String {
@@ -103,56 +99,6 @@ impl<'a> Commander<'a> {
             }
         }
     }
-}
-
-/*
-Parse the output of the COMMAND command into a suitable form.
-Return a mapping of <command name>:[<flags>]
-*/
-fn parse_command_info(value: RedisValue) -> Result<HashMap<String, HashSet<String>>, RedisError> {
-    let RedisValue::Array(items) = value else {
-        return Err(RedisError::String(String::from("not of type Array")));
-    };
-
-    // parse items
-    let mut result: HashMap<String, HashSet<String>> = HashMap::new();
-    for item in items {
-        let RedisValue::Array(info) = item else {
-            return Err(RedisError::String(String::from("not of type Array")));
-        };
-        if info.len() < 3 {
-            return Err(RedisError::String(String::from(
-                "unexpected command info size",
-            )));
-        }
-
-        // name
-        let Some(name) = convert::rv_try_string(info[0].clone()) else {
-            return Err(RedisError::String(String::from(
-                "command name is not string",
-            )));
-        };
-
-        // flags
-        let RedisValue::Array(flags_rv) = info[2].clone() else {
-            return Err(RedisError::String(String::from(
-                "command flags is not an array",
-            )));
-        };
-        let mut flags: HashSet<String> = HashSet::new();
-        for rv in flags_rv {
-            let Some(flag) = convert::rv_try_string(rv) else {
-                return Err(RedisError::String(String::from(
-                    "command flag is not string",
-                )));
-            };
-            flags.insert(flag);
-        }
-
-        result.insert(name, flags);
-    }
-
-    Ok(result)
 }
 
 /*
