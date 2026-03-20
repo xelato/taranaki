@@ -14,7 +14,7 @@ def py_eval(
 
     Return the result as a python object.
     """
-    command = "PY.EVAL_RO" if readonly else "PY.EVAL"
+    command = "PY.LL_EVAL_RO" if readonly else "PY.LL_EVAL"
     argv = [expression, *args]
     return convert(redis_client.execute_command(command, *argv))
 
@@ -26,7 +26,7 @@ def py_call(
 
     Return the result as a python object.
     """
-    command = "PY.CALL_RO" if readonly else "PY.CALL"
+    command = "PY.LL_CALL_RO" if readonly else "PY.LL_CALL"
     argv = [key, *args]
     return convert(redis_client.execute_command(command, *argv))
 
