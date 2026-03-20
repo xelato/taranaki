@@ -18,7 +18,7 @@ fn dict_pairs(pairs: DictPairs) -> RedisValue {
 
 fn exception_to_rv(exc_type: ExcType, arg: Option<String>) -> RedisValue {
     let mut value: String = exc_type.to_string();
-    value.push_str(":");
+    value.push_str(": ");
     if let Some(message) = arg {
         value.push_str(&message);
     }
@@ -29,7 +29,7 @@ fn exception_to_re(exception: MontyException) -> RedisError {
     let exc_type: ExcType = exception.exc_type();
     let arg = exception.message();
     let mut value: String = exc_type.to_string();
-    value.push_str(":");
+    value.push_str(": ");
     if let Some(message) = arg {
         value.push_str(&message);
     }
