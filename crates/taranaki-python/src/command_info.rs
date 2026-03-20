@@ -2,7 +2,8 @@ use crate::convert;
 use redis_module::{Context, RedisError, RedisString, RedisValue};
 use std::collections::{HashMap, HashSet};
 
-pub type CommandInfo = HashMap<String, HashSet<String>>;
+pub type CommandFlags = HashSet<String>;
+pub type CommandInfo = HashMap<String, CommandFlags>;
 
 pub fn get(ctx: &Context) -> Result<CommandInfo, RedisError> {
     let result = ctx.call("COMMAND", (vec![] as Vec<&RedisString>).as_slice())?;
