@@ -51,6 +51,8 @@ impl Callable for NT {
                 )
                 .into();
             };
+            //todo: validate `name` to be a valid identifier
+            // ValueError: Type names and field names must be valid identifiers: '@Point'
             // first argument is type_name
             if type_name.is_none() {
                 type_name = Some(name);
@@ -92,5 +94,20 @@ impl Callable for NT {
             values: values,
         };
         ExternalResult::Return(object)
+    }
+}
+
+#[allow(unused)]
+pub fn nt(type_name: String, values: Vec<(String, MontyObject)>) -> MontyObject {
+    let mut field_names: Vec<String> = Vec::new();
+    let mut field_values: Vec<MontyObject> = Vec::new();
+    for (name, value) in values {
+        field_names.push(name);
+        field_values.push(value);
+    }
+    MontyObject::NamedTuple {
+        type_name: type_name,
+        field_names: field_names,
+        values: field_values,
     }
 }
