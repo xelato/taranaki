@@ -124,6 +124,9 @@ class NTRegistry:
     """
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self._ntmap = {}
 
     def add_type(self, nt_type: type):
