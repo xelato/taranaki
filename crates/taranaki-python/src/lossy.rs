@@ -70,7 +70,14 @@ fn monty_to_redis(object: MontyObject) -> RedisValue {
         // exception
         MontyObject::Exception { exc_type, arg } => exception_to_rv(exc_type, arg),
 
-        // unsupported
+        // named tuples
+        MontyObject::NamedTuple {
+            type_name: _,
+            field_names: _,
+            values,
+        } => sequence(values),
+
+        // other
         _ => RedisValue::BulkString(object.to_string()),
     }
 }
