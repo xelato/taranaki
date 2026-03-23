@@ -9,11 +9,13 @@ class TestNT(unittest.TestCase):
         "nt()": TypeError(
             "nt() requires at least one positional argument but none were given"
         ),
+        "p=nt('Point'); str(p)": "Point()",
+        "nt('Point', 'x', 'y', x=2)": TypeError("nt(): missing required keyword argument 'y'"),
         "point = nt('Point', 'x', 'y', x=2, y=3); (point.x, point.y)": (2, 3),
     }
 
     READONLY_MODE = {
-        "point = nt('Point', 'x', 'y', x=2, y=3); point.x + point.y": 5,
+        "p = nt('Point', 'x', 'y', x=2, y=3); p.x + p.y": 5,
     }
 
     def test_nt(self):
