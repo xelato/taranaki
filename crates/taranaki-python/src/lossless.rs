@@ -116,7 +116,7 @@ fn monty_to_redis(object: MontyObject) -> RedisValue {
                 RedisValue::SimpleString(type_name),
                 RedisValue::Array(items),
             ]);
-            envelope("namedtuple".to_string(), value)
+            envelope("nt".to_string(), value)
         }
 
         // unsupported

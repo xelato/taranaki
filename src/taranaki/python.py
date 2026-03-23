@@ -3,6 +3,7 @@ Run Python at a remote Taranaki-enabled instance.
 """
 
 import builtins
+from collections import namedtuple
 
 
 def py_eval(
@@ -84,6 +85,8 @@ def convert_envelope(value: list) -> object:
         raise convert_envelope(value[1])
     elif name == "exception":
         return decode_exception(value)
+    elif name == "nt":
+        return decode_namedtuple(value[1])
 
     raise ProtocolError(value)
 
@@ -96,6 +99,52 @@ def decode_exception(value) -> Exception:
     message = maybe_bytes(message)
     Error = ERROR_TYPES.get(exc_type, Exception)
     return Error(message) if message else Error()
+
+
+def decode_namedtuple(value):
+    type_name, items = value
+    values, signature = {}, []
+    signature.append(maybe_bytes(type_name))
+    for item in items:
+        k, v = item
+        k = maybe_bytes(k)
+        values[k] = convert(v)
+        signature.append(k)
+    return nt.get_type(tuple(signature))(**values)
+
+
+class NTRegistry:
+    """Namedtuple registry
+
+    Keeps track of namedtuple types for reuse.
+    Named tuple types are identified by their signature, comprised of type name and field names.
+    Example: ('Point', 'x', 'y')
+    Those are hashable and can serve as keys to a dict.
+    Pre-existing, external types can be added to the registry with `add_type`.
+    """
+
+    def __init__(self):
+        self._ntmap = {}
+
+    def add_type(self, nt_type: type):
+        """Add pre-existing namedtuple type to the registry"""
+        if not issubclass(nt_type, tuple):
+            raise TypeError("not a named tuple definition")
+        signature = tuple([nt_type.__name__, *nt_type._fields])
+        self._ntmap[signature] = nt_type
+
+    def get_type(self, signature: tuple):
+        """Get namedtuple type by its signature."""
+        nt_type = self._ntmap.get(signature)
+        if nt_type is None:
+            type_name, *field_names = signature
+            nt_type = namedtuple(typename=type_name, field_names=field_names)
+            self._ntmap[signature] = nt_type
+        return nt_type
+
+
+# global namedtuple type registry
+nt = NTRegistry()
 
 
 def maybe_bytes(value):
