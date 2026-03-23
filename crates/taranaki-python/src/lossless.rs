@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use monty::{DictPairs, ExcType, MontyException, MontyObject};
 use redis_module::{RedisResult, RedisValue};
 
@@ -94,6 +96,28 @@ fn monty_to_redis(object: MontyObject) -> RedisValue {
 
         // exception
         MontyObject::Exception { exc_type, arg } => exception_envelope(exc_type, arg),
+
+        // namedtuple
+        MontyObject::NamedTuple {
+            type_name,
+            field_names,
+            values,
+        } => {
+            let size = min(field_names.len(), values.len());
+            let mut items: Vec<RedisValue> = Vec::new();
+            for i in 0..size {
+                let entry: RedisValue = RedisValue::Array(vec![
+                    RedisValue::SimpleString(field_names[i].clone()),
+                    monty_to_redis(values[i].clone()),
+                ]);
+                items.push(entry);
+            }
+            let value = RedisValue::Array(vec![
+                RedisValue::SimpleString(type_name),
+                RedisValue::Array(items),
+            ]);
+            envelope("nt".to_string(), value)
+        }
 
         // unsupported
         _ => envelope(

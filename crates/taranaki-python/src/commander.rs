@@ -52,6 +52,8 @@ impl<'a> Commander<'a> {
         commands.push(String::from("commands"));
         // todo: naming this "sys_argv" leads to problems...
         commands.push(String::from("sysargv"));
+        // create named tuples
+        commands.push(String::from("nt"));
 
         Self {
             ctx: ctx,
@@ -84,6 +86,9 @@ impl<'a> Commander<'a> {
 
             // sys.argv: list[str]
             "sysargv" => commands::sysargv::Sysargv { argv: &self.argv }.call(args, kwargs),
+
+            // namedtuple creation
+            "nt" => commands::nt::NT {}.call(args, kwargs),
 
             // custom impl
             "exists" => commands::exists::Exists { ctx: self.ctx }.call(args, kwargs),
