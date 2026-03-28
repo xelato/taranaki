@@ -3,6 +3,7 @@ mod commander;
 mod commands;
 mod convert;
 mod eval;
+mod http;
 mod lossless;
 mod lossy;
 mod mode;
