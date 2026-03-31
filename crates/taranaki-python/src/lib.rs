@@ -8,6 +8,7 @@ mod lossless;
 mod lossy;
 mod mode;
 
+use crate::http::RESPonse;
 use crate::mode::Mode;
 use monty::{MontyException, MontyObject};
 use redis_module::redis_module;
@@ -127,12 +128,11 @@ fn function_call(
 }
 
 fn http_call(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {
-    // todo: namedtuple support
     // todo: implement http_request()
     // todo: implement http_response()
     let result = call_or_eval(ctx, args, mode, true)?;
-    // todo: convert exceptions and incorrect return types to 500
-    lossy::serialize(result)
+    let response = RESPonse::from(result);
+    Ok(response.into())
 }
 
 // Eval calls
