@@ -128,8 +128,6 @@ fn function_call(
 }
 
 fn http_call(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {
-    // todo: implement http_request()
-    // todo: implement http_response()
     let result = call_or_eval(ctx, args, mode, true)?;
     let response = RESPonse::from(result);
     Ok(response.into())

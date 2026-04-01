@@ -124,16 +124,15 @@ impl From<MontyException> for RESPonse {
 /*
 Build a response from Python result.
 The following patterns translate to a valid response:
-1) Named tuple with the following fields and of certain type (as returned by http_response())
+1) Named tuple with the following fields and of certain type (as returned by response())
+    - body: bytes
     - status_code: int
     - headers: dict([str, str])
-    - body: bytes
 
-2) A tuple with two elements:
-    - int -> code
-    - any -> json
+2) A tuple with 2/3 elements (flask style)
+    * (body, status)
+    * (body, status, headers)
 
-// todo: research framework responses
 */
 impl TryFrom<MontyObject> for RESPonse {
     type Error = String;
@@ -222,11 +221,57 @@ impl RESPonse {
             headers.insert(key, value);
         }
 
-        Ok(RESPonse::new(code, HashMap::default(), body))
+        Ok(RESPonse::new(code, headers, body))
     }
 
-    fn from_tuple(_items: Vec<MontyObject>) -> Result<Self, String> {
-        // todo:
-        Ok(RESPonse::default())
+    fn from_tuple(items: Vec<MontyObject>) -> Result<Self, String> {
+        if items.len() == 2 {
+            Self::from_tuple3(&items[0], &items[1], &MontyObject::None)
+        } else if items.len() == 3 {
+            Self::from_tuple3(&items[0], &items[1], &items[2])
+        } else {
+            Err(String::from("invalid response format"))
+        }
+    }
+
+    fn from_tuple3(
+        _body: &MontyObject,
+        _status: &MontyObject,
+        _headers: &MontyObject,
+    ) -> Result<Self, String> {
+        // code
+        let MontyObject::Int(code) = _status else {
+            return Err(String::from(format!("int required for status code")));
+        };
+
+        // headers
+        let mut headers = Headers::default();
+        if let MontyObject::None = _headers {
+            // noop
+        } else if let MontyObject::Dict(pairs) = _headers {
+            for (k, v) in pairs {
+                let MontyObject::String(key) = k else {
+                    return Err(String::from("str required for header name"));
+                };
+                let MontyObject::String(value) = v else {
+                    return Err(String::from("str required for header value"));
+                };
+                headers.insert(key.clone(), value.clone());
+            }
+        } else {
+            return Err(String::from(format!("dict required for headers")));
+        }
+
+        // body
+        let body: Vec<u8>;
+        if let MontyObject::Bytes(bytes) = _body {
+            body = bytes.to_owned();
+        } else if let MontyObject::String(value) = _body {
+            body = value.as_bytes().to_owned();
+        } else {
+            return Err(String::from(format!("str or bytes required for body")));
+        }
+
+        Ok(RESPonse::new(code.to_owned(), headers, body))
     }
 }
