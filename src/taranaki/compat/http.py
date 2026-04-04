@@ -4,7 +4,7 @@ HTTP request processing in Taranaki.
 An HTTP "request" is simply a command invocation with special signature for encoding HTTP request parameters:
 <method> <url> [HEADER <name>:<value>] [CONTENT <content>]
 
-It is expected that the code/function responding will interpret those as `HTTPRequest` and return an appropriate `HTTPResponse`. To do so, such code can be assisted by the special platform functions `http_request()` and `http_response()`. Any exceptions raised during processing of the request will be converted to a 503-style `HTTPResponse` under the `PY.HTTP` command invocation.
+It is expected that the code/function responding will interpret those as `HTTPRequest` and return an appropriate `HTTPResponse`. To do so, such code can be assisted by the special platform functions `request()` and `response()`. Any exceptions raised during processing of the request will be converted to a 503-style `HTTPResponse` under the `PY.HTTP` command invocation.
 
 Code needs to be saved to a key before sending a request.
 
@@ -14,7 +14,7 @@ Code needs to be saved to a key before sending a request.
 # Hello, world!
 
 ## Deploy to a key
-127.0.0.1:6379> SET /app/hello "r=http_request(); http_response(200, text='Hello, ' + r.args['name'])"
+127.0.0.1:6379> SET /app/hello "r=request(); response(200, text='Hello, ' + r.args['name'])"
 
 ## Invoke by key
 127.0.0.1:6379> PY.HTTP /app/hello GET /hello?name=World
@@ -49,7 +49,7 @@ HTTPResponse = namedtuple(
 )
 
 
-def http_request(argv=None) -> HTTPRequest:
+def request(argv=None) -> HTTPRequest:
     """
     Parse request from command arguments.
     Implemented in server module. This implementation is for compatibility when running locally.
@@ -130,7 +130,7 @@ def http_request(argv=None) -> HTTPRequest:
     )
 
 
-def http_response(
+def response(
     status_code: int,
     *,
     reason: str = None,
@@ -187,11 +187,11 @@ def http_response(
     )
 
 
-def http_redirect(location, *, status_code=None) -> HTTPResponse:
+def redirect(location, *, status_code=None) -> HTTPResponse:
     """Return an HTTP redirect response."""
     if status_code and status_code not in {301, 302, 303, 307, 308}:
         raise ValueError("invalid redirect code")
-    return http_response(status_code or 301, headers={"Location": location})
+    return response(status_code or 301, headers={"Location": location})
 
 
 METHODS = frozenset({"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"})
@@ -262,16 +262,16 @@ REASONS = {
 
 
 def main():
-    res = http_response(
+    res = response(
         200,
         headers={"Server": "example.com"},
         text="Hello!",
     )
     print(res)
-    redirect = http_redirect(location="https://example.com")
-    print(redirect)
+    moved = redirect(location="https://example.com")
+    print(moved)
 
-    req = http_request(
+    req = request(
         [
             "/app/httpbin",
             "GET",

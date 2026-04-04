@@ -267,6 +267,7 @@ impl RESPonse {
         if let MontyObject::Bytes(bytes) = _body {
             body = bytes.to_owned();
         } else if let MontyObject::String(value) = _body {
+            // todo: add "charset=utf-8" to content-type
             body = value.as_bytes().to_owned();
         } else {
             return Err(String::from(format!("str or bytes required for body")));

@@ -106,7 +106,7 @@ HTTP /app/hello {{r.method}} {{r.path}} [{{HEADER h}} for h in r.headers]
 HTTP /app/hello GET /say/hello?name=world
 ```
 
-They may differ widely but what they have in common is their return value is expected to be an HTTP RESPonse.
+They may have different semantic but what they have in common is their return value is expected to be an HTTP RESPonse.
 
 
 ## HTTP RESPonse

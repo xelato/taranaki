@@ -55,6 +55,11 @@ impl<'a> Commander<'a> {
         // create named tuples
         commands.push(String::from("nt"));
 
+        // http
+        commands.push(String::from("request"));
+        commands.push(String::from("response"));
+        commands.push(String::from("redirect"));
+
         Self {
             ctx: ctx,
             commands: commands,
@@ -92,6 +97,9 @@ impl<'a> Commander<'a> {
 
             // custom impl
             "exists" => commands::exists::Exists { ctx: self.ctx }.call(args, kwargs),
+
+            // http
+            "request" => commands::request::Request { argv: &self.argv }.call(args, kwargs),
 
             // default impl
             _ => {
