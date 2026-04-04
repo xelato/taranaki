@@ -2,7 +2,10 @@ use crate::command_info::CommandInfo;
 use crate::commands;
 use crate::commands::callable::Callable;
 use crate::mode::Mode;
-use monty::{ExternalResult, MontyObject};
+use monty::ExcType;
+use monty::ExternalResult;
+use monty::MontyException;
+use monty::MontyObject;
 use redis_module::Context;
 
 pub struct Commander<'a> {
@@ -100,6 +103,12 @@ impl<'a> Commander<'a> {
 
             // http
             "request" => commands::request::Request { argv: &self.argv }.call(args, kwargs),
+            "response" => {
+                ExternalResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+            }
+            "redirect" => {
+                ExternalResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+            }
 
             // default impl
             _ => {
