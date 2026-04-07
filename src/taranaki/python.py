@@ -5,8 +5,6 @@ Run Python at a remote Taranaki-enabled instance.
 import builtins
 from collections import namedtuple
 
-from .compat import http
-
 
 def py_eval(
     redis_client, expression: str, args: tuple[str] = tuple(), readonly=False
@@ -40,10 +38,10 @@ def py_http(
     headers=None,
     content=None,
     readonly=False,
-) -> http.HTTPResponse:
+):
     """Send an HTTP "request" to be processed by Python code stored at `key`.
 
-    Return an HTTP "response".
+    Return an HTTPResponse.
     """
     argv = []
     argv.append(key)
@@ -52,17 +50,13 @@ def py_http(
     if headers:
         for header_name in headers:
             argv.append("HEADER")
-            argv.append("{}:{}".format(header_name, headers[header_name]))
+            argv.append("{}: {}".format(header_name, headers[header_name]))
     if content:
         argv.append("CONTENT")
         argv.append(content)
 
     command = "PY.HTTP_RO" if readonly else "PY.HTTP"
-    print()
-    print([command, *argv])
-    redis_client.execute_command(command, *argv)
-    # todo: convert to HTTPResponse
-    return http.http_response(200, json={"hello": "fooo!!!!!"})
+    return redis_client.execute_command(command, *argv)
 
 
 def convert(value: object):

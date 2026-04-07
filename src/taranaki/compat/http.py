@@ -14,7 +14,7 @@ Code needs to be saved to a key before sending a request.
 # Hello, world!
 
 ## Deploy to a key
-127.0.0.1:6379> SET /app/hello "r=request(); response(200, text='Hello, ' + r.args['name'])"
+127.0.0.1:6379> SET /app/hello "r=request(); 'Hello, ' + r.args['name'], 200"
 
 ## Invoke by key
 127.0.0.1:6379> PY.HTTP /app/hello GET /hello?name=World
@@ -33,7 +33,12 @@ HTTPRequest = namedtuple(
         "url",
         "headers",  # A header is a case-insensitive name followed by a colon, then optional whitespace which will be ignored, and finally by its value
         "content",
-        # todo: derived url fields
+        # derived url fields
+        "scheme",
+        "path",
+        "query",
+        "fragment",
+        "args",
         # todo: derived content fields
     ],
 )

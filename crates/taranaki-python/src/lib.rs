@@ -30,7 +30,7 @@ PY.CALL_RX <key> [ARG [ARG [...]]]
 > HTTP request handling
 PY.HTTP <key> <method> <url> [HEADER <name>:<value> [HEADER <name>:<value> [...]]] [CONTENT <content>]
 PY.HTTP_RO <key> <method> <url> [HEADER <name>:<value> [HEADER <name>:<value> [...]]] [CONTENT <content>]
-127.0.0.1:6379> SET /app/hello "r=request(); 'Hello, ' + r.args['name'], 200"
+127.0.0.1:6379> SET /app/hello "r=request(); 'Hello, ' + r.args.get('name', 'world'), 200"
 127.0.0.1:6379> PY.HTTP /app/hello GET /hello?name=Taranaki
 
 > Modes:
