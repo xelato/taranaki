@@ -29,6 +29,15 @@ class TestHTTP(unittest.TestCase):
             "args": {},
             "content": b"23",
         },
+        # arbitrary content allowed (non utf-8 encoded)
+        ("PUT", "/upload", "CONTENT", b"\xff"): {
+            "method": "PUT",
+            "path": "/upload",
+            "headers": {},
+            "query": None,
+            "args": {},
+            "content": b"\xff",
+        },
     }
 
     RESPONSES = {

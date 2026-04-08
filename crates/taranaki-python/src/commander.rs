@@ -1,3 +1,4 @@
+use crate::argv::Argv;
 use crate::command_info::CommandInfo;
 use crate::commands;
 use crate::commands::callable::Callable;
@@ -11,14 +12,14 @@ use redis_module::Context;
 pub struct Commander<'a> {
     ctx: &'a Context,
     pub commands: Vec<String>,
-    argv: Vec<String>,
+    argv: Argv,
 }
 
 impl<'a> Commander<'a> {
     pub fn get_instance(
         ctx: &'a Context,
         mode: Mode,
-        argv: Vec<String>,
+        argv: Argv,
         command_info: &CommandInfo,
     ) -> Self {
         if let Mode::RX = mode {

@@ -1,3 +1,4 @@
+mod argv;
 mod command_info;
 mod commander;
 mod commands;
@@ -10,6 +11,7 @@ mod mode;
 
 use crate::http::RESPonse;
 use crate::mode::Mode;
+use argv::Argv;
 use monty::{MontyException, MontyObject};
 use redis_module::redis_module;
 use redis_module::{Context, NextArg, RedisError, RedisResult, RedisString};
@@ -93,18 +95,16 @@ fn call_or_eval(
     };
 
     // arguments
-    let mut argv: Vec<String> = Vec::new();
-    // first argument is script name, akin to cpython
-    argv.push(String::from("main.py"));
-
+    let mut arguments: Vec<RedisString> = Vec::new();
     loop {
         let Some(value) = args_iter.next() else {
             break;
         };
-        // arguments are expected to be encoded in utf-8
-        argv.push(value.to_string_lossy());
+        // each argument can hold arbitrary bytes
+        arguments.push(value);
     }
 
+    let argv = Argv::new("main.py", arguments);
     let command_info = command_info::get(ctx)?;
 
     let commander = commander::Commander::get_instance(ctx, mode.clone(), argv, &command_info);

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::argv::Argv;
 use crate::commands::callable::Callable;
 use crate::commands::nt::nt;
 use monty::ExcType;
@@ -18,7 +19,7 @@ request() -> HTTPRequest
 Builds HTTP request from PY.HTTP command arguments.
 */
 pub struct Request<'a> {
-    pub argv: &'a Vec<String>,
+    pub argv: &'a Argv,
 }
 impl<'a> Callable for Request<'a> {
     fn call(
@@ -71,10 +72,17 @@ impl<'a> Callable for Request<'a> {
         let mut content: Option<Vec<u8>> = None;
 
         // loop over command arguments
-        for (i, arg) in self.argv.iter().enumerate() {
+        for (i, object) in self.argv.to_pyvalues().iter().enumerate() {
             if i == 0 {
                 // app key
             } else if i == 1 {
+                let MontyObject::String(arg) = object else {
+                    return ExternalResult::Error(MontyException::new(
+                        ExcType::ValueError,
+                        Some(String::from(format!("HTTP method must be string"))),
+                    ));
+                };
+
                 let value = arg.clone().to_uppercase();
                 if !METHODS.contains(&value.as_str()) {
                     return ExternalResult::Error(MontyException::new(
@@ -84,11 +92,23 @@ impl<'a> Callable for Request<'a> {
                 }
                 arg_method = arg.clone();
             } else if i == 2 {
+                let MontyObject::String(arg) = object else {
+                    return ExternalResult::Error(MontyException::new(
+                        ExcType::ValueError,
+                        Some(String::from(format!("URL must be string"))),
+                    ));
+                };
                 arg_url = arg.clone();
             } else {
                 // read headers and content
                 if flag {
                     // read option key
+                    let MontyObject::String(arg) = object else {
+                        return ExternalResult::Error(MontyException::new(
+                            ExcType::ValueError,
+                            Some(String::from(format!("option key must be string"))),
+                        ));
+                    };
                     opt_key = arg.to_uppercase();
                     if !OPTIONS.contains(&opt_key.as_str()) {
                         // unknown option
@@ -99,9 +119,14 @@ impl<'a> Callable for Request<'a> {
                     }
                 } else {
                     // read option value
-                    opt_value = String::from(arg);
-
                     if opt_key == "HEADER" {
+                        let MontyObject::String(arg) = object else {
+                            return ExternalResult::Error(MontyException::new(
+                                ExcType::ValueError,
+                                Some(String::from(format!("header value must be string"))),
+                            ));
+                        };
+                        opt_value = String::from(arg);
                         let k: &str;
                         let v: &str;
                         if opt_value.contains(":") {
@@ -118,7 +143,18 @@ impl<'a> Callable for Request<'a> {
                                 Some(String::from(format!("CONTENT option already set"))),
                             ));
                         };
-                        content = Some(arg.as_bytes().to_vec());
+                        if let MontyObject::String(arg) = object {
+                            // str
+                            content = Some(arg.as_bytes().to_vec());
+                        } else if let MontyObject::Bytes(bytes) = object {
+                            // bytes
+                            content = Some(bytes.to_owned());
+                        } else {
+                            return ExternalResult::Error(MontyException::new(
+                                ExcType::ValueError,
+                                Some(String::from(format!("content must be bytes or string"))),
+                            ));
+                        }
                     } else {
                         // unknown option
                         return ExternalResult::Error(MontyException::new(

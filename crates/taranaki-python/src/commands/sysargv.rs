@@ -1,3 +1,4 @@
+use crate::argv::Argv;
 use crate::commands::callable::Callable;
 use monty::ExcType;
 use monty::ExternalResult;
@@ -9,7 +10,7 @@ sysargv() -> list[str]
 First argument is the name of the script, matching cpython behaviour.
 */
 pub struct Sysargv<'a> {
-    pub argv: &'a Vec<String>,
+    pub argv: &'a Argv,
 }
 impl<'a> Callable for Sysargv<'a> {
     fn call(
@@ -44,6 +45,7 @@ impl<'a> Callable for Sysargv<'a> {
         // complete call
         ExternalResult::Return(MontyObject::List(
             self.argv
+                .to_strings()
                 .iter()
                 .map(|x| MontyObject::String(x.clone()))
                 .collect(),
