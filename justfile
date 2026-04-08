@@ -49,6 +49,17 @@ valkey:
         --loadmodule "/app/target/release/libtaranaki_python.so" \
         --loadmodule "/app/target/release/libtaranaki_wasm.so" \
 
+# run Redict container
+redict:
+    docker run --rm -it \
+        --name redict \
+        -p 127.0.0.1:6379:6379 \
+        --volume $PWD:/app \
+        registry.redict.io/redict:7.3.6 \
+        redict-server \
+        --loadmodule "/app/target/release/libtaranaki_python.so" \
+        --loadmodule "/app/target/release/libtaranaki_wasm.so" \
+
 update-commands:
     uv run tools/update-commands.py > src/taranaki/compat/commands.py
 

@@ -30,6 +30,35 @@ def py_call(
     return convert(redis_client.execute_command(command, *argv))
 
 
+def py_http(
+    redis_client,
+    key: str,
+    method: str,
+    url: str,
+    headers=None,
+    content=None,
+    readonly=False,
+):
+    """Send an HTTP "request" to be processed by Python code stored at `key`.
+
+    Return an HTTPResponse.
+    """
+    argv = []
+    argv.append(key)
+    argv.append(method)
+    argv.append(url)
+    if headers:
+        for header_name in headers:
+            argv.append("HEADER")
+            argv.append("{}: {}".format(header_name, headers[header_name]))
+    if content:
+        argv.append("CONTENT")
+        argv.append(content)
+
+    command = "PY.HTTP_RO" if readonly else "PY.HTTP"
+    return redis_client.execute_command(command, *argv)
+
+
 def convert(value: object):
     """Convert a value to Python object.
 

@@ -1,13 +1,17 @@
+mod argv;
 mod command_info;
 mod commander;
 mod commands;
 mod convert;
 mod eval;
+mod http;
 mod lossless;
 mod lossy;
 mod mode;
 
+use crate::http::RESPonse;
 use crate::mode::Mode;
+use argv::Argv;
 use monty::{MontyException, MontyObject};
 use redis_module::redis_module;
 use redis_module::{Context, NextArg, RedisError, RedisResult, RedisString};
@@ -24,6 +28,12 @@ PY.CALL_RO <key> [ARG [ARG [...]]]
 > Restricted commands - no server command access, suitable for testing
 PY.EVAL_RX <code> [ARG [ARG [...]]]
 PY.CALL_RX <key> [ARG [ARG [...]]]
+
+> HTTP request handling
+PY.HTTP <key> <method> <url> [HEADER <name>:<value> [HEADER <name>:<value> [...]]] [CONTENT <content>]
+PY.HTTP_RO <key> <method> <url> [HEADER <name>:<value> [HEADER <name>:<value> [...]]] [CONTENT <content>]
+127.0.0.1:6379> SET /app/hello "r=request(); 'Hello, ' + r.args.get('name', 'world'), 200"
+127.0.0.1:6379> PY.HTTP /app/hello GET /hello?name=Taranaki
 
 > Modes:
     RW - access to all available server commands (read-only/write)
@@ -85,18 +95,16 @@ fn call_or_eval(
     };
 
     // arguments
-    let mut argv: Vec<String> = Vec::new();
-    // first argument is script name, akin to cpython
-    argv.push(String::from("main.py"));
-
+    let mut arguments: Vec<RedisString> = Vec::new();
     loop {
         let Some(value) = args_iter.next() else {
             break;
         };
-        // arguments are expected to be encoded in utf-8
-        argv.push(value.to_string_lossy());
+        // each argument can hold arbitrary bytes
+        arguments.push(value);
     }
 
+    let argv = Argv::new("main.py", arguments);
     let command_info = command_info::get(ctx)?;
 
     let commander = commander::Commander::get_instance(ctx, mode.clone(), argv, &command_info);
@@ -117,6 +125,12 @@ fn function_call(
     } else {
         lossy::serialize(result)
     }
+}
+
+fn http_call(ctx: &Context, args: Vec<RedisString>, mode: Mode) -> RedisResult {
+    let result = call_or_eval(ctx, args, mode, true)?;
+    let response = RESPonse::from(result);
+    Ok(response.into())
 }
 
 // Eval calls
@@ -143,6 +157,15 @@ pub fn py_call_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
 
 pub fn py_call_rx(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     function_call(ctx, args, Mode::RX, true, false)
+}
+
+// HTTP calls
+pub fn py_http_rw(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+    http_call(ctx, args, Mode::RW)
+}
+
+pub fn py_http_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
+    http_call(ctx, args, Mode::RO)
 }
 
 // Lossless
@@ -177,6 +200,10 @@ redis_module! {
         ["py.call", py_call_rw, "", 0, 0, 0, ""],
         ["py.call_ro", py_call_ro, "", 0, 0, 0, ""],
         ["py.call_rx", py_call_rx, "", 0, 0, 0, ""],
+
+        // HTTP
+        ["py.http", py_http_rw, "", 0, 0, 0, ""],
+        ["py.http_ro", py_http_ro, "", 0, 0, 0, ""],
 
         // results in lossless format
         ["py.ll_eval", py_ll_eval_rw, "", 0, 0, 0, ""],

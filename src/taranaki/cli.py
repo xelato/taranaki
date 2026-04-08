@@ -3,6 +3,7 @@ import click
 from . import client
 from . import wasm
 from . import python
+from . import serve_ngrok
 from .util import cli_error_handler
 
 
@@ -36,3 +37,10 @@ def wa_eval():
     c.wasm_load_bytes(key="/wasm/gcd", wasm_bytes=data)
     c.wasm_info(key="/wasm/gcd")
     c.wasm_call("/wasm/gcd", "gcd", 15, 24)
+
+
+@cli.command(name="ngrok", help="Serve with ngrok")
+@click.argument("key", required=True)
+@cli_error_handler
+def ngrok(key):
+    serve_ngrok.run(key)

@@ -1,21 +1,25 @@
+use crate::argv::Argv;
 use crate::command_info::CommandInfo;
 use crate::commands;
 use crate::commands::callable::Callable;
 use crate::mode::Mode;
-use monty::{ExternalResult, MontyObject};
+use monty::ExcType;
+use monty::ExternalResult;
+use monty::MontyException;
+use monty::MontyObject;
 use redis_module::Context;
 
 pub struct Commander<'a> {
     ctx: &'a Context,
     pub commands: Vec<String>,
-    argv: Vec<String>,
+    argv: Argv,
 }
 
 impl<'a> Commander<'a> {
     pub fn get_instance(
         ctx: &'a Context,
         mode: Mode,
-        argv: Vec<String>,
+        argv: Argv,
         command_info: &CommandInfo,
     ) -> Self {
         if let Mode::RX = mode {
@@ -55,6 +59,11 @@ impl<'a> Commander<'a> {
         // create named tuples
         commands.push(String::from("nt"));
 
+        // http
+        commands.push(String::from("request"));
+        commands.push(String::from("response"));
+        commands.push(String::from("redirect"));
+
         Self {
             ctx: ctx,
             commands: commands,
@@ -92,6 +101,15 @@ impl<'a> Commander<'a> {
 
             // custom impl
             "exists" => commands::exists::Exists { ctx: self.ctx }.call(args, kwargs),
+
+            // http
+            "request" => commands::request::Request { argv: &self.argv }.call(args, kwargs),
+            "response" => {
+                ExternalResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+            }
+            "redirect" => {
+                ExternalResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+            }
 
             // default impl
             _ => {
