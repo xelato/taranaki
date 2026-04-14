@@ -147,6 +147,19 @@ impl TryFrom<MontyObject> for RESPonse {
 
             MontyObject::Tuple(items) => Self::from_tuple(items),
 
+            MontyObject::String(value) => Self::from_tuple3(
+                &MontyObject::String(value),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            MontyObject::Bytes(value) => Self::from_tuple3(
+                &MontyObject::Bytes(value),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            // todo: types that convert to application/json response
             _ => Err(String::from("invalid response format")),
         }
     }
@@ -256,7 +269,7 @@ impl RESPonse {
                 let MontyObject::String(value) = v else {
                     return Err(String::from("str required for header value"));
                 };
-                headers.insert(key.clone(), value.clone());
+                headers.insert(key.to_lowercase(), value.clone());
             }
         } else {
             return Err(String::from(format!("dict required for headers")));
@@ -266,13 +279,19 @@ impl RESPonse {
         let body: Vec<u8>;
         if let MontyObject::Bytes(bytes) = _body {
             body = bytes.to_owned();
+            if !headers.contains_key("content-type") {
+                headers.insert("content-type".into(), "application/octet-stream".into());
+            }
         } else if let MontyObject::String(value) = _body {
-            // todo: add "charset=utf-8" to content-type
             body = value.as_bytes().to_owned();
+            if !headers.contains_key("content-type") {
+                headers.insert("content-type".into(), "text/plain; charset=utf-8".into());
+            }
         } else {
             return Err(String::from(format!("str or bytes required for body")));
         }
 
+        // todo: set content-length
         Ok(RESPonse::new(code.to_owned(), headers, body))
     }
 }

@@ -42,16 +42,16 @@ class TestHTTP(unittest.TestCase):
 
     RESPONSES = {
         # 2-tuples (content, code)
-        """'', 200""": [200],
-        """b'', 200""": [200],
+        """'', 200""": [200, b'content-type: text/plain; charset=utf-8'],
+        """b'', 200""": [200, b'content-type: application/octet-stream'],
         # 3-tuples (content, code, headers)
-        """'Hello!', 200""": [200, [b"Hello!"]],
-        """b'Hello!', 200""": [200, [b"Hello!"]],
-        """'Hello!', 200, {}""": [200, [b"Hello!"]],
-        """b'Hello!', 200, {}""": [200, [b"Hello!"]],
-        """'Hello!', 200, {'content-type': 'text/plain'}""": [
+        """'Hello!', 200""": [200, b'content-type: text/plain; charset=utf-8', [b"Hello!"]],
+        """b'Hello!', 200""": [200, b'content-type: application/octet-stream', [b"Hello!"]],
+        """'Hello!', 200, {}""": [200, b'content-type: text/plain; charset=utf-8', [b"Hello!"]],
+        """b'Hello!', 200, {}""": [200, b'content-type: application/octet-stream', [b"Hello!"]],
+        """'Hello!', 200, {'content-type': 'text/plain; charset=utf-8'}""": [
             200,
-            b"content-type: text/plain",
+            b"content-type: text/plain; charset=utf-8",
             [b"Hello!"],
         ],
         # bad format or exceptions -> 500 internal server error
@@ -79,10 +79,10 @@ hello(request())
     """
 
     HELLO_RESPONSES = {
-        ("GET", "/"): [404, [b"not found"]],
-        ("POST", "/hi"): [405, [b"method not allowed"]],
-        ("GET", "/hi"): [200, [b"Hello, world"]],
-        ("GET", "/hi?name=Taranaki"): [200, [b"Hello, Taranaki"]],
+        ("GET", "/"): [404, b'content-type: text/plain; charset=utf-8', [b"not found"]],
+        ("POST", "/hi"): [405, b'content-type: text/plain; charset=utf-8', [b"method not allowed"]],
+        ("GET", "/hi"): [200, b'content-type: text/plain; charset=utf-8', [b"Hello, world"]],
+        ("GET", "/hi?name=Taranaki"): [200, b'content-type: text/plain; charset=utf-8', [b"Hello, Taranaki"]],
     }
 
     def test_request(self):
@@ -98,6 +98,7 @@ hello(request())
     def test_response(self):
         client_instance = client.get_instance()
         for code, expected in self.RESPONSES.items():
+            print(code, expected)
             client_instance.set("/code", code)
             response = python.py_http(client_instance, "/code", "GET", "/")
             self.assertEqual(response, expected)
