@@ -26,10 +26,10 @@ class TestCommands(unittest.TestCase):
     }
 
     WITH_ARGS = [
-        ("sysargv()", [], ["main.py"]),
-        ("sysargv()", ["a", "b", "c"], ["main.py", "a", "b", "c"]),
-        ("sysargv()", [1, 2, 3], ["main.py", "1", "2", "3"]),
-        ("[int(x) for x in sysargv()[1:]]", [1, 2, 3], [1, 2, 3]),
+        ("cmdargv()", [], ["main.py"]),
+        ("cmdargv()", ["a", "b", "c"], ["main.py", "a", "b", "c"]),
+        ("cmdargv()", [1, 2, 3], ["main.py", "1", "2", "3"]),
+        ("[int(x) for x in cmdargv()[1:]]", [1, 2, 3], [1, 2, 3]),
     ]
 
     READONLY_MODE = {

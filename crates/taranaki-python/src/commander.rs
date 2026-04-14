@@ -55,7 +55,7 @@ impl<'a> Commander<'a> {
         // additional custom
         commands.push(String::from("commands"));
         // todo: naming this "sys_argv" leads to problems...
-        commands.push(String::from("sysargv"));
+        commands.push(String::from("cmdargv"));
         // create named tuples
         commands.push(String::from("nt"));
 
@@ -93,8 +93,8 @@ impl<'a> Commander<'a> {
             )
             .into(),
 
-            // sys.argv: list[str]
-            "sysargv" => commands::sysargv::Sysargv { argv: &self.argv }.call(args, kwargs),
+            // cmdargv: list[str]
+            "cmdargv" => commands::cmdargv::Cmdargv { argv: &self.argv }.call(args, kwargs),
 
             // namedtuple creation
             "nt" => commands::nt::NT {}.call(args, kwargs),

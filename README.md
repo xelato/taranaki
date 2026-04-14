@@ -49,7 +49,7 @@ PY.EVAL <code> [ARG [ARG [...]]]
 PY.CALL <key> [ARG [ARG [...]]]
 ```
 
-Code/functions can read arguments with `sysargv()`.
+Code/functions can read arguments with `cmdargv()`.
 
 #### Server commands
 The platform makes existing data-related server commands available for use inside the remote interpreter. Those come as readily available external functions (e.g. `get()`, `set_()`, `incr()`). Their availability depends on the server variant and version, and also on the mode (normal or readonly).
@@ -121,18 +121,40 @@ uvx taranaki --help
 ### Compat library
 Compatibility layer, so that code you write can pass type checks and be validated before executing it on a server.
 
-### @taranaki.function() decorator
-Delegate parts of your Python program to a remote execution on a Taranaki-enabled server.
+### @taranaki.function()
+This decorator delegates parts of your Python program for remote execution on a Taranaki-enabled server.
 
 ```
+"""
+A snake walks into a remote dictionary server.
+It sums all the ints and floats.
+Turns out it's an adder.
+"""
+
 import taranaki
+from taranaki.compat.commands import set_, scan, mget, expire
+
 
 @taranaki.function()
-def adder(a, b):
-    return a+b
+def the_adder():
+    total, cursor = 0, 0
+    while True:
+        cursor, keys = scan(cursor, count=999)
+        values = mget(*keys)
+        for index, value in enumerate(values):
+            try:
+                total += int(value)
+            except ValueError:
+                continue
+            expire(keys[index], 1000)
+        if int(cursor) == 0:
+            break
+    set_("/total", total)
+    return total
 
-def main():
-    adder(2, 3)
+
+if __name__ == "__main__":
+    the_adder()
 ```
 
 ### @taranaki.http() decorator
