@@ -1,7 +1,6 @@
 import click
 
 from . import client
-from . import wasm
 from . import python
 from . import serve_ngrok
 from .util import cli_error_handler
@@ -24,19 +23,6 @@ def cli(host, port, db, url):
 @cli_error_handler
 def py_eval(expression, args):
     print(python.py_eval(client.get_instance(), expression, args))
-
-
-@cli.command(name="wasm", help="Invoke wasm function")
-def wa_eval():
-    r = client.get_instance()
-    c = wasm.WasmClient(r)
-
-    with open("wasm/gcd.wasm", "rb") as f:
-        data = f.read()
-
-    c.wasm_load_bytes(key="/wasm/gcd", wasm_bytes=data)
-    c.wasm_info(key="/wasm/gcd")
-    c.wasm_call("/wasm/gcd", "gcd", 15, 24)
 
 
 @cli.command(name="ngrok", help="Serve with ngrok")

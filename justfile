@@ -36,7 +36,6 @@ redis:
         redis:7.2.13 \
         redis-server \
         --loadmodule "/app/target/release/libtaranaki_python.so" \
-        --loadmodule "/app/target/release/libtaranaki_wasm.so" \
 
 # run Valkey container
 valkey:
@@ -47,7 +46,6 @@ valkey:
         valkey/valkey:9.0.2 \
         valkey-server \
         --loadmodule "/app/target/release/libtaranaki_python.so" \
-        --loadmodule "/app/target/release/libtaranaki_wasm.so" \
 
 # run Redict container
 redict:
@@ -58,7 +56,6 @@ redict:
         registry.redict.io/redict:7.3.6 \
         redict-server \
         --loadmodule "/app/target/release/libtaranaki_python.so" \
-        --loadmodule "/app/target/release/libtaranaki_wasm.so" \
 
 update-commands:
     uv run tools/update-commands.py > src/taranaki/compat/commands.py
@@ -73,6 +70,7 @@ clean:
     rm -rf .ruff_cache
     find . -name "__pycache__" | xargs -n1 rm -rf
     rm -rf dist
+    rm -rf .pytest_cache
 
 # check for errors
 check:

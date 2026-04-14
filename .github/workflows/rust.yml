@@ -41,8 +41,7 @@ jobs:
             --volume $PWD:/app \
             redis:7.2.13 \
             redis-server \
-            --loadmodule "/app/target/release/libtaranaki_python.so" \
-            --loadmodule "/app/target/release/libtaranaki_wasm.so"
+            --loadmodule "/app/target/release/libtaranaki_python.so"
 
         uv run --with pytest pytest
         docker rm -f redis
@@ -55,8 +54,7 @@ jobs:
             --volume $PWD:/app \
             valkey/valkey:9.0.2 \
             valkey-server \
-            --loadmodule "/app/target/release/libtaranaki_python.so" \
-            --loadmodule "/app/target/release/libtaranaki_wasm.so"
+            --loadmodule "/app/target/release/libtaranaki_python.so"
 
         uv run --with pytest pytest
         docker rm -f valkey

@@ -6,9 +6,8 @@ resolver = "2"
 version = "0.0.1"
 edition = "2024"
 authors = ["xelato"]
-description = "Taranaki: Python and WebAssembly in Redis"
+description = "Taranaki"
 repository = "https://github.com/xelato/taranaki"
 
 [workspace.dependencies]
-wasmtime = "40.0.0"
 num-bigint = { version = "0.4"}
