@@ -49,7 +49,7 @@ PY.EVAL <code> [ARG [ARG [...]]]
 PY.CALL <key> [ARG [ARG [...]]]
 ```
 
-Code/functions can read arguments with `sysargv()`.
+Code/functions can read arguments with `cmdargv()`.
 
 #### Server commands
 The platform makes existing data-related server commands available for use inside the remote interpreter. Those come as readily available external functions (e.g. `get()`, `set_()`, `incr()`). Their availability depends on the server variant and version, and also on the mode (normal or readonly).

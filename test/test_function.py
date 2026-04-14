@@ -32,7 +32,7 @@ def gcd(a: int, b: int) -> int:
     while b:
         a, b = (b, a % b)
     return abs(a)
-gcd(*[int(x) for x in sysargv()[1:]])
+gcd(*[int(x) for x in cmdargv()[1:]])
 """
 
 

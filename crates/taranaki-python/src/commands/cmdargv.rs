@@ -6,13 +6,13 @@ use monty::MontyException;
 use monty::MontyObject;
 
 /*
-sysargv() -> list[str]
+cmdargv() -> list[str]
 First argument is the name of the script, matching cpython behaviour.
 */
-pub struct Sysargv<'a> {
+pub struct Cmdargv<'a> {
     pub argv: &'a Argv,
 }
-impl<'a> Callable for Sysargv<'a> {
+impl<'a> Callable for Cmdargv<'a> {
     fn call(
         &self,
         args: Vec<MontyObject>,
@@ -24,7 +24,7 @@ impl<'a> Callable for Sysargv<'a> {
             return MontyException::new(
                 ExcType::TypeError,
                 Some(format!(
-                    "sysargv() takes 0 positional arguments but {num_args} was given"
+                    "cmdargv() takes 0 positional arguments but {num_args} was given"
                 )),
             )
             .into();
@@ -36,7 +36,7 @@ impl<'a> Callable for Sysargv<'a> {
             return MontyException::new(
                 ExcType::TypeError,
                 Some(format!(
-                    "sysargv() got an unexpected keyword argument '{name}'"
+                    "cmdargv() got an unexpected keyword argument '{name}'"
                 )),
             )
             .into();
