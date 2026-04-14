@@ -70,6 +70,7 @@ clean:
     rm -rf .ruff_cache
     find . -name "__pycache__" | xargs -n1 rm -rf
     rm -rf dist
+    rm -rf .pytest_cache
 
 # check for errors
 check:
