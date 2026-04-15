@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::commands::callable::Callable;
 use monty::ExcType;
-use monty::ExternalResult;
+use monty::ExtFunctionResult;
 use monty::MontyException;
 use monty::MontyObject;
 
@@ -27,7 +27,7 @@ impl Callable for NT {
         &self,
         args: Vec<MontyObject>,
         kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
+    ) -> ExtFunctionResult {
         // validate args
         if args.len() < 1 {
             return MontyException::new(
@@ -93,7 +93,7 @@ impl Callable for NT {
             field_names: field_names,
             values: values,
         };
-        ExternalResult::Return(object)
+        ExtFunctionResult::Return(object)
     }
 }
 

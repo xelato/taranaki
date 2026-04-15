@@ -1,5 +1,5 @@
 use monty::ExcType;
-use monty::ExternalResult;
+use monty::ExtFunctionResult;
 use monty::MontyException;
 use monty::MontyObject;
 use redis_module::Context;
@@ -20,7 +20,7 @@ impl<'a> Callable for Exists<'a> {
         &self,
         args: Vec<MontyObject>,
         kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
+    ) -> ExtFunctionResult {
         // no keyword arguments allowed, raise TypeError
         for (k, _v) in kwargs {
             let name = k.to_string();

@@ -1,4 +1,4 @@
-use monty::{ExcType, ExternalResult, MontyException, MontyObject};
+use monty::{ExcType, ExtFunctionResult, MontyException, MontyObject};
 use num_bigint::BigInt;
 use redis_module::RedisError;
 use redis_module::RedisValue;
@@ -8,7 +8,7 @@ use std::str::FromStr;
 /*
 For converting RedisValue objects which are the result of command invocations back for processing inside the interpreter.
 */
-pub fn to_external_result(result: Result<RedisValue, RedisError>) -> ExternalResult {
+pub fn to_external_result(result: Result<RedisValue, RedisError>) -> ExtFunctionResult {
     match result {
         Ok(redis_value) => rv_to_mo(redis_value).into(),
 

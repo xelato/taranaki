@@ -1,7 +1,7 @@
 use crate::argv::Argv;
 use crate::commands::callable::Callable;
 use monty::ExcType;
-use monty::ExternalResult;
+use monty::ExtFunctionResult;
 use monty::MontyException;
 use monty::MontyObject;
 
@@ -17,7 +17,7 @@ impl<'a> Callable for Cmdargv<'a> {
         &self,
         args: Vec<MontyObject>,
         kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
+    ) -> ExtFunctionResult {
         // validate args
         if args.len() > 0 {
             let num_args = args.len();
@@ -43,7 +43,7 @@ impl<'a> Callable for Cmdargv<'a> {
         }
 
         // complete call
-        ExternalResult::Return(MontyObject::List(
+        ExtFunctionResult::Return(MontyObject::List(
             self.argv
                 .to_strings()
                 .iter()

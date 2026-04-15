@@ -4,7 +4,7 @@ use crate::argv::Argv;
 use crate::commands::callable::Callable;
 use crate::commands::nt::nt;
 use monty::ExcType;
-use monty::ExternalResult;
+use monty::ExtFunctionResult;
 use monty::MontyException;
 use monty::MontyObject;
 use url::Url;
@@ -26,7 +26,7 @@ impl<'a> Callable for Request<'a> {
         &self,
         args: Vec<MontyObject>,
         kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
+    ) -> ExtFunctionResult {
         // validate args
         if args.len() > 0 {
             let num_args = args.len();
@@ -52,7 +52,7 @@ impl<'a> Callable for Request<'a> {
         }
 
         if self.argv.len() < 3 {
-            return ExternalResult::Error(MontyException::new(
+            return ExtFunctionResult::Error(MontyException::new(
                 ExcType::TypeError,
                 Some(String::from(format!(
                     "Not enough arguments set for request()"
@@ -77,7 +77,7 @@ impl<'a> Callable for Request<'a> {
                 // app key
             } else if i == 1 {
                 let MontyObject::String(arg) = object else {
-                    return ExternalResult::Error(MontyException::new(
+                    return ExtFunctionResult::Error(MontyException::new(
                         ExcType::ValueError,
                         Some(String::from(format!("HTTP method must be string"))),
                     ));
@@ -85,7 +85,7 @@ impl<'a> Callable for Request<'a> {
 
                 let value = arg.clone().to_uppercase();
                 if !METHODS.contains(&value.as_str()) {
-                    return ExternalResult::Error(MontyException::new(
+                    return ExtFunctionResult::Error(MontyException::new(
                         ExcType::ValueError,
                         Some(String::from(format!("Unknown HTTP method {value}"))),
                     ));
@@ -93,7 +93,7 @@ impl<'a> Callable for Request<'a> {
                 arg_method = arg.clone();
             } else if i == 2 {
                 let MontyObject::String(arg) = object else {
-                    return ExternalResult::Error(MontyException::new(
+                    return ExtFunctionResult::Error(MontyException::new(
                         ExcType::ValueError,
                         Some(String::from(format!("URL must be string"))),
                     ));
@@ -104,7 +104,7 @@ impl<'a> Callable for Request<'a> {
                 if flag {
                     // read option key
                     let MontyObject::String(arg) = object else {
-                        return ExternalResult::Error(MontyException::new(
+                        return ExtFunctionResult::Error(MontyException::new(
                             ExcType::ValueError,
                             Some(String::from(format!("option key must be string"))),
                         ));
@@ -112,7 +112,7 @@ impl<'a> Callable for Request<'a> {
                     opt_key = arg.to_uppercase();
                     if !OPTIONS.contains(&opt_key.as_str()) {
                         // unknown option
-                        return ExternalResult::Error(MontyException::new(
+                        return ExtFunctionResult::Error(MontyException::new(
                             ExcType::TypeError,
                             Some(String::from(format!("Unknown option {arg}"))),
                         ));
@@ -121,7 +121,7 @@ impl<'a> Callable for Request<'a> {
                     // read option value
                     if opt_key == "HEADER" {
                         let MontyObject::String(arg) = object else {
-                            return ExternalResult::Error(MontyException::new(
+                            return ExtFunctionResult::Error(MontyException::new(
                                 ExcType::ValueError,
                                 Some(String::from(format!("header value must be string"))),
                             ));
@@ -138,7 +138,7 @@ impl<'a> Callable for Request<'a> {
                         headers.insert(k.trim().to_lowercase().to_owned(), v.trim().to_owned());
                     } else if opt_key == "CONTENT" {
                         if let Some(_) = content {
-                            return ExternalResult::Error(MontyException::new(
+                            return ExtFunctionResult::Error(MontyException::new(
                                 ExcType::TypeError,
                                 Some(String::from(format!("CONTENT option already set"))),
                             ));
@@ -150,14 +150,14 @@ impl<'a> Callable for Request<'a> {
                             // bytes
                             content = Some(bytes.to_owned());
                         } else {
-                            return ExternalResult::Error(MontyException::new(
+                            return ExtFunctionResult::Error(MontyException::new(
                                 ExcType::ValueError,
                                 Some(String::from(format!("content must be bytes or string"))),
                             ));
                         }
                     } else {
                         // unknown option
-                        return ExternalResult::Error(MontyException::new(
+                        return ExtFunctionResult::Error(MontyException::new(
                             ExcType::TypeError,
                             Some(String::from(format!("Unknown option {opt_key}"))),
                         ));
@@ -169,7 +169,7 @@ impl<'a> Callable for Request<'a> {
             }
         }
         if !flag {
-            return ExternalResult::Error(MontyException::new(
+            return ExtFunctionResult::Error(MontyException::new(
                 ExcType::TypeError,
                 Some(String::from(format!("option {opt_key} without a value"))),
             ));
@@ -183,7 +183,7 @@ impl<'a> Callable for Request<'a> {
         let url = match Url::parse(&arg_url) {
             Ok(value) => value,
             Err(error) => {
-                return ExternalResult::Error(MontyException::new(
+                return ExtFunctionResult::Error(MontyException::new(
                     ExcType::ValueError,
                     Some(error.to_string()),
                 ));
@@ -191,7 +191,7 @@ impl<'a> Callable for Request<'a> {
         };
 
         // complete call
-        ExternalResult::Return(self.build_request(
+        ExtFunctionResult::Return(self.build_request(
             arg_method,
             url,
             headers,

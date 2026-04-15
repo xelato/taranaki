@@ -1,7 +1,7 @@
 use crate::commands::callable::Callable;
 use crate::convert::to_external_result;
 use monty::ExcType;
-use monty::ExternalResult;
+use monty::ExtFunctionResult;
 use monty::MontyException;
 use monty::MontyObject;
 use redis_module::Context;
@@ -46,7 +46,7 @@ impl<'a> Callable for Execute<'a> {
         &self,
         args: Vec<MontyObject>,
         kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
+    ) -> ExtFunctionResult {
         if args.len() == 0 {
             return MontyException::new(ExcType::TypeError, Some(format!("no command specified")))
                 .into();

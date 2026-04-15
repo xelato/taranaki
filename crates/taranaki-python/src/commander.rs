@@ -4,7 +4,7 @@ use crate::commands;
 use crate::commands::callable::Callable;
 use crate::mode::Mode;
 use monty::ExcType;
-use monty::ExternalResult;
+use monty::ExtFunctionResult;
 use monty::MontyException;
 use monty::MontyObject;
 use redis_module::Context;
@@ -80,7 +80,7 @@ impl<'a> Commander<'a> {
         method: String,
         args: Vec<MontyObject>,
         kwargs: Vec<(MontyObject, MontyObject)>,
-    ) -> ExternalResult {
+    ) -> ExtFunctionResult {
         let name = method_to_cmd(method);
 
         match name.as_str() {
@@ -105,10 +105,10 @@ impl<'a> Commander<'a> {
             // http
             "request" => commands::request::Request { argv: &self.argv }.call(args, kwargs),
             "response" => {
-                ExternalResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+                ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
             }
             "redirect" => {
-                ExternalResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+                ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
             }
 
             // default impl
