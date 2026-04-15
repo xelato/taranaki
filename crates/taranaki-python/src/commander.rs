@@ -66,6 +66,10 @@ impl<'a> Commander<'a> {
         commands.insert(String::from("response"));
         commands.insert(String::from("redirect"));
 
+        // call() and curl()
+        commands.insert(String::from("call"));
+        commands.insert(String::from("curl"));
+
         Self {
             ctx: ctx,
             commands: commands,
@@ -118,6 +122,12 @@ impl<'a> Commander<'a> {
                 ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
             }
             "redirect" => {
+                ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+            }
+            "call" => {
+                ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+            }
+            "curl" => {
                 ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
             }
 
