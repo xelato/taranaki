@@ -23,6 +23,9 @@ class TestCommands(unittest.TestCase):
         "set_(3.14, 'π'); exists(3.14)": 1,
         "set_(1, 1); set_('foo', 2); delete(b'bar'); exists(1, 'foo', b'bar')": 2,
         "set_(1, 1); set_('foo', 2); set_(b'bar', 3); exists(1, 'foo', b'bar')": 3,
+
+        # external functions can be assigned
+        "foo = set_; foo(1, 1); exists(1)": 1, 
     }
 
     WITH_ARGS = [

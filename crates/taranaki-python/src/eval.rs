@@ -1,6 +1,6 @@
 use crate::commander::Commander;
 use crate::mode::Mode;
-use monty::{ExternalResult, MontyException, PrintWriter};
+use monty::{ExtFunctionResult, MontyException, NameLookupResult, PrintWriter};
 use monty::{MontyObject, MontyRun, NoLimitTracker, RunProgress};
 
 pub fn eval(
@@ -16,7 +16,7 @@ pub fn eval(
 
 /// evaluate in RX mode
 fn eval_restricted(code: String) -> Result<MontyObject, MontyException> {
-    let runner = match MontyRun::new(code.to_owned(), "main.py", vec![], vec![]) {
+    let runner = match MontyRun::new(code.to_owned(), "main.py", vec![]) {
         Ok(x) => x,
         Err(error) => {
             return Err(error);
@@ -27,19 +27,14 @@ fn eval_restricted(code: String) -> Result<MontyObject, MontyException> {
 }
 
 fn eval_with_commands(commander: &Commander, code: String) -> Result<MontyObject, MontyException> {
-    let runner = match MontyRun::new(
-        commander.get_code(code.to_owned()),
-        "main.py",
-        vec![],
-        commander.commands.clone(),
-    ) {
+    let runner = match MontyRun::new(commander.get_code(code.to_owned()), "main.py", vec![]) {
         Ok(run) => run,
         Err(error) => {
             return Err(error);
         }
     };
 
-    let mut progress_result = runner.start(vec![], NoLimitTracker, &mut PrintWriter::Stdout);
+    let mut progress_result = runner.start(vec![], NoLimitTracker, PrintWriter::Stdout);
 
     loop {
         let progress: RunProgress<NoLimitTracker> = match progress_result {
@@ -54,17 +49,23 @@ fn eval_with_commands(commander: &Commander, code: String) -> Result<MontyObject
                 return Ok(value);
             }
 
-            RunProgress::FunctionCall {
-                function_name,
-                args,
-                kwargs,
-                call_id: _,
-                method_call: _,
-                state,
-            } => {
-                let result: ExternalResult =
-                    commander.execute_command(function_name.into(), args, kwargs);
-                state.run(result, &mut PrintWriter::Stdout)
+            RunProgress::FunctionCall(fc) => {
+                let result: ExtFunctionResult =
+                    commander.execute_command(&fc.function_name, &fc.args, &fc.kwargs);
+                fc.resume(result, PrintWriter::Stdout)
+            }
+
+            RunProgress::NameLookup(nl) => {
+                let result: NameLookupResult;
+                if commander.is_command(&nl.name) {
+                    result = NameLookupResult::Value(MontyObject::Function {
+                        name: nl.name.to_owned(),
+                        docstring: None,
+                    });
+                } else {
+                    result = NameLookupResult::Undefined;
+                }
+                nl.resume(result, PrintWriter::Stdout)
             }
 
             _ => {
