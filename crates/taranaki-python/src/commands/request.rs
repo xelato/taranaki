@@ -24,8 +24,8 @@ pub struct Request<'a> {
 impl<'a> Callable for Request<'a> {
     fn call(
         &self,
-        args: Vec<MontyObject>,
-        kwargs: Vec<(MontyObject, MontyObject)>,
+        args: &Vec<MontyObject>,
+        kwargs: &Vec<(MontyObject, MontyObject)>,
     ) -> ExtFunctionResult {
         // validate args
         if args.len() > 0 {

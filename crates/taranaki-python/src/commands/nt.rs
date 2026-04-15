@@ -25,8 +25,8 @@ pub struct NT {}
 impl Callable for NT {
     fn call(
         &self,
-        args: Vec<MontyObject>,
-        kwargs: Vec<(MontyObject, MontyObject)>,
+        args: &Vec<MontyObject>,
+        kwargs: &Vec<(MontyObject, MontyObject)>,
     ) -> ExtFunctionResult {
         // validate args
         if args.len() < 1 {
@@ -55,16 +55,16 @@ impl Callable for NT {
             // ValueError: Type names and field names must be valid identifiers: '@Point'
             // first argument is type_name
             if type_name.is_none() {
-                type_name = Some(name);
+                type_name = Some(name.clone());
             } else {
-                field_names.push(name);
+                field_names.push(name.clone());
             }
         }
 
         // kwargs
         let mut kmap: HashMap<String, MontyObject> = HashMap::new();
         for (k, v) in kwargs {
-            kmap.insert(k.to_string(), v);
+            kmap.insert(k.to_string(), v.clone());
         }
 
         // values

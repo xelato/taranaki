@@ -44,15 +44,15 @@ impl<'a> Execute<'a> {
 impl<'a> Callable for Execute<'a> {
     fn call(
         &self,
-        args: Vec<MontyObject>,
-        kwargs: Vec<(MontyObject, MontyObject)>,
+        args: &Vec<MontyObject>,
+        kwargs: &Vec<(MontyObject, MontyObject)>,
     ) -> ExtFunctionResult {
         if args.len() == 0 {
             return MontyException::new(ExcType::TypeError, Some(format!("no command specified")))
                 .into();
         }
         // check against allowed keyword arguments, raise TypeError
-        for (k, _v) in &kwargs {
+        for (k, _v) in kwargs {
             let MontyObject::String(name) = k else {
                 return MontyException::new(
                     ExcType::ValueError,

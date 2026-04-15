@@ -1,6 +1,6 @@
 use crate::commander::Commander;
 use crate::mode::Mode;
-use monty::{ExtFunctionResult, MontyException, PrintWriter};
+use monty::{ExtFunctionResult, MontyException, NameLookupResult, PrintWriter};
 use monty::{MontyObject, MontyRun, NoLimitTracker, RunProgress};
 
 pub fn eval(
@@ -50,12 +50,22 @@ fn eval_with_commands(commander: &Commander, code: String) -> Result<MontyObject
             }
 
             RunProgress::FunctionCall(fc) => {
-                let result: ExtFunctionResult = commander.execute_command(
-                    fc.function_name.clone().into(),
-                    fc.args.clone(),
-                    fc.kwargs.clone(),
-                );
+                let result: ExtFunctionResult =
+                    commander.execute_command(&fc.function_name, &fc.args, &fc.kwargs);
                 fc.resume(result, PrintWriter::Stdout)
+            }
+
+            RunProgress::NameLookup(nl) => {
+                let result: NameLookupResult;
+                if commander.is_command(&nl.name) {
+                    result = NameLookupResult::Value(MontyObject::Function {
+                        name: nl.name.to_owned(),
+                        docstring: None,
+                    });
+                } else {
+                    result = NameLookupResult::Undefined;
+                }
+                nl.resume(result, PrintWriter::Stdout)
             }
 
             _ => {

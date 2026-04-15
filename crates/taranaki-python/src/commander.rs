@@ -77,10 +77,18 @@ impl<'a> Commander<'a> {
 
     pub fn execute_command(
         &self,
-        method: String,
-        args: Vec<MontyObject>,
-        kwargs: Vec<(MontyObject, MontyObject)>,
+        method: &String,
+        args: &Vec<MontyObject>,
+        kwargs: &Vec<(MontyObject, MontyObject)>,
     ) -> ExtFunctionResult {
+        if !self.is_command(method) {
+            let message = format!("name '{method}' is not defined");
+            return ExtFunctionResult::Error(MontyException::new(
+                ExcType::NameError,
+                Some(message),
+            ));
+        }
+
         let name = method_to_cmd(method);
 
         match name.as_str() {
@@ -116,11 +124,15 @@ impl<'a> Commander<'a> {
                 let mut cmdargs: Vec<MontyObject> = Vec::new();
                 cmdargs.push(MontyObject::String(name));
                 for arg in args {
-                    cmdargs.push(arg);
+                    cmdargs.push(arg.clone());
                 }
-                commands::execute::Execute { ctx: self.ctx }.call(cmdargs, kwargs)
+                commands::execute::Execute { ctx: self.ctx }.call(&cmdargs, kwargs)
             }
         }
+    }
+
+    pub fn is_command(&self, name: &String) -> bool {
+        self.commands.contains(name)
     }
 }
 
@@ -146,7 +158,7 @@ fn cmd_to_method(cmd: String) -> String {
     cmd.replace("-", "_")
 }
 
-fn method_to_cmd(method: String) -> String {
+fn method_to_cmd(method: &String) -> String {
     if method == "set_" {
         return String::from("set");
     }

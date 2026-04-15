@@ -15,8 +15,8 @@ pub struct Cmdargv<'a> {
 impl<'a> Callable for Cmdargv<'a> {
     fn call(
         &self,
-        args: Vec<MontyObject>,
-        kwargs: Vec<(MontyObject, MontyObject)>,
+        args: &Vec<MontyObject>,
+        kwargs: &Vec<(MontyObject, MontyObject)>,
     ) -> ExtFunctionResult {
         // validate args
         if args.len() > 0 {

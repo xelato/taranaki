@@ -67,6 +67,7 @@ class TestPython(unittest.TestCase):
         client_instance = client.get_instance()
         for expression in self.UNSUPPORTED:
             # works in CPython
+            print(expression)
             eval(expression)
             # but not in Monty
             with self.assertRaises(Exception):

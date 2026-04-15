@@ -18,8 +18,8 @@ pub struct Exists<'a> {
 impl<'a> Callable for Exists<'a> {
     fn call(
         &self,
-        args: Vec<MontyObject>,
-        kwargs: Vec<(MontyObject, MontyObject)>,
+        args: &Vec<MontyObject>,
+        kwargs: &Vec<(MontyObject, MontyObject)>,
     ) -> ExtFunctionResult {
         // no keyword arguments allowed, raise TypeError
         for (k, _v) in kwargs {
@@ -46,7 +46,7 @@ impl<'a> Callable for Exists<'a> {
         for arg in args {
             match arg {
                 MontyObject::String(value) => {
-                    keys.push(self.ctx.create_string(value));
+                    keys.push(self.ctx.create_string(value.clone()));
                 }
                 MontyObject::Int(value) => {
                     keys.push(self.ctx.create_string(value.to_string()));
@@ -55,7 +55,7 @@ impl<'a> Callable for Exists<'a> {
                     keys.push(self.ctx.create_string(value.to_string()));
                 }
                 MontyObject::Bytes(value) => {
-                    keys.push(self.ctx.create_string(value));
+                    keys.push(self.ctx.create_string(value.clone()));
                 }
                 _ => {
                     let type_name = arg.type_name();
