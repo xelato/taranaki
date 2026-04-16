@@ -44,6 +44,11 @@ jobs:
         sha256sum target/release/*.so
         file target/release/*.so
 
+    - name: Build Docker
+      run: |
+        cp target/release/libtaranaki_python.so docker/
+        docker build --tag taranaki:latest docker/
+
     - name: Test Redis
       run: |
         docker run --rm -d \
@@ -63,7 +68,7 @@ jobs:
             --name valkey \
             -p 127.0.0.1:6379:6379 \
             --volume $PWD:/app \
-            valkey/valkey:9.0.2 \
+            valkey/valkey:9.0.3 \
             valkey-server \
             --loadmodule "/app/target/release/libtaranaki_python.so"
 
