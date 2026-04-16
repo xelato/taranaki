@@ -49,6 +49,16 @@ jobs:
         cp target/release/libtaranaki_python.so docker/
         docker build --tag taranaki:latest docker/
 
+    - name: Test Docker
+      run: |
+        docker run --rm -d \
+            --name taranaki \
+            -p 127.0.0.1:6379:6379 \
+            taranaki:latest
+
+        uv run --with pytest pytest
+        docker rm -f taranaki
+
     - name: Test Redis
       run: |
         docker run --rm -d \
@@ -74,13 +84,3 @@ jobs:
 
         uv run --with pytest pytest
         docker rm -f valkey
-
-    - name: Test Docker
-      run: |
-        docker run --rm -d \
-            --name taranaki \
-            -p 127.0.0.1:6379:6379 \
-            taranaki:latest
-
-        uv run --with pytest pytest
-        docker rm -f taranaki
