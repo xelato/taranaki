@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::argv::Argv;
 use crate::command_info::CommandInfo;
 use crate::commands;
@@ -11,7 +13,7 @@ use redis_module::Context;
 
 pub struct Commander<'a> {
     ctx: &'a Context,
-    pub commands: Vec<String>,
+    commands: HashSet<String>,
     argv: Argv,
 }
 
@@ -25,12 +27,12 @@ impl<'a> Commander<'a> {
         if let Mode::RX = mode {
             return Self {
                 ctx: ctx,
-                commands: vec![],
+                commands: HashSet::default(),
                 argv: argv,
             };
         }
 
-        let mut commands: Vec<String> = Vec::new();
+        let mut commands: HashSet<String> = HashSet::new();
 
         let mut rw = false;
         if let Mode::RW = mode {
@@ -48,21 +50,25 @@ impl<'a> Commander<'a> {
                 add = true;
             }
             if add {
-                commands.push(cmd_to_method(name.to_string()));
+                commands.insert(cmd_to_method(name.to_string()));
             }
         }
 
         // additional custom
-        commands.push(String::from("commands"));
+        commands.insert(String::from("commands"));
         // todo: naming this "sys_argv" leads to problems...
-        commands.push(String::from("cmdargv"));
+        commands.insert(String::from("cmdargv"));
         // create named tuples
-        commands.push(String::from("nt"));
+        commands.insert(String::from("nt"));
 
         // http
-        commands.push(String::from("request"));
-        commands.push(String::from("response"));
-        commands.push(String::from("redirect"));
+        commands.insert(String::from("request"));
+        commands.insert(String::from("response"));
+        commands.insert(String::from("redirect"));
+
+        // call() and curl()
+        commands.insert(String::from("call"));
+        commands.insert(String::from("curl"));
 
         Self {
             ctx: ctx,
@@ -116,6 +122,12 @@ impl<'a> Commander<'a> {
                 ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
             }
             "redirect" => {
+                ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+            }
+            "call" => {
+                ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
+            }
+            "curl" => {
                 ExtFunctionResult::Error(MontyException::new(ExcType::NotImplementedError, None))
             }
 
