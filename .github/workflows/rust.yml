@@ -25,6 +25,7 @@ jobs:
       run: |
         cargo --version
         cargo fmt --check
+        uvx ruff check
 
     - name: Version
       run: |
