@@ -1,3 +1,4 @@
+import importlib.metadata
 import click
 
 from . import client
@@ -30,3 +31,12 @@ def py_eval(expression, args):
 @cli_error_handler
 def ngrok(key):
     serve_ngrok.run(key)
+
+
+@cli.command(help="Print version")
+def version():
+    try:
+        version = importlib.metadata.version("taranaki")
+    except importlib.metadata.PackageNotFoundError:
+        version = "0.0.0"
+    print(version)

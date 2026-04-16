@@ -23,3 +23,6 @@ dist
 .ruff_cache
 .todo
 __pycache__
+
+# version file
+VERSION

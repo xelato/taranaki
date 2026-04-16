@@ -82,3 +82,16 @@ check:
 # test
 pytest:
     uv run --with pytest pytest
+
+# build OCI container
+docker-build:
+    cp target/release/libtaranaki_python.so docker/
+    docker build --tag taranaki:latest docker/
+    rm -f docker/libtaranaki_python.so
+
+# run OCI container
+docker-run:
+    docker run --rm -it \
+        --name taranaki \
+        -p 127.0.0.1:6379:6379 \
+        taranaki:latest
