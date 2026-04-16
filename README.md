@@ -22,7 +22,8 @@ PY.HTTP /app/hello GET /hello?name=Taranaki
 ```
 ```
 1) (integer) 200
-2) 1) "Hello, Taranaki"
+2) content-type: text/plain; charset=utf-8
+3) 1) "Hello, Taranaki"
 ```
 
 ## But why?...
