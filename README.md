@@ -6,7 +6,7 @@ named after the landmark giant on the edge of the Tasman Sea, is a software fram
 [remote](https://redict.io) 
 [dictionary](https://redis.io) 
 [server](https://valkey.io). 
-Written in [Rust](https://rust-lang.org) and based on [Monty](https://github.com/pydantic/monty), it runs Python in a controlled sandboxed environment, in-process and with a minimal memory footprint. MIT-licensed.
+Written in [Rust](https://rust-lang.org) and based on [Monty](https://github.com/pydantic/monty), it runs Python in a controlled sandboxed environment, in-process and with a minimal memory footprint.
 
 ## Quick start
 
@@ -168,4 +168,4 @@ tbd
 tbd
 
 ## License
-tbd
+The project is distributed under the terms of the MIT license.
