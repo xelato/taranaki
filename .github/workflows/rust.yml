@@ -64,3 +64,4 @@ jobs:
         uv version v99.99.99
         uv build
         ls -l dist/
+        uv run taranaki version
