@@ -58,3 +58,9 @@ jobs:
 
         uv run --with pytest pytest
         docker rm -f valkey
+
+    - name: Build Wheel
+      run: |
+        uv version v99.99.99
+        uv build
+        ls -l dist/
