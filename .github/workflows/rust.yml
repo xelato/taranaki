@@ -26,6 +26,17 @@ jobs:
         cargo --version
         cargo fmt --check
 
+    - name: Version
+      run: |
+        python tools/update-version.py v99.99.99
+        uv version `cat VERSION`
+
+    - name: Build Wheel
+      run: |
+        uv build
+        ls -l dist/
+        uv run taranaki version
+
     - name: Build
       run: |
         cargo build --release
@@ -58,10 +69,3 @@ jobs:
 
         uv run --with pytest pytest
         docker rm -f valkey
-
-    - name: Build Wheel
-      run: |
-        uv version v99.99.99
-        uv build
-        ls -l dist/
-        uv run taranaki version
