@@ -25,8 +25,8 @@ def py_eval(expression, args):
     print(python.py_eval(client.get_instance(), expression, args))
 
 
-@cli.command(name="ngrok", help="Serve with ngrok")
-@click.argument("key", required=True)
-@cli_error_handler
-def ngrok(key):
-    serve_ngrok.run(key)
+#@cli.command(name="ngrok", help="Serve with ngrok")
+#@click.argument("key", required=True)
+#@cli_error_handler
+#def ngrok(key):
+#    serve_ngrok.run(key)
