@@ -2,7 +2,7 @@
 name = "taranaki"
 version = "0.0.0"
 description = "Taranaki CLI"
-readme = "README.md"
+readme = "docs/README.md"
 requires-python = ">=3.14"
 dependencies = [
     "aiohttp>=3.13.3",
