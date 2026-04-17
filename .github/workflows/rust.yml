@@ -126,4 +126,4 @@ jobs:
     - name: tmp1
       run: |
         ls -l dist/
-        ls -l target/release
+        ls -l target/release/
