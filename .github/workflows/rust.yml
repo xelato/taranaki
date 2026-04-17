@@ -34,6 +34,12 @@ jobs:
         python tools/update-version.py v99.99.99
         uv version `cat VERSION`
 
+    - name: Release Version
+      if: github.event_name == 'release' && github.event.action == 'published'
+      run: |
+        python tools/update-version.py "${{ github.event.release.tag_name }}"
+        uv version `cat VERSION`
+
     - name: Build Wheel
       run: |
         uv build
