@@ -141,7 +141,6 @@ jobs:
 
 
   release-pypi:
-
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'release' && github.event.action == 'published'
@@ -149,13 +148,9 @@ jobs:
       # mandatory for trusted publishing
       id-token: write
       contents: read
-
     environment:
-      # dedicated environments with protections for publishing
       name: pypi
-
     steps:
-
     - name: Download artifacts
       uses: actions/download-artifact@v7
       with:
@@ -170,19 +165,14 @@ jobs:
 
 
   release-docker:
-
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'release' && github.event.action == 'published'
     permissions:
       contents: read
-
     environment:
-      # dedicated environments with protections for publishing
       name: docker
-
     steps:
-
     - name: Download artifacts
       uses: actions/download-artifact@v7
       with:
@@ -191,11 +181,16 @@ jobs:
 
     - name: Docker import
       run: |
-        docker import artifacts/docker/taranaki.docker
+        docker import artifacts/docker/taranaki.docker taranaki:latest
         docker image ls
 
     - name: Docker login
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Docker push
+      run: |
+        docker tag taranaki:latest xelato/taranaki:latest
+        docker push xelato/taranaki:latest
