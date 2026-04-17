@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  release:
+    types: [published]
 
 env:
   CARGO_TERM_COLOR: always
@@ -85,3 +87,43 @@ jobs:
 
         uv run --with pytest pytest
         docker rm -f valkey
+
+    - name: Upload artifacts Rust
+      uses: actions/upload-artifact@v4
+      with:
+        name: rust-artifact
+        path: target/release/
+        retention-days: 1
+
+    - name: Upload artifacts Python
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-artifact
+        path: dist/
+        retention-days: 1
+
+
+  release:
+
+    runs-on: ubuntu-latest
+    needs: build
+    #if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+
+    - name: Download artifacts Rust
+      uses: actions/download-artifact@v4
+      with:
+        name: rust-artifact
+        path: target/release/
+
+    - name: Download artifacts Python
+      uses: actions/download-artifact@v4
+      with:
+        name: python-artifact
+        path: dist/
+
+    - name: tmp1
+      run: |
+        ls -l dist/
+        ls -l target/release
