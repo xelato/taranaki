@@ -1,4 +1,4 @@
-name: Rust
+name: Taranaki
 
 on:
   push:
@@ -89,14 +89,14 @@ jobs:
         docker rm -f valkey
 
     - name: Upload artifacts Rust
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: rust-artifact
         path: target/release/*.so
         retention-days: 1
 
     - name: Upload artifacts Python
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: python-artifact
         path: dist/
@@ -112,13 +112,13 @@ jobs:
     steps:
 
     - name: Download artifacts Rust
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: rust-artifact
-        path: target/release/*.so
+        path: target/release/
 
     - name: Download artifacts Python
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: python-artifact
         path: dist/
