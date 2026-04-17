@@ -30,14 +30,17 @@ jobs:
         uvx ruff check
 
     - name: Version
+      if: github.event_name != 'release'
       run: |
         python tools/update-version.py v99.99.99
+        cat VERSION
         uv version `cat VERSION`
 
     - name: Release Version
       if: github.event_name == 'release' && github.event.action == 'published'
       run: |
         python tools/update-version.py "${{ github.event.release.tag_name }}"
+        cat VERSION
         uv version `cat VERSION`
 
     - name: Build Wheel
@@ -113,7 +116,9 @@ jobs:
 
     runs-on: ubuntu-latest
     needs: build
-    #if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'release' && github.event.action == 'published'
+    permissions:
+      contents: write
 
     steps:
 
@@ -129,7 +134,10 @@ jobs:
         name: python-artifact
         path: dist/
 
-    - name: tmp1
-      run: |
-        ls -l dist/
-        ls -l target/release/
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v3
+      with:
+        tag_name: ${{ github.event.release.tag_name }}
+        files: |
+          dist/*.whl
+          target/release/*.so
