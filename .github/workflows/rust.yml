@@ -112,13 +112,13 @@ jobs:
     steps:
 
     - name: Download artifacts Rust
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: rust-artifact
         path: target/release/
 
     - name: Download artifacts Python
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: python-artifact
         path: dist/
