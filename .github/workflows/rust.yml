@@ -101,6 +101,7 @@ jobs:
       run: |
         mkdir -p artifacts/{lib,python,docker}
         cp VERSION artifacts/
+        echo "${{ github.sha }}" > artifacts/COMMIT-SHA
         cp target/release/*.so artifacts/lib/
         cp dist/* artifacts/python/
 
@@ -134,5 +135,6 @@ jobs:
         tag_name: ${{ github.event.release.tag_name }}
         files: |
           artifacts/VERSION
+          artifacts/COMMIT-SHA
           artifacts/python/*.whl
           artifacts/lib/*.so
