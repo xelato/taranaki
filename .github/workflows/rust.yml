@@ -32,15 +32,13 @@ jobs:
     - name: Version
       if: github.event_name != 'release'
       run: |
-        python tools/update-version.py v99.99.99
-        cat VERSION
+        python tools/update-version.py v0.0.0
         uv version `cat VERSION`
 
     - name: Release Version
       if: github.event_name == 'release' && github.event.action == 'published'
       run: |
         python tools/update-version.py "${{ github.event.release.tag_name }}"
-        cat VERSION
         uv version `cat VERSION`
 
     - name: Build Wheel
