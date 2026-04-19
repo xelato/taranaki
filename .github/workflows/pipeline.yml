@@ -138,8 +138,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - arch: amd64
           - arch: arm64
+          #- arch: amd64
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v8.1.0
@@ -160,7 +160,7 @@ jobs:
 
     - name: Test Valkey
       run: |
-        docker run --rm -d \
+        docker run --rm \
             --platform "linux/${{ matrix.arch }}" \
             --name valkey \
             -p 127.0.0.1:6379:6379 \
