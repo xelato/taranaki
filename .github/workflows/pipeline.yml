@@ -79,16 +79,19 @@ jobs:
     - name: Install target
       shell: bash
       run: |
-        #rustup target add ${{ matrix.target }}
-        #if [[ ${{ matrix.target }} == "aarch64-unknown-linux-gnu" ]]; then
-        #  sudo apt install -y gcc-aarch64-linux-gnu
-        #fi
-        cargo install cross
+        rustup target add ${{ matrix.target }}
+        if [[ ${{ matrix.target }} == "aarch64-unknown-linux-gnu" ]]; then
+          sudo apt install -y gcc-aarch64-linux-gnu
+        fi
 
     - name: Build
+      shell: bash
       run: |
         python tools/update-version.py "$VERSION"
-        cross build --release --locked --target ${{ matrix.target }}
+        if [[ ${{ matrix.target }} == "aarch64-unknown-linux-gnu" ]]; then
+          export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
+        fi
+        cargo build --release --locked --target ${{ matrix.target }}
         file target/${{ matrix.target }}/release/*.so
         sha256sum target/${{ matrix.target }}/release/*.so
       env:
