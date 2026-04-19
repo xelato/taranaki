@@ -179,7 +179,7 @@ jobs:
         path: target/release/
 
     - uses: docker/setup-qemu-action@v3
-      if: matrix.arch == "arm64"
+      if: matrix.arch == 'arm64'
       with:
         platforms: arm64
 
