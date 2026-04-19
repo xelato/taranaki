@@ -152,6 +152,8 @@ jobs:
 
     - name: Test Redis
       run: |
+        ls -l target/release/
+        file target/release/*
         docker run --rm -d \
             --platform "linux/${{ matrix.arch }}" \
             --name redis \
@@ -160,6 +162,7 @@ jobs:
             redis:7.2.13 \
             redis-server \
             --loadmodule "/app/target/release/libtaranaki_python.so"
+        time sleep 10
         uv run --with pytest pytest
         docker rm -f redis
 
