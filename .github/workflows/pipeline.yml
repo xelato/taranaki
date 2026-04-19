@@ -150,11 +150,14 @@ jobs:
         name: release-${{ matrix.arch }}
         path: target/release/
 
+    - name: Fix permissions
+      run: |
+        chmod 555 target/release/*.so
+        ls -l target/release/
+
     - name: Test Redis
       run: |
-        ls -l target/release/
-        file target/release/*
-        docker run --rm \
+        docker run --rm -d \
             --platform "linux/${{ matrix.arch }}" \
             --name redis \
             -p 127.0.0.1:6379:6379 \
@@ -162,13 +165,12 @@ jobs:
             redis:7.2.13 \
             redis-server \
             --loadmodule "/app/target/release/libtaranaki_python.so"
-        time sleep 10
         uv run --with pytest pytest
         docker rm -f redis
 
     - name: Test Valkey
       run: |
-        docker run --rm \
+        docker run --rm -d \
             --platform "linux/${{ matrix.arch }}" \
             --name valkey \
             -p 127.0.0.1:6379:6379 \
