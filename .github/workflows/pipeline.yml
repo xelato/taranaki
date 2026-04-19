@@ -152,6 +152,7 @@ jobs:
 
     - name: Test Redis
       run: |
+        file target/release/libtaranaki_python.so
         docker run --rm -d \
             --platform "linux/${{ matrix.arch }}" \
             --name redis \
