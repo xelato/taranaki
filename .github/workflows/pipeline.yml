@@ -66,6 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: version
     strategy:
+      fail-fast: false
       matrix:
         include:
           - arch: amd64
