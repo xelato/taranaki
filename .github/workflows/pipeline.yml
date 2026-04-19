@@ -143,6 +143,7 @@ jobs:
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v8.1.0
+    - uses: docker/setup-docker-action@v5
 
     - name: Download artifacts
       uses: actions/download-artifact@v7
