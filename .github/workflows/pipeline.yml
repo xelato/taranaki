@@ -90,9 +90,6 @@ jobs:
           sudo apt install -y gcc-aarch64-linux-gnu
         fi
 
-    #- name: Setup Cache
-    #  uses: Swatinem/rust-cache@v2
-
     - name: Build
       shell: bash
       run: |
