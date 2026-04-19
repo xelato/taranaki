@@ -104,7 +104,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v6
       with:
-        name: lib-${{ matrix.arch }}
+        name: release-${{ matrix.arch }}
         path: target/${{ matrix.target }}/release/*.so
         retention-days: 1
 
@@ -147,12 +147,11 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v7
       with:
-        name: lib-${{ matrix.arch }}
-        path: target/release/libtaranaki_python.so
+        name: release-${{ matrix.arch }}
+        path: target/release/
 
     - name: Test Redis
       run: |
-        file target/release/libtaranaki_python.so
         docker run --rm -d \
             --platform "linux/${{ matrix.arch }}" \
             --name redis \
