@@ -143,6 +143,7 @@ jobs:
             valkey/valkey:9.0.3 \
             valkey-server \
             --loadmodule "/app/target/release/libtaranaki_python.so"
+        ./tools/wait-for 127.0.0.1:6379 -t 5
         uv run --with pytest pytest
         docker rm -f valkey
 
@@ -156,6 +157,7 @@ jobs:
             redis:7.2.13 \
             redis-server \
             --loadmodule "/app/target/release/libtaranaki_python.so"
+        ./tools/wait-for 127.0.0.1:6379 -t 5
         uv run --with pytest pytest
         docker rm -f redis
 
