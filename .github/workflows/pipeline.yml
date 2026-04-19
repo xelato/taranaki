@@ -8,6 +8,11 @@ on:
   release:
     types: [published]
 
+# todo: publish immutable release:
+# - create draft
+# - attach assets
+# - publish draft
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -133,7 +138,7 @@ jobs:
 
     - name: Test Valkey
       run: |
-        docker run --rm \
+        docker run --rm -d \
             --platform "linux/${{ matrix.arch }}" \
             --name valkey \
             -p 127.0.0.1:6379:6379 \
