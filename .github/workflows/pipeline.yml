@@ -220,9 +220,7 @@ jobs:
 
   release-pypi:
     runs-on: ubuntu-latest
-    needs: |
-      - test
-      - build-python
+    needs: [test, build-python]
     if: github.event_name == 'release' && github.event.action == 'published'
     permissions:
       # mandatory for trusted publishing
