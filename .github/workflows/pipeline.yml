@@ -75,6 +75,10 @@ jobs:
     steps:
     - uses: actions/checkout@v5
 
+    - name: Install target
+      run: |
+        rustup target add ${{ matrix.target }}
+
     - name: Build
       run: |
         python tools/update-version.py "$VERSION"
