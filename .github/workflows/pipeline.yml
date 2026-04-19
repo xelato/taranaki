@@ -132,7 +132,7 @@ jobs:
 
 
   test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     needs: build
     strategy:
       fail-fast: false
@@ -142,12 +142,8 @@ jobs:
           - arch: arm64
     steps:
     - uses: actions/checkout@v5
-
-    - uses: docker/setup-docker-action@v5
-      env:
-        LIMA_START_ARGS: --cpus 4 --memory 8
-
     - uses: astral-sh/setup-uv@v8.1.0
+    - uses: docker/setup-qemu-action@v4
 
     - name: Download artifacts
       uses: actions/download-artifact@v7
@@ -159,20 +155,6 @@ jobs:
       run: |
         chmod 555 target/release/*.so
         ls -l target/release/
-
-    - name: Test Redis
-      run: |
-        docker run --rm -d \
-            --platform "linux/${{ matrix.arch }}" \
-            --name redis \
-            -p 127.0.0.1:6379:6379 \
-            --volume $PWD:/app \
-            redis:7.2.13 \
-            redis-server \
-            --loadmodule "/app/target/release/libtaranaki_python.so"
-        time sleep 10
-        uv run --with pytest pytest
-        docker rm -f redis
 
     - name: Test Valkey
       run: |
@@ -187,6 +169,20 @@ jobs:
         time sleep 10
         uv run --with pytest pytest
         docker rm -f valkey
+
+    - name: Test Redis
+      run: |
+        docker run --rm -d \
+            --platform "linux/${{ matrix.arch }}" \
+            --name redis \
+            -p 127.0.0.1:6379:6379 \
+            --volume $PWD:/app \
+            redis:7.2.13 \
+            redis-server \
+            --loadmodule "/app/target/release/libtaranaki_python.so"
+        time sleep 10
+        uv run --with pytest pytest
+        docker rm -f redis
 
 
   release-assets:
