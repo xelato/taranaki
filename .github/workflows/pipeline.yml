@@ -178,6 +178,11 @@ jobs:
         name: release-${{ matrix.arch }}
         path: target/release/
 
+    - uses: docker/setup-qemu-action@v3
+      if: matrix.arch == "arm64"
+      with:
+        platforms: arm64
+
     - name: Build Docker
       run: |
         cp target/release/libtaranaki_python.so docker/
