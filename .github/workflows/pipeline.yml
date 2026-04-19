@@ -152,28 +152,26 @@ jobs:
     - name: Test Redis
       run: |
         docker run --rm -d \
-            --platform linux/${{ matrix.arch }} \
+            --platform "linux/${{ matrix.arch }}" \
             --name redis \
             -p 127.0.0.1:6379:6379 \
             --volume $PWD:/app \
             redis:7.2.13 \
             redis-server \
             --loadmodule "/app/target/release/libtaranaki_python.so"
-
         uv run --with pytest pytest
         docker rm -f redis
 
     - name: Test Valkey
       run: |
         docker run --rm -d \
-            --platform linux/${{ matrix.arch }} \
+            --platform "linux/${{ matrix.arch }}" \
             --name valkey \
             -p 127.0.0.1:6379:6379 \
             --volume $PWD:/app \
             valkey/valkey:9.0.3 \
             valkey-server \
             --loadmodule "/app/target/release/libtaranaki_python.so"
-
         uv run --with pytest pytest
         docker rm -f valkey
 
@@ -184,9 +182,6 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
     permissions:
       contents: write
-
-    - run: |
-        exit 1
 
     steps:
     - name: Download artifacts
@@ -247,7 +242,6 @@ jobs:
 
     - name: Docker import
       run: |
-        exit 1
         docker import artifacts/docker/taranaki.docker taranaki:latest
         docker image ls
 
