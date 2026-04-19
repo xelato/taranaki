@@ -142,8 +142,12 @@ jobs:
           - arch: arm64
     steps:
     - uses: actions/checkout@v5
-    - uses: astral-sh/setup-uv@v8.1.0
+
     - uses: docker/setup-docker-action@v5
+      env:
+        LIMA_START_ARGS: --cpus 4 --memory 8
+
+    - uses: astral-sh/setup-uv@v8.1.0
 
     - name: Download artifacts
       uses: actions/download-artifact@v7
