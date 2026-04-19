@@ -157,7 +157,7 @@ jobs:
 
     - name: Test Redis
       run: |
-        docker run --rm -d \
+        docker run --rm \
             --platform "linux/${{ matrix.arch }}" \
             --name redis \
             -p 127.0.0.1:6379:6379 \
@@ -170,7 +170,7 @@ jobs:
 
     - name: Test Valkey
       run: |
-        docker run --rm -d \
+        docker run --rm \
             --platform "linux/${{ matrix.arch }}" \
             --name valkey \
             -p 127.0.0.1:6379:6379 \
