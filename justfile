@@ -15,6 +15,11 @@ build-linux-arm64:
     rustup target add aarch64-unknown-linux-gnu
     cargo build --release --target aarch64-unknown-linux-gnu
 
+docker-linux-arm64:
+    mkdir -p docker/linux/arm64
+    cp target/aarch64-unknown-linux-gnu/release/libtaranaki_python.so docker/linux/arm64
+    docker build --platform linux/arm64 --tag taranaki:latest-arm64 docker/
+
 
 # start dev container
 dev:

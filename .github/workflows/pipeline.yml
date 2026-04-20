@@ -190,8 +190,9 @@ jobs:
         export DOCKER_DEFAULT_PLATFORM=linux/${{ matrix.arch }}
         docker build \
           --platform linux/${{ matrix.arch }} \
-          --tag taranaki:latest docker/
-        docker image save -o docker/release-${{ matrix.arch }}.docker taranaki:latest
+          --tag taranaki:latest-${{ matrix.arch }} docker/
+        docker image save -o docker/release-${{ matrix.arch }}.docker taranaki:latest-${{ matrix.arch }}
+
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
