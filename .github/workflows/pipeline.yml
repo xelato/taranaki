@@ -219,11 +219,11 @@ jobs:
 
     - uses: docker/setup-qemu-action@v3
       with:
-        platforms: arm64
+        platforms: arm64,amd64
 
     - name: Build Docker
       run: |
-        docker build \
+        docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --tag taranaki:latest-multiplatform docker-multiplatform/
         docker image save -o docker-multiplatform/release-multiplatform.docker taranaki:latest-multiplatform

@@ -2,15 +2,19 @@
 default:
     just --list
 
-# build dev
+# build release
 build:
     uv build
-    cargo build
-
-# build release
-release:
-    uv build
     cargo build --release
+
+build-linux-amd64:
+    rustup target add x86_64-unknown-linux-gnu
+    cargo build --release --target x86_64-unknown-linux-gnu
+
+build-linux-arm64:
+    rustup target add aarch64-unknown-linux-gnu
+    cargo build --release --target aarch64-unknown-linux-gnu
+
 
 # start dev container
 dev:
