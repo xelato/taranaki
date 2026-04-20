@@ -221,6 +221,8 @@ jobs:
       with:
         platforms: arm64,amd64
 
+    - uses: docker/setup-buildx-action@v4
+
     - name: Build Docker
       run: |
         docker buildx build \
