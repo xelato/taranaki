@@ -200,40 +200,6 @@ jobs:
         path: docker/release-${{ matrix.arch }}.docker
         retention-days: 1
 
-  docker-multiplatform:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-    - uses: actions/checkout@v5
-
-    - name: Download artifacts 1
-      uses: actions/download-artifact@v7
-      with:
-        name: release-amd64
-        path: docker/linux/amd64/
-
-    - name: Download artifacts 2
-      uses: actions/download-artifact@v7
-      with:
-        name: release-arm64
-        path: docker/linux/arm64/
-
-    - uses: docker/setup-qemu-action@v3
-      with:
-        platforms: arm64,amd64
-
-    - uses: docker/setup-buildx-action@v4
-
-    - name: Build Docker
-      run: |
-        docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --tag taranaki:latest-multiplatform \
-            --load \
-            docker/
-        docker image save -o docker/release-multiplatform.docker taranaki:latest-multiplatform
-
-
   release-assets:
     runs-on: ubuntu-latest
     needs: test
@@ -286,30 +252,38 @@ jobs:
   release-docker:
     runs-on: ubuntu-latest
     needs: docker
-    if: github.event_name == 'release' && github.event.action == 'published'
+    #if: github.event_name == 'release' && github.event.action == 'published'
     permissions:
       contents: read
     environment:
       name: docker
     steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v7
+    - uses: actions/checkout@v5
+
+    - uses: actions/download-artifact@v7
       with:
-        name: artifacts
-        path: artifacts/
+        name: release-amd64
+        path: docker/linux/amd64/
 
-    - name: Docker import
-      run: |
-        docker import artifacts/docker/taranaki.docker taranaki:latest
-        docker image ls
+    - uses: actions/download-artifact@v7
+      with:
+        name: release-arm64
+        path: docker/linux/arm64/
 
-    - name: Docker login
-      uses: docker/login-action@v4
+    - uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm64,amd64
+
+    - uses: docker/setup-buildx-action@v4
+
+    - uses: docker/login-action@v4
       with:
         username: ${{ vars.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Docker push
-      run: |
-        docker tag taranaki:latest xelato/taranaki:latest
-        docker push xelato/taranaki:latest
+    - run: |
+        docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag xelato/taranaki:latest \
+            --push \
+            docker/
