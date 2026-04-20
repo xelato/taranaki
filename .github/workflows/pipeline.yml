@@ -178,7 +178,7 @@ jobs:
       uses: actions/download-artifact@v7
       with:
         name: release-${{ matrix.arch }}
-        path: target/release/
+        path: docker/linux/${{ matrix.arch }}
 
     - uses: docker/setup-qemu-action@v3
       if: matrix.arch == 'arm64'
@@ -187,9 +187,10 @@ jobs:
 
     - name: Build Docker
       run: |
-        cp target/release/libtaranaki_python.so docker/
         export DOCKER_DEFAULT_PLATFORM=linux/${{ matrix.arch }}
-        docker build --tag taranaki:latest docker/
+        docker build \
+          --platform linux/${{ matrix.arch }} \
+          --tag taranaki:latest docker/
         docker image save -o docker/release-${{ matrix.arch }}.docker taranaki:latest
 
     - name: Upload artifact
@@ -209,13 +210,13 @@ jobs:
       uses: actions/download-artifact@v7
       with:
         name: release-amd64
-        path: docker-multiplatform/linux/amd64/
+        path: docker/linux/amd64/
 
     - name: Download artifacts 2
       uses: actions/download-artifact@v7
       with:
         name: release-arm64
-        path: docker-multiplatform/linux/arm64/
+        path: docker/linux/arm64/
 
     - uses: docker/setup-qemu-action@v3
       with:
@@ -229,15 +230,8 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --tag taranaki:latest-multiplatform \
             --load \
-            docker-multiplatform/
-        docker image save -o docker-multiplatform/release-multiplatform.docker taranaki:latest-multiplatform
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v6
-      with:
-        name: release-multiplatform.docker
-        path: docker-multiplatform/release-multiplatform.docker
-        retention-days: 1
+            docker/
+        docker image save -o docker/release-multiplatform.docker taranaki:latest-multiplatform
 
 
   release-assets:
