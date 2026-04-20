@@ -227,7 +227,9 @@ jobs:
       run: |
         docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --tag taranaki:latest-multiplatform docker-multiplatform/
+            --tag taranaki:latest-multiplatform \
+            --load \
+            docker-multiplatform/
         docker image save -o docker-multiplatform/release-multiplatform.docker taranaki:latest-multiplatform
 
     - name: Upload artifact
