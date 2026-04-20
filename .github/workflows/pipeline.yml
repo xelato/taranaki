@@ -8,7 +8,7 @@ on:
   release:
     types: [published]
 
-# todo: publish immutable release:
+# todo: immutable releases:
 # - create draft
 # - attach assets
 # - publish draft
@@ -197,6 +197,42 @@ jobs:
       with:
         name: release-${{ matrix.arch }}.docker
         path: docker/release-${{ matrix.arch }}.docker
+        retention-days: 1
+
+  docker-multiplatform:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Download artifacts 1
+      uses: actions/download-artifact@v7
+      with:
+        name: release-amd64
+        path: docker-multiplatform/linux/amd64/
+
+    - name: Download artifacts 2
+      uses: actions/download-artifact@v7
+      with:
+        name: release-arm64
+        path: docker-multiplatform/linux/arm64/
+
+    - uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm64
+
+    - name: Build Docker
+      run: |
+        docker build \
+            --platform linux/amd64,linux/arm64 \
+            --tag taranaki:latest-multiplatform docker-multiplatform/
+        docker image save -o docker-multiplatform/release-multiplatform.docker taranaki:latest-multiplatform
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: release-multiplatform.docker
+        path: docker-multiplatform/release-multiplatform.docker
         retention-days: 1
 
 
