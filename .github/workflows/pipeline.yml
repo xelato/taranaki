@@ -40,6 +40,7 @@ jobs:
     outputs:
       release: ${{ steps.set-metadata.outputs.release }}
       version: ${{ steps.set-metadata.outputs.version }}
+      sha: ${{ steps.set-metadata.outputs.sha }}
     steps:
     - id: set-metadata
       shell: bash
@@ -49,6 +50,7 @@ jobs:
           release="${{ github.event.release.tag_name }}"
         fi
         version=`python -c 'import sys; v=sys.argv[1]; v=v[1:] if v.startswith("v") else v; print(v)' $release`
+        sha="${{ github.sha }}"
 
         # validate release version
         python -m pip install uv > /dev/null
@@ -58,6 +60,7 @@ jobs:
         # outputs
         echo "release=$release" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
+        echo "sha=$sha" >> $GITHUB_OUTPUT
 
 
   build-python:
@@ -69,11 +72,11 @@ jobs:
 
     - name: Build Wheel
       run: |
-        uv version "$RELEASE"
+        uv version "$release"
         uv build
         uv run taranaki version
       env:
-        RELEASE: ${{needs.version.outputs.release}}
+        release: ${{needs.version.outputs.release}}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
@@ -108,7 +111,7 @@ jobs:
     - name: Build
       shell: bash
       run: |
-        python tools/update-version.py "$RELEASE"
+        python tools/update-version.py "$release"
         if [[ ${{ matrix.target }} == "aarch64-unknown-linux-gnu" ]]; then
           export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
         fi
@@ -116,7 +119,7 @@ jobs:
         file target/${{ matrix.target }}/release/*.so
         sha256sum target/${{ matrix.target }}/release/*.so
       env:
-        RELEASE: ${{needs.version.outputs.release}}
+        release: ${{needs.version.outputs.release}}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
@@ -267,8 +270,11 @@ jobs:
         path: artifacts/docker/arm64/
 
     - run: |
-        mv artifacts/lib/amd64/libtaranaki.so artifacts/lib/taranaki-$version.amd64.so
-        mv artifacts/lib/arm64/libtaranaki.so artifacts/lib/taranaki-$version.arm64.so
+        mv artifacts/lib/amd64/libtaranaki.so artifacts/lib/taranaki-$version-amd64.so
+        mv artifacts/lib/arm64/libtaranaki.so artifacts/lib/taranaki-$version-arm64.so
+
+        gzip artifacts/docker/amd64/release-amd64.docker > artifacts/docker/taranaki-$version-amd64.docker.tar.gz
+        gzip artifacts/docker/arm64/release-arm64.docker > artifacts/docker/taranaki-$version-arm64.docker.tar.gz
       env:
         version: ${{needs.version.outputs.version}}
 
@@ -281,7 +287,7 @@ jobs:
           artifacts/VERSION
           artifacts/python/*.whl
           artifacts/lib/*.so
-          artifacts/docker/*/*.docker
+          artifacts/docker/*.docker.tar.gz
 
 
   release-docker:
