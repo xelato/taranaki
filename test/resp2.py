@@ -20,7 +20,7 @@ class Server:
         self.handler = handler
 
         self.run_thread = None
-        self.stopped = False
+        self.started = False
 
     def start(self):
         self.run_thread = threading.Thread(
@@ -30,9 +30,13 @@ class Server:
             name="main-thread",
         )
         self.run_thread.start()
+        for x in range(10):
+            if self.started:
+                break
+            time.sleep(0.5)
 
     def stop(self):
-        self.stopped = True
+        self.started = False
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as srv:
@@ -40,7 +44,8 @@ class Server:
             srv.bind((self.host, self.port))
             srv.listen(128)
             print("Listening on {}:{}".format(self.host, self.port))
-            while not self.stopped:
+            self.started = True
+            while self.started:
                 conn, addr = srv.accept()
                 t = threading.Thread(
                     target=self.handle_client,

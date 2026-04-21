@@ -99,9 +99,6 @@ jobs:
         fi
         cargo build --release --locked --target ${{ matrix.target }}
         file target/${{ matrix.target }}/release/*.so
-        ls -l target/${{ matrix.target }}/release/*.so
-        chmod 555 target/${{ matrix.target }}/release/*.so
-        ls -l target/${{ matrix.target }}/release/*.so
         sha256sum target/${{ matrix.target }}/release/*.so
       env:
         VERSION: ${{needs.version.outputs.version}}
@@ -190,6 +187,7 @@ jobs:
 
     - name: Build Docker
       run: |
+        chmod 555 docker/linux/${{ matrix.arch }}/*.so
         export DOCKER_DEFAULT_PLATFORM=linux/${{ matrix.arch }}
         docker build \
           --platform linux/${{ matrix.arch }} \
@@ -238,6 +236,8 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - run: |
+        chmod 555 docker/linux/amd64/*.so
+        chmod 555 docker/linux/arm64/*.so
         docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --tag xelato/taranaki:latest \

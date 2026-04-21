@@ -2,7 +2,6 @@ import unittest
 
 import resp2
 import redis
-import time
 
 
 class TestRESP2(unittest.TestCase):
@@ -41,8 +40,6 @@ class TestRESP2(unittest.TestCase):
         host, port = "127.0.0.1", 9736
         server = resp2.Server(host=host, port=port, handler=handler)
         server.start()
-
-        time.sleep(1)
 
         client = redis.Redis(host=host, port=port, db=0, protocol=2)
         self.assertEqual(
