@@ -352,8 +352,8 @@ jobs:
         name: python
         path: dist/
 
-    #- name: Publish to PyPI
-    #  uses: pypa/gh-action-pypi-publish@release/v1
-    #  with:
-    #    packages-dir: dist/
-    #    print-hash: true
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: dist/
+        print-hash: true
