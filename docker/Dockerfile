@@ -1,5 +1,6 @@
-FROM valkey/valkey:9.0.3
-
-RUN mkdir -p /usr/local/lib/taranaki
-COPY libtaranaki_python.so /usr/local/lib/taranaki/
-CMD valkey-server --loadmodule "/usr/local/lib/taranaki/libtaranaki_python.so"
+FROM --platform=$TARGETPLATFORM valkey/valkey:9.0.2
+ARG TARGETOS
+ARG TARGETARCH
+COPY ${TARGETOS}/${TARGETARCH}/libtaranaki.so /usr/local/lib/
+EXPOSE 6379
+CMD valkey-server --loadmodule "/usr/local/lib/libtaranaki.so"

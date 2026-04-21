@@ -2,15 +2,29 @@
 default:
     just --list
 
-# build dev
+# build release
 build:
     uv build
-    cargo build
-
-# build release
-release:
-    uv build
     cargo build --release
+
+build-linux-amd64:
+    rustup target add x86_64-unknown-linux-gnu
+    cargo build --release --target x86_64-unknown-linux-gnu
+
+build-linux-arm64:
+    rustup target add aarch64-unknown-linux-gnu
+    cargo build --release --target aarch64-unknown-linux-gnu
+
+docker-linux-amd64:
+    mkdir -p docker/linux/amd64
+    cp target/x86_64-unknown-linux-gnu/release/libtaranaki.so docker/linux/amd64
+    docker build --platform linux/amd64 --tag taranaki:amd64 docker/
+
+docker-linux-arm64:
+    mkdir -p docker/linux/arm64
+    cp target/aarch64-unknown-linux-gnu/release/libtaranaki.so docker/linux/arm64
+    docker build --platform linux/arm64 --tag taranaki:arm64 docker/
+
 
 # start dev container
 dev:
@@ -35,7 +49,7 @@ redis:
         --volume $PWD:/app \
         redis:7.2.13 \
         redis-server \
-        --loadmodule "/app/target/release/libtaranaki_python.so" \
+        --loadmodule "/app/target/release/libtaranaki.so" \
 
 # run Valkey container
 valkey:
@@ -45,7 +59,7 @@ valkey:
         --volume $PWD:/app \
         valkey/valkey:9.0.2 \
         valkey-server \
-        --loadmodule "/app/target/release/libtaranaki_python.so" \
+        --loadmodule "/app/target/release/libtaranaki.so" \
 
 # run Redict container
 redict:
@@ -55,7 +69,7 @@ redict:
         --volume $PWD:/app \
         registry.redict.io/redict:7.3.6 \
         redict-server \
-        --loadmodule "/app/target/release/libtaranaki_python.so" \
+        --loadmodule "/app/target/release/libtaranaki.so" \
 
 update-commands:
     uv run tools/update-commands.py > src/taranaki/compat/commands.py
@@ -85,9 +99,9 @@ pytest:
 
 # build OCI container
 docker-build:
-    cp target/release/libtaranaki_python.so docker/
+    cp target/release/libtaranaki.so docker/
     docker build --tag taranaki:latest docker/
-    rm -f docker/libtaranaki_python.so
+    rm -f docker/libtaranaki.so
 
 # run OCI container
 docker-run:
