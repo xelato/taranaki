@@ -194,7 +194,7 @@ jobs:
       uses: actions/download-artifact@v7
       with:
         name: release-${{ matrix.arch }}
-        path: docker/linux/${{ matrix.arch }}
+        path: docker/linux/${{ matrix.arch }}/
 
     - uses: docker/setup-qemu-action@v3
       if: matrix.arch == 'arm64'
@@ -263,13 +263,13 @@ jobs:
       uses: actions/download-artifact@v7
       with:
         name: release-amd64.docker
-        path: artifacts/docker/taranaki-amd64.docker
+        path: artifacts/docker/amd64/
 
     - name: Download artifacts docker-arm64
       uses: actions/download-artifact@v7
       with:
         name: release-arm64.docker
-        path: artifacts/docker/taranaki-arm64.docker
+        path: artifacts/docker/arm64/
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v3
@@ -279,8 +279,8 @@ jobs:
         files: |
           artifacts/VERSION
           artifacts/python/*.whl
-          artifacts/lib/
-          artifacts/docker/*.docker
+          artifacts/lib/*/*.so
+          artifacts/docker/*/*.docker
 
 
   release-docker:
