@@ -273,8 +273,8 @@ jobs:
         mv artifacts/lib/amd64/libtaranaki.so artifacts/lib/taranaki-$version-amd64.so
         mv artifacts/lib/arm64/libtaranaki.so artifacts/lib/taranaki-$version-arm64.so
 
-        gzip artifacts/docker/amd64/release-amd64.docker > artifacts/docker/taranaki-$version-amd64.docker.tar.gz
-        gzip artifacts/docker/arm64/release-arm64.docker > artifacts/docker/taranaki-$version-arm64.docker.tar.gz
+        gzip -c artifacts/docker/amd64/release-amd64.docker > artifacts/docker/taranaki-$version-amd64.docker.tar.gz
+        gzip -c artifacts/docker/arm64/release-arm64.docker > artifacts/docker/taranaki-$version-arm64.docker.tar.gz
       env:
         version: ${{needs.version.outputs.version}}
 
