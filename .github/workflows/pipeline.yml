@@ -241,35 +241,34 @@ jobs:
         mkdir artifacts/
         echo ${{ github.event.release.tag_name }} >> artifacts/VERSION
 
-    - name: Download artifacts python
-      uses: actions/download-artifact@v7
+    - uses: actions/download-artifact@v7
       with:
         name: python
         path: artifacts/python/
 
-    - name: Download artifacts amd64
-      uses: actions/download-artifact@v7
+    - uses: actions/download-artifact@v7
       with:
         name: release-amd64
         path: artifacts/lib/amd64/
 
-    - name: Download artifacts arm64
-      uses: actions/download-artifact@v7
+    - uses: actions/download-artifact@v7
       with:
         name: release-arm64
         path: artifacts/lib/arm64/
 
-    - name: Download artifacts docker-amd64
-      uses: actions/download-artifact@v7
+    - uses: actions/download-artifact@v7
       with:
         name: release-amd64.docker
         path: artifacts/docker/amd64/
 
-    - name: Download artifacts docker-arm64
-      uses: actions/download-artifact@v7
+    - uses: actions/download-artifact@v7
       with:
         name: release-arm64.docker
         path: artifacts/docker/arm64/
+
+    - run: |
+        mv artifacts/lib/amd64/libtaranaki.so artifacts/lib/taranaki.${{ github.event.release.tag_name }}.amd64.so
+        mv artifacts/lib/arm64/libtaranaki.so artifacts/lib/taranaki.${{ github.event.release.tag_name }}.arm64.so
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v3
@@ -279,7 +278,7 @@ jobs:
         files: |
           artifacts/VERSION
           artifacts/python/*.whl
-          artifacts/lib/*/*.so
+          artifacts/lib/*.so
           artifacts/docker/*/*.docker
 
 
