@@ -41,7 +41,6 @@ jobs:
       release: ${{ steps.set-metadata.outputs.release }}
       version: ${{ steps.set-metadata.outputs.version }}
     steps:
-    - uses: astral-sh/setup-uv@v8.1.0
     - id: set-metadata
       shell: bash
       run: |
@@ -52,6 +51,7 @@ jobs:
         version=`python -c 'import sys; v=sys.argv[1]; v=v[1:] if v.startswith("v") else v; print(v)' $release`
 
         # validate release version
+        python -m pip install uv > /dev/null
         uv init
         uv version "$release"
 
