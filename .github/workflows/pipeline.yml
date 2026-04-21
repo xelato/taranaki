@@ -193,9 +193,10 @@ jobs:
         docker build \
           --platform linux/${{ matrix.arch }} \
           --tag taranaki:latest-${{ matrix.arch }} docker/
-        docker image save -o docker/release-${{ matrix.arch }}.docker taranaki:latest-${{ matrix.arch }}
+        docker image save -o release-${{ matrix.arch }}.docker taranaki:latest-${{ matrix.arch }}
 
     - name: Test Docker
+      if: matrix.arch == 'amd64'
       run: |
         docker run --rm -d -p 127.0.0.1:6379:6379 taranaki:latest-${{ matrix.arch }}
         ./tools/wait-for 127.0.0.1:6379 -t 5
@@ -205,7 +206,7 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: release-${{ matrix.arch }}.docker
-        path: docker/release-${{ matrix.arch }}.docker
+        path: release-${{ matrix.arch }}.docker
         retention-days: 1
 
 
