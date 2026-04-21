@@ -173,6 +173,7 @@ jobs:
           - arch: arm64
     steps:
     - uses: actions/checkout@v5
+    - uses: astral-sh/setup-uv@v8.1.0
 
     - name: Download artifacts
       uses: actions/download-artifact@v7
@@ -194,6 +195,11 @@ jobs:
           --tag taranaki:latest-${{ matrix.arch }} docker/
         docker image save -o docker/release-${{ matrix.arch }}.docker taranaki:latest-${{ matrix.arch }}
 
+    - name: Test Docker
+      run: |
+        docker run --rm -d -p 127.0.0.1:6379:6379 taranaki:latest-${{ matrix.arch }}
+        ./tools/wait-for 127.0.0.1:6379 -t 5
+        uv run --with pytest pytest
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
