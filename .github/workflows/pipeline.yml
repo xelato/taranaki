@@ -99,6 +99,9 @@ jobs:
         fi
         cargo build --release --locked --target ${{ matrix.target }}
         file target/${{ matrix.target }}/release/*.so
+        ls -l target/${{ matrix.target }}/release/*.so
+        chmod 555 target/${{ matrix.target }}/release/*.so
+        ls -l target/${{ matrix.target }}/release/*.so
         sha256sum target/${{ matrix.target }}/release/*.so
       env:
         VERSION: ${{needs.version.outputs.version}}
@@ -142,7 +145,7 @@ jobs:
             --volume $PWD:/app \
             valkey/valkey:9.0.3 \
             valkey-server \
-            --loadmodule "/app/target/release/libtaranaki_python.so"
+            --loadmodule "/app/target/release/libtaranaki.so"
         ./tools/wait-for 127.0.0.1:6379 -t 5
         uv run --with pytest pytest
         docker rm -f valkey
@@ -156,7 +159,7 @@ jobs:
             --volume $PWD:/app \
             redis:7.2.13 \
             redis-server \
-            --loadmodule "/app/target/release/libtaranaki_python.so"
+            --loadmodule "/app/target/release/libtaranaki.so"
         ./tools/wait-for 127.0.0.1:6379 -t 5
         uv run --with pytest pytest
         docker rm -f redis

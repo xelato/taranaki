@@ -1,5 +1,5 @@
 [package]
-name = "taranaki-python"
+name = "taranaki"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

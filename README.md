@@ -2,7 +2,7 @@
 
 [Taranaki](https://github.com/xelato/taranaki), 
 named after the landmark giant on the edge of the Tasman Sea, is a software framework that adds 
-[Python](https://www.python.org) analytics and web-platform capabilities to a 
+[Python](https://www.python.org) data analytics and web-platform capabilities to a
 [remote](https://redict.io) 
 [dictionary](https://redis.io) 
 [server](https://valkey.io). 
@@ -11,7 +11,7 @@ Written in [Rust](https://rust-lang.org) and based on [Monty](https://github.com
 ## Quick start
 
 ```
-$ docker run --rm -it xelato/taranaki
+$ docker run --rm -it -p 127.0.0.1:6379:6379 xelato/taranaki
 ```
 Use a [RESP](https://redis.io/docs/latest/develop/reference/protocol-spec/)-capable client to deploy and call an app.
 ```

@@ -191,7 +191,7 @@ pub fn py_version(_ctx: &Context, _args: Vec<RedisString>) -> RedisResult {
 }
 
 redis_module! {
-    name: "taranaki-python",
+    name: "Taranaki",
     version: 1,
     allocator: (redis_module::alloc::RedisAlloc, redis_module::alloc::RedisAlloc),
     data_types: [],
