@@ -320,6 +320,7 @@ jobs:
       uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ github.event.release.tag_name }}
+        fail_on_unmatched_files: true
         files: |
           artifacts/VERSION
           artifacts/python/*.whl
