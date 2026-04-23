@@ -905,8 +905,8 @@ dependencies = [
 
 [[package]]
 name = "monty"
-version = "0.0.12"
-source = "git+https://github.com/pydantic/monty/?tag=v0.0.12#dc44b92bbfffbf2b5cbeb6dc88116938a276d7e8"
+version = "0.0.16"
+source = "git+https://github.com/pydantic/monty/?tag=v0.0.16#142807bbba3636a7525f017cea15b8d4f2bd5ed8"
 dependencies = [
  "ahash",
  "bytemuck",
@@ -923,8 +923,10 @@ dependencies = [
  "postcard",
  "ruff_python_ast",
  "ruff_python_parser",
+ "ruff_python_stdlib",
  "ruff_text_size",
  "serde",
+ "serde_json",
  "smallvec",
  "speedate",
  "strum",
@@ -1390,6 +1392,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ruff_python_stdlib"
+version = "0.0.0"
+source = "git+https://github.com/astral-sh/ruff.git?rev=6ded4bed1651e30b34dd04cdaa50c763036abb0d#6ded4bed1651e30b34dd04cdaa50c763036abb0d"
+dependencies = [
+ "bitflags 2.11.0",
+ "unicode-ident",
+]
+
+[[package]]
 name = "ruff_python_trivia"
 version = "0.0.0"
 source = "git+https://github.com/astral-sh/ruff.git?rev=6ded4bed1651e30b34dd04cdaa50c763036abb0d#6ded4bed1651e30b34dd04cdaa50c763036abb0d"
@@ -1509,6 +1520,19 @@ dependencies = [
  "proc-macro2",
  "quote 1.0.44",
  "syn 2.0.116",
+]
+
+[[package]]
+name = "serde_json"
+version = "1.0.149"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83fc039473c5595ace860d8c4fafa220ff474b3fc6bfdb4293327f1a37e94d86"
+dependencies = [
+ "itoa",
+ "memchr",
+ "serde",
+ "serde_core",
+ "zmij",
 ]
 
 [[package]]
@@ -2192,3 +2216,9 @@ dependencies = [
  "quote 1.0.44",
  "syn 2.0.116",
 ]
+
+[[package]]
+name = "zmij"
+version = "1.0.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
