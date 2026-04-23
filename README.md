@@ -36,7 +36,7 @@ PY.HTTP /app/hello GET /hello?name=Taranaki
 By running compute in-process alongside the data that's already stored in-memory should bring efficiencies simply from skipping the process and network boundaries.
 
 ### Move code, not data
-Old as it goes, it's easier to walk to a mountain rather than moving the mountain.
+Old as it goes, it's easier to walk to a mountain rather than moving it.
 It is often the case in some environments that hundreds of megabytes cross the network on each request just to compute a much smaller output set. Not particularly something new, but this could be avoided simply by moving code to where data lives, and not vice-versa.
 
 ### Operational simplicity
