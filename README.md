@@ -7,8 +7,8 @@
 # 🌋 Taranaki
 
 [Taranaki](https://github.com/xelato/taranaki), 
-named after the landmark *maunga* on the edge of the Tasman Sea, is a software framework that adds 
-[Python](https://www.python.org) data analytics and web-platform capabilities to a
+named after the landmark *maunga*, is a software framework that adds 
+[Python](https://www.python.org) execution, data analytics, and web-platform capabilities to a
 [remote](https://redict.io) 
 [dictionary](https://redis.io) 
 [server](https://valkey.io). 
