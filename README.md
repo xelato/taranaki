@@ -12,7 +12,7 @@ named after the landmark *maunga*, is a software framework that adds
 [remote](https://redict.io) 
 [dictionary](https://redis.io) 
 [server](https://valkey.io). 
-Written in [Rust](https://rust-lang.org) and based on [Monty](https://github.com/pydantic/monty), it runs Python in a controlled sandboxed environment, in-process and with a minimal memory footprint.
+Written in [Rust](https://rust-lang.org) and based on [Monty](https://github.com/pydantic/monty), it runs code in a controlled sandboxed environment, in-process and with a minimal memory footprint.
 
 ## Quick start
 
