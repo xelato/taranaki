@@ -1,7 +1,7 @@
 # 🌋 Taranaki
 
 [Taranaki](https://github.com/xelato/taranaki), 
-named after the landmark giant on the edge of the Tasman Sea, is a software framework that adds 
+named after the landmark *maunga* on the edge of the Tasman Sea, is a software framework that adds 
 [Python](https://www.python.org) data analytics and web-platform capabilities to a
 [remote](https://redict.io) 
 [dictionary](https://redis.io) 
@@ -122,8 +122,11 @@ uvx taranaki --help
 ### Compat library
 Compatibility layer, so that code you write can pass type checks and be validated before executing it on a server.
 
+### taranaki.configure()
+Configure connection.
+
 ### @taranaki.function()
-This decorator delegates parts of your Python program for remote execution on a Taranaki-enabled server.
+This decorator delegates parts of your Python program for remote execution on a Taranaki server.
 
 ```
 """
@@ -162,10 +165,18 @@ if __name__ == "__main__":
 Define an HTTP handler, deploy to a server.
 
 ## Road to 1.0.0
-tbd
+This project is still an early experiment. Best practices have yet to be figured out. As an example, a single-threaded server design is usually the opposite of how a web-server works. No testing has been done in cluster mode, too.
+
+Success of the project is tied to the maturity and stability of [Monty](https://github.com/pydantic/monty), consider contributing directly to it.
+
+Additionally, development needs to happen in several areas:
+ - feature-rich web-framework
+ - extensibility features - in- or out-of-process/server wasm or sandboxed python
+ - improved transpiler for transforming generic python to code that runs under Monty -> better DevExp (it should be possible to take a Flask app and run it with minimal or no changes on Taranaki)
+ - the availability of a variety of HTTP-to-RESP reverse proxy/gateway solutions
 
 ## Contributing
-tbd
+At the moment we do not have the capacity to review or accept external contributions. [Issues](https://github.com/xelato/taranaki/issues) are  welcome, though.
 
 ## License
-The project is distributed under the terms of the MIT license.
+The project is distributed under the terms of the MIT [license](https://github.com/xelato/taranaki/blob/main/LICENSE).
