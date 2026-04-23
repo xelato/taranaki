@@ -77,8 +77,7 @@ The platform supports two execution modes - normal and readonly. The latter only
 (integer) 89
 ```
 
-#### Lossy and lossless output
-Lossless and lossy serialization
+#### Lossy and lossless output serialization
 
 The lossy format:
 - is the default for `PY.EVAL` and `PY.CALL`
