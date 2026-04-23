@@ -1,3 +1,9 @@
+<div align="center">
+  <a href="https://hub.docker.com/r/xelato/taranaki/tags"><img src="https://img.shields.io/docker/v/xelato/taranaki?label=docker" alt="Docker Hub"></a>
+  <a href="https://pypi.python.org/pypi/taranaki"><img src="https://img.shields.io/pypi/v/taranaki.svg" alt="PyPI"></a>
+  <a href="https://github.com/xelato/taranaki/blob/main/LICENSE"><img src="https://img.shields.io/github/license/xelato/taranaki.svg?v=2" alt="license"></a>
+</div>
+
 # 🌋 Taranaki
 
 [Taranaki](https://github.com/xelato/taranaki), 
