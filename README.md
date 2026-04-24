@@ -35,6 +35,10 @@ Bridge with an HTTP/RESP proxy:
 ```
 $ uvx taranaki proxy --key /app/hello
 ```
+```
+$ curl --get "http://localhost:8080/hello"
+Hello, world
+```
 
 ## But why?...
 By running compute in-process alongside the data that's already stored in-memory should bring efficiencies simply from skipping the process and network boundaries.
