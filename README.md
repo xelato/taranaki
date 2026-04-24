@@ -107,7 +107,7 @@ call() and curl() - call other functions or handlers
 
 Exceptions or bad return values get translated to an HTTP 500 error response.
 
-To send real traffic to an installed HTTP handler, you'd need a reverse-proxy server capable of translating HTTP to RESP and back in the specific format used by Taranaki, described [here](https://github.com/xelato/taranaki/blob/main/crates/taranaki-python/src/http.md).
+To send real traffic to an installed HTTP handler, you'd need a reverse-proxy server capable of translating HTTP to RESP and back in the specific format used by Taranaki, described [here](https://github.com/xelato/taranaki/blob/main/docs/http.md).
 
 To make this possible, we're building integrations based on 
 [Tailscale](https://tailscale.com), 

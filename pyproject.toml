@@ -2,15 +2,15 @@
 name = "taranaki"
 version = "0.0.0"
 description = "Taranaki CLI"
-readme = "docs/README.md"
+readme = "docs/pypi.md"
 license = "MIT"
 requires-python = ">=3.14"
 dependencies = [
-    "aiohttp>=3.13.3",
     "click>=8.3.1",
-    "ngrok>=1.7.0",
+    "fastapi>=0.136.1",
     "pydantic-monty>=0.0.6",
     "redis>=7.1.1",
+    "uvicorn>=0.46.0",
 ]
 
 classifiers = [

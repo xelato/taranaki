@@ -3,7 +3,7 @@ import click
 
 from . import client
 from . import python
-from . import serve_ngrok
+from . import proxy
 from .util import cli_error_handler
 
 
@@ -26,13 +26,6 @@ def py_eval(expression, args):
     print(python.py_eval(client.get_instance(), expression, args))
 
 
-@cli.command(name="ngrok", help="Serve with ngrok")
-@click.argument("key", required=True)
-@cli_error_handler
-def ngrok(key):
-    serve_ngrok.run(key)
-
-
 @cli.command(help="Print version")
 def version():
     try:
@@ -40,3 +33,13 @@ def version():
     except importlib.metadata.PackageNotFoundError:
         version = "0.0.0"
     print(version)
+
+
+@cli.command(name="proxy", help="Run HTTP-to-RESP proxy")
+@click.option("--key", default="/app/hello", help="app key")
+@click.option("--proxy-port", default=8080, help="proxy port")
+@cli_error_handler
+def proxy_serve(key, proxy_port):
+    print("Proxy to {}".format(key))
+    p = proxy.Proxy(key=key)
+    p.run(port=proxy_port)
