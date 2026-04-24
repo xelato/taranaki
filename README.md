@@ -31,6 +31,10 @@ PY.HTTP /app/hello GET /hello?name=Taranaki
 2) content-type: text/plain; charset=utf-8
 3) 1) "Hello, Taranaki"
 ```
+Bridge with an HTTP/RESP proxy:
+```
+$ uvx taranaki proxy --key /app/hello
+```
 
 ## But why?...
 By running compute in-process alongside the data that's already stored in-memory should bring efficiencies simply from skipping the process and network boundaries.
