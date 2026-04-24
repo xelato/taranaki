@@ -31,7 +31,7 @@ PY.HTTP /app/hello GET /hello?name=Taranaki
 2) content-type: text/plain; charset=utf-8
 3) 1) "Hello, Taranaki"
 ```
-Bridge with an HTTP/RESP proxy:
+Bridge with an HTTP/RESP [proxy](https://github.com/xelato/taranaki/blob/main/docs/http.md):
 ```
 $ uvx taranaki proxy --key /app/hello
 ```
