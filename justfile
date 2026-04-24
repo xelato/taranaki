@@ -71,6 +71,13 @@ redict:
         redict-server \
         --loadmodule "/app/target/release/libtaranaki.so" \
 
+# run released version
+released:
+    docker run --rm -it \
+        --name taranaki \
+        -p 127.0.0.1:6379:6379 \
+        xelato/taranaki:latest
+
 update-commands:
     uv run tools/update-commands.py > src/taranaki/compat/commands.py
 
