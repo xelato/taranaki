@@ -191,15 +191,11 @@ impl<'a> Callable for Request<'a> {
         };
 
         // complete call
-        ExtFunctionResult::Return(self.build_request(
-            arg_method,
-            url,
-            headers,
-            match content {
-                None => vec![],
-                Some(value) => value,
-            },
-        ))
+        let body: Vec<u8> = match content {
+            None => vec![],
+            Some(value) => value,
+        };
+        ExtFunctionResult::Return(self.build_request(arg_method, url, &headers, &body))
     }
 }
 
@@ -208,8 +204,8 @@ impl<'a> Request<'a> {
         &self,
         method: String,
         url: Url,
-        headers: HashMap<String, String>,
-        body: Vec<u8>,
+        headers: &HashMap<String, String>,
+        body: &Vec<u8>,
     ) -> MontyObject {
         let mut values: Vec<(String, MontyObject)> = Vec::new();
 
@@ -235,7 +231,7 @@ impl<'a> Request<'a> {
         values.push((String::from("headers"), MontyObject::Dict(pairs)));
 
         // content
-        values.push((String::from("content"), MontyObject::Bytes(body)));
+        values.push((String::from("content"), MontyObject::Bytes(body.to_vec())));
 
         /* url derived fields */
         // just path
@@ -273,10 +269,37 @@ impl<'a> Request<'a> {
         }
         values.push((String::from("args"), MontyObject::Dict(args.into())));
 
+        // form
+        let mut form: MontyObject = MontyObject::None;
+        if let Some(value) = headers.get("content-type") {
+            if value == "application/x-www-form-urlencoded" {
+                form = decode_form_urlencoded(&body)
+            }
+        };
+        values.push((String::from("form"), form));
+
         // todo: content-derived fields: text/json
         // check content-type and set text/json fields
 
         // request
         nt(String::from("Request"), values)
+    }
+}
+
+fn decode_form_urlencoded(body: &Vec<u8>) -> MontyObject {
+    let res = serde_urlencoded::from_bytes::<Vec<(String, String)>>(body.as_slice());
+    if let Ok(values) = res {
+        let pairs = values
+            .iter()
+            .map(|(k, v)| {
+                (
+                    MontyObject::String(k.to_owned()),
+                    MontyObject::String(v.to_owned()),
+                )
+            })
+            .collect();
+        MontyObject::Dict(pairs)
+    } else {
+        MontyObject::None
     }
 }

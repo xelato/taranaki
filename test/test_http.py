@@ -38,6 +38,29 @@ class TestHTTP(unittest.TestCase):
             "args": {},
             "content": b"\xff",
         },
+        # form
+        (
+            "POST",
+            "/form",
+            "HEADER",
+            "content-type: application/x-www-form-urlencoded",
+            "CONTENT",
+            b"first=John&last=Doe&email=johndoe%40example.com",
+        ): {
+            "method": "POST",
+            "path": "/form",
+            "headers": {
+                "content-type": "application/x-www-form-urlencoded",
+            },
+            "query": None,
+            "args": {},
+            "content": b"first=John&last=Doe&email=johndoe%40example.com",
+            "form": {
+                "first": "John",
+                "last": "Doe",
+                "email": "johndoe@example.com",
+            },
+        },
     }
 
     RESPONSES = {
