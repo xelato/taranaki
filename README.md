@@ -1,17 +1,23 @@
+<div align="center">
+  <a href="https://hub.docker.com/r/xelato/taranaki/tags"><img src="https://img.shields.io/docker/v/xelato/taranaki?label=docker" alt="Docker Hub"></a>
+  <a href="https://pypi.python.org/pypi/taranaki"><img src="https://img.shields.io/pypi/v/taranaki.svg" alt="PyPI"></a>
+  <a href="https://github.com/xelato/taranaki/blob/main/LICENSE"><img src="https://img.shields.io/github/license/xelato/taranaki.svg?v=2" alt="license"></a>
+</div>
+
 # 🌋 Taranaki
 
 [Taranaki](https://github.com/xelato/taranaki), 
-named after the landmark giant on the edge of the Tasman Sea, is a software framework that adds 
-[Python](https://www.python.org) analytics and web-platform capabilities to a 
+named after the landmark *maunga*, is a software framework that adds 
+[Python](https://www.python.org) execution, data analytics, and web-platform capabilities to a
 [remote](https://redict.io) 
 [dictionary](https://redis.io) 
 [server](https://valkey.io). 
-Written in [Rust](https://rust-lang.org) and based on [Monty](https://github.com/pydantic/monty), it runs Python in a controlled sandboxed environment, in-process and with a minimal memory footprint. MIT-licensed.
+Written in [Rust](https://rust-lang.org) and based on [Monty](https://github.com/pydantic/monty), it runs code in a controlled sandboxed environment, in-process and with a minimal memory footprint.
 
 ## Quick start
 
 ```
-$ docker run --rm -it xelato/taranaki
+$ docker run --rm -it -p 127.0.0.1:6379:6379 xelato/taranaki
 ```
 Use a [RESP](https://redis.io/docs/latest/develop/reference/protocol-spec/)-capable client to deploy and call an app.
 ```
@@ -25,12 +31,20 @@ PY.HTTP /app/hello GET /hello?name=Taranaki
 2) content-type: text/plain; charset=utf-8
 3) 1) "Hello, Taranaki"
 ```
+Bridge with an HTTP/RESP [proxy](https://github.com/xelato/taranaki/blob/main/docs/http.md):
+```
+$ uvx taranaki proxy --key /app/hello
+```
+```
+$ curl --get "http://localhost:8080/hello"
+Hello, world
+```
 
 ## But why?...
 By running compute in-process alongside the data that's already stored in-memory should bring efficiencies simply from skipping the process and network boundaries.
 
 ### Move code, not data
-Old as it goes, it's easier to walk to a mountain rather than moving the mountain.
+Old as it goes, it's easier to walk to a mountain rather than moving it.
 It is often the case in some environments that hundreds of megabytes cross the network on each request just to compute a much smaller output set. Not particularly something new, but this could be avoided simply by moving code to where data lives, and not vice-versa.
 
 ### Operational simplicity
@@ -71,8 +85,7 @@ The platform supports two execution modes - normal and readonly. The latter only
 (integer) 89
 ```
 
-#### Lossy and lossless output
-Lossless and lossy serialization
+#### Lossy and lossless output serialization
 
 The lossy format:
 - is the default for `PY.EVAL` and `PY.CALL`
@@ -102,7 +115,7 @@ call() and curl() - call other functions or handlers
 
 Exceptions or bad return values get translated to an HTTP 500 error response.
 
-To send real traffic to an installed HTTP handler, you'd need a reverse-proxy server capable of translating HTTP to RESP and back in the specific format used by Taranaki, described [here](https://github.com/xelato/taranaki/blob/main/crates/taranaki-python/src/http.md).
+To send real traffic to an installed HTTP handler, you'd need a reverse-proxy server capable of translating HTTP to RESP and back in the specific format used by Taranaki, described [here](https://github.com/xelato/taranaki/blob/main/docs/http.md).
 
 To make this possible, we're building integrations based on 
 [Tailscale](https://tailscale.com), 
@@ -122,8 +135,11 @@ uvx taranaki --help
 ### Compat library
 Compatibility layer, so that code you write can pass type checks and be validated before executing it on a server.
 
+### taranaki.configure()
+Configure connection.
+
 ### @taranaki.function()
-This decorator delegates parts of your Python program for remote execution on a Taranaki-enabled server.
+This decorator delegates parts of your Python program for remote execution on a Taranaki server.
 
 ```
 """
@@ -162,10 +178,18 @@ if __name__ == "__main__":
 Define an HTTP handler, deploy to a server.
 
 ## Road to 1.0.0
-tbd
+This project is still an early experiment. Best practices have yet to be figured out. As an example, a single-threaded server design is usually the opposite of how a web-server works. No testing has been done in cluster mode, too.
+
+Success of the project is tied to the maturity and stability of [Monty](https://github.com/pydantic/monty), consider contributing directly to it.
+
+Additionally, development needs to happen in several areas:
+ - feature-rich web-framework
+ - extensibility features - in- or out-of-process/server wasm or sandboxed python
+ - improved transpiler for transforming generic python to code that runs under Monty -> better DevExp (it should be possible to take a Flask app and run it with minimal or no changes on Taranaki)
+ - the availability of a variety of HTTP-to-RESP reverse proxy/gateway solutions
 
 ## Contributing
-tbd
+At the moment we do not have the capacity to review or accept external contributions. [Issues](https://github.com/xelato/taranaki/issues) are  welcome, though.
 
 ## License
-tbd
+The project is distributed under the terms of the MIT [license](https://github.com/xelato/taranaki/blob/main/LICENSE).

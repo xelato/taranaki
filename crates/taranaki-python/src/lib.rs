@@ -8,13 +8,14 @@ mod http;
 mod lossless;
 mod lossy;
 mod mode;
+mod version;
 
 use crate::http::RESPonse;
 use crate::mode::Mode;
 use argv::Argv;
 use monty::{MontyException, MontyObject};
-use redis_module::redis_module;
 use redis_module::{Context, NextArg, RedisError, RedisResult, RedisString};
+use redis_module::{RedisValue, redis_module};
 
 /*
 > Evaluate Python `code` or call one stored at `key`.
@@ -185,12 +186,19 @@ pub fn py_ll_call_ro(ctx: &Context, args: Vec<RedisString>) -> RedisResult {
     function_call(ctx, args, Mode::RO, true, true)
 }
 
+pub fn py_version(_ctx: &Context, _args: Vec<RedisString>) -> RedisResult {
+    Ok(RedisValue::SimpleStringStatic(crate::version::VERSION))
+}
+
 redis_module! {
-    name: "taranaki-python",
+    name: "Taranaki",
     version: 1,
     allocator: (redis_module::alloc::RedisAlloc, redis_module::alloc::RedisAlloc),
     data_types: [],
     commands: [
+        // VERSION
+        ["py.version", py_version, "", 0, 0, 0, ""],
+
         // EVAL
         ["py.eval", py_eval_rw, "", 0, 0, 0, ""],
         ["py.eval_ro", py_eval_ro, "", 0, 0, 0, ""],

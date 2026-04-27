@@ -1,4 +1,11 @@
-# use as @taranaki.function() decorator
+
+import importlib.metadata
+
+try:
+    __version__ = importlib.metadata.version("taranaki")
+except importlib.metadata.PackageNotFoundError:
+    __version__ = "0.0.0"
+
 from .serverless import function as function
 
 # use as taranaki.configure()
