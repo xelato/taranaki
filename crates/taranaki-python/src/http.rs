@@ -172,18 +172,6 @@ impl TryFrom<MontyObject> for RESPonse {
                 &MontyObject::None,
             ),
 
-            MontyObject::List(value) => Self::from_tuple3(
-                &MontyObject::List(value),
-                &MontyObject::Int(200),
-                &MontyObject::None,
-            ),
-
-            MontyObject::Dict(value) => Self::from_tuple3(
-                &MontyObject::Dict(value),
-                &MontyObject::Int(200),
-                &MontyObject::None,
-            ),
-
             MontyObject::Int(value) => Self::from_tuple3(
                 &MontyObject::Int(value),
                 &MontyObject::Int(200),
@@ -192,6 +180,18 @@ impl TryFrom<MontyObject> for RESPonse {
 
             MontyObject::Float(value) => Self::from_tuple3(
                 &MontyObject::Float(value),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            MontyObject::List(value) => Self::from_tuple3(
+                &MontyObject::List(value),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            MontyObject::Dict(value) => Self::from_tuple3(
+                &MontyObject::Dict(value),
                 &MontyObject::Int(200),
                 &MontyObject::None,
             ),
