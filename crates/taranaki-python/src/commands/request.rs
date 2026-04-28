@@ -3,10 +3,13 @@ use std::collections::HashMap;
 use crate::argv::Argv;
 use crate::commands::callable::Callable;
 use crate::commands::nt::nt;
+use monty::DictPairs;
 use monty::ExcType;
 use monty::ExtFunctionResult;
 use monty::MontyException;
 use monty::MontyObject;
+use serde_json::Number;
+use serde_json::Value;
 use url::Url;
 
 static OPTIONS: [&str; 2] = ["HEADER", "CONTENT"];
@@ -278,8 +281,16 @@ impl<'a> Request<'a> {
         };
         values.push((String::from("form"), form));
 
-        // todo: content-derived fields: text/json
-        // check content-type and set text/json fields
+        // json
+        let mut json: MontyObject = MontyObject::None;
+        if let Some(value) = headers.get("content-type") {
+            if value == "application/json" {
+                if let Ok(json_res) = decode_json(body) {
+                    json = json_res;
+                }
+            }
+        };
+        values.push((String::from("json"), json));
 
         // request
         nt(String::from("Request"), values)
@@ -302,4 +313,52 @@ fn decode_form_urlencoded(body: &Vec<u8>) -> MontyObject {
     } else {
         MontyObject::None
     }
+}
+
+fn decode_json(body: &Vec<u8>) -> Result<MontyObject, String> {
+    let Ok(value) = serde_json::from_slice::<Value>(body.as_slice()) else {
+        return Err("error decoding".into());
+    };
+    Ok(json_to_monty(value))
+}
+
+fn json_to_monty(value: Value) -> MontyObject {
+    match value {
+        Value::Null => MontyObject::None,
+        Value::Bool(value) => MontyObject::Bool(value),
+        Value::String(value) => MontyObject::String(value),
+
+        Value::Object(dict) => {
+            let pairs: DictPairs = dict
+                .iter()
+                .map(|(k, v)| {
+                    (
+                        MontyObject::String(k.to_owned()),
+                        json_to_monty(v.to_owned()),
+                    )
+                })
+                .collect();
+            MontyObject::Dict(pairs)
+        }
+
+        Value::Array(items) => {
+            MontyObject::List(items.iter().map(|v| json_to_monty(v.to_owned())).collect())
+        }
+
+        Value::Number(num) => number_to_monty(&num),
+    }
+}
+
+fn number_to_monty(number: &Number) -> MontyObject {
+    if number.is_f64() {
+        if let Some(x) = number.as_f64() {
+            return MontyObject::Float(x);
+        }
+    } else if number.is_i64() {
+        if let Some(n) = number.as_i64() {
+            return MontyObject::Int(n);
+        }
+    }
+    // todo: handle bigints
+    MontyObject::Ellipsis
 }

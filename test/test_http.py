@@ -1,4 +1,3 @@
-
 import json
 import unittest
 
@@ -62,6 +61,25 @@ class TestHTTP(unittest.TestCase):
                 "last": "Doe",
                 "email": "johndoe@example.com",
             },
+        },
+        # json
+        (
+            "POST",
+            "/json",
+            "HEADER",
+            "content-type: application/json",
+            "CONTENT",
+            b'{"data": [null, true, false, 1, -1, "foo", 3.14]}',
+        ): {
+            "method": "POST",
+            "path": "/json",
+            "headers": {
+                "content-type": "application/json",
+            },
+            "query": None,
+            "args": {},
+            "content": b'{"data": [null, true, false, 1, -1, "foo", 3.14]}',
+            "json": {"data": [None, True, False, 1, -1, "foo", 3.14]},
         },
     }
 
@@ -138,7 +156,11 @@ class TestHTTP(unittest.TestCase):
             b"content-type: application/json",
             [b'[null,1,"foo"]'],
         ],
-        """{'count': 8}, 400""": [400, b"content-type: application/json", [b'{"count":8}']],
+        """{'count': 8}, 400""": [
+            400,
+            b"content-type: application/json",
+            [b'{"count":8}'],
+        ],
         # JSON, 3-tuples
         """None, 400, {}""": [400, b"content-type: application/json", [b"null"]],
         """[], 400, {}""": [400, b"content-type: application/json", [b"[]"]],
@@ -150,7 +172,11 @@ class TestHTTP(unittest.TestCase):
             b"content-type: application/json",
             [b'[null,1,"foo"]'],
         ],
-        """{'count': 8}, 400, {}""": [400, b"content-type: application/json", [b'{"count":8}']],
+        """{'count': 8}, 400, {}""": [
+            400,
+            b"content-type: application/json",
+            [b'{"count":8}'],
+        ],
     }
 
     HELLO = """
@@ -200,7 +226,6 @@ hello(request())
             client_instance.set("/code", code)
             response = python.py_http(client_instance, "/code", "GET", "/")
             self.assertEqual(response, expected)
-
 
     def test_json_response(self):
         client_instance = client.get_instance()
