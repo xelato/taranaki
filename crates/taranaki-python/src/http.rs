@@ -6,7 +6,7 @@ use std::cmp::min;
 use std::collections::HashMap;
 use std::i64;
 
-use monty::{DictPairs, MontyException, MontyObject};
+use monty::{DictPairs, JsonMontyObject, MontyException, MontyObject};
 use redis_module::RedisValue;
 
 type StatusCode = i64;
@@ -159,7 +159,43 @@ impl TryFrom<MontyObject> for RESPonse {
                 &MontyObject::None,
             ),
 
-            // todo: types that convert to application/json response
+            // types that convert to application/json response
+            MontyObject::None => Self::from_tuple3(
+                &MontyObject::None,
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            MontyObject::Bool(boolean) => Self::from_tuple3(
+                &MontyObject::Bool(boolean),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            MontyObject::Int(value) => Self::from_tuple3(
+                &MontyObject::Int(value),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            MontyObject::Float(value) => Self::from_tuple3(
+                &MontyObject::Float(value),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            MontyObject::List(value) => Self::from_tuple3(
+                &MontyObject::List(value),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
+            MontyObject::Dict(value) => Self::from_tuple3(
+                &MontyObject::Dict(value),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
             _ => Err(String::from("invalid response format")),
         }
     }
@@ -276,7 +312,8 @@ impl RESPonse {
         }
 
         // body
-        let body: Vec<u8>;
+        let mut is_json = false;
+        let mut body: Vec<u8> = vec![];
         if let MontyObject::Bytes(bytes) = _body {
             body = bytes.to_owned();
             if !headers.contains_key("content-type") {
@@ -287,8 +324,32 @@ impl RESPonse {
             if !headers.contains_key("content-type") {
                 headers.insert("content-type".into(), "text/plain; charset=utf-8".into());
             }
+        } else if let MontyObject::None = _body {
+            is_json = true;
+        } else if let MontyObject::Bool(_) = _body {
+            is_json = true;
+        } else if let MontyObject::List(_) = _body {
+            is_json = true;
+        } else if let MontyObject::Dict(_) = _body {
+            is_json = true;
+        } else if let MontyObject::Int(_) = _body {
+            is_json = true;
+        } else if let MontyObject::Float(_) = _body {
+            is_json = true;
         } else {
-            return Err(String::from(format!("str or bytes required for body")));
+            let type_name = _body.type_name();
+            return Err(String::from(format!("unsupported return type {type_name}")));
+        }
+
+        if is_json {
+            if !headers.contains_key("content-type") {
+                headers.insert("content-type".into(), "application/json".into());
+            }
+            if let Ok(json) = serde_json::to_string(&JsonMontyObject(&_body)) {
+                body = json.into();
+            } else {
+                return Err(String::from(format!("could not serialize to JSON")));
+            }
         }
 
         /*
