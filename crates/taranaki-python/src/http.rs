@@ -166,6 +166,12 @@ impl TryFrom<MontyObject> for RESPonse {
                 &MontyObject::None,
             ),
 
+            MontyObject::Bool(boolean) => Self::from_tuple3(
+                &MontyObject::Bool(boolean),
+                &MontyObject::Int(200),
+                &MontyObject::None,
+            ),
+
             MontyObject::List(value) => Self::from_tuple3(
                 &MontyObject::List(value),
                 &MontyObject::Int(200),
@@ -319,6 +325,8 @@ impl RESPonse {
                 headers.insert("content-type".into(), "text/plain; charset=utf-8".into());
             }
         } else if let MontyObject::None = _body {
+            is_json = true;
+        } else if let MontyObject::Bool(_) = _body {
             is_json = true;
         } else if let MontyObject::List(_) = _body {
             is_json = true;

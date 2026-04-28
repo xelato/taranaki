@@ -135,6 +135,8 @@ class TestHTTP(unittest.TestCase):
     JSON_RESPONSES = {
         # JSON
         """None""": [200, b"content-type: application/json", [b"null"]],
+        """True""": [200, b"content-type: application/json", [b"true"]],
+        """False""": [200, b"content-type: application/json", [b"false"]],
         """[]""": [200, b"content-type: application/json", [b"[]"]],
         """{}""": [200, b"content-type: application/json", [b"{}"]],
         """1""": [200, b"content-type: application/json", [b"1"]],
@@ -147,6 +149,8 @@ class TestHTTP(unittest.TestCase):
         """{'count': 8}""": [200, b"content-type: application/json", [b'{"count":8}']],
         # JSON, 2-tuples
         """None, 400""": [400, b"content-type: application/json", [b"null"]],
+        """True, 400""": [400, b"content-type: application/json", [b"true"]],
+        """False, 400""": [400, b"content-type: application/json", [b"false"]],
         """[], 400""": [400, b"content-type: application/json", [b"[]"]],
         """{}, 400""": [400, b"content-type: application/json", [b"{}"]],
         """1, 400""": [400, b"content-type: application/json", [b"1"]],
@@ -163,6 +167,8 @@ class TestHTTP(unittest.TestCase):
         ],
         # JSON, 3-tuples
         """None, 400, {}""": [400, b"content-type: application/json", [b"null"]],
+        """True, 400, {}""": [400, b"content-type: application/json", [b"true"]],
+        """False, 400, {}""": [400, b"content-type: application/json", [b"false"]],
         """[], 400, {}""": [400, b"content-type: application/json", [b"[]"]],
         """{}, 400, {}""": [400, b"content-type: application/json", [b"{}"]],
         """1, 400, {}""": [400, b"content-type: application/json", [b"1"]],
