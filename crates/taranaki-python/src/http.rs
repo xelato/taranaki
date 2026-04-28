@@ -291,7 +291,12 @@ impl RESPonse {
             return Err(String::from(format!("str or bytes required for body")));
         }
 
-        // todo: set content-length
+        /*
+        // NOTE: do not set content-length inside Taranaki response.
+         * the RESP bulk string already contains the size of the content response on protocol level.
+         * the header is valid in HTTP 1.1 but not required in HTTP 2.0
+         * Instead, set the header in a HTTP/RESP proxy depending on the HTTP protocol used.
+         */
         Ok(RESPonse::new(code.to_owned(), headers, body))
     }
 }

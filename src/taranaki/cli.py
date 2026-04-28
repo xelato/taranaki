@@ -1,3 +1,4 @@
+import sys
 import importlib.metadata
 import click
 
@@ -36,10 +37,30 @@ def version():
 
 
 @cli.command(name="proxy", help="Run HTTP-to-RESP proxy")
-@click.option("--key", default="/app/hello", help="app key")
+@click.option("--key", required=True, help="app key")
 @click.option("--proxy-port", default=8080, help="proxy port")
 @cli_error_handler
 def proxy_serve(key, proxy_port):
     print("Proxy to {}".format(key))
     p = proxy.Proxy(key=key)
     p.run(port=proxy_port)
+
+
+@cli.command(name="deploy", help="Deploy to key")
+@click.option("--key", required=True, help="app key")
+@click.argument("file", required=False, type=click.UNPROCESSED)
+@cli_error_handler
+def deploy(key, file):
+    if sys.stdin.isatty():
+        if not file:
+            raise TypeError("file required")
+        with open(file, "r") as f:
+            content = f.read()
+    else:
+        if file:
+            raise TypeError("file specified but reading from stdin")
+        # read content from standard input
+        content = sys.stdin.read()
+
+    resp_client = client.get_instance()
+    resp_client.set(key, content)
