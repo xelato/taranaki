@@ -1,3 +1,5 @@
+
+import json
 import unittest
 
 from taranaki import client, python
@@ -112,6 +114,45 @@ class TestHTTP(unittest.TestCase):
         ],
     }
 
+    JSON_RESPONSES = {
+        # JSON
+        """None""": [200, b"content-type: application/json", [b"null"]],
+        """[]""": [200, b"content-type: application/json", [b"[]"]],
+        """{}""": [200, b"content-type: application/json", [b"{}"]],
+        """1""": [200, b"content-type: application/json", [b"1"]],
+        """3.14""": [200, b"content-type: application/json", [b"3.14"]],
+        """[None, 1, "foo"]""": [
+            200,
+            b"content-type: application/json",
+            [b'[null,1,"foo"]'],
+        ],
+        """{'count': 8}""": [200, b"content-type: application/json", [b'{"count":8}']],
+        # JSON, 2-tuples
+        """None, 400""": [400, b"content-type: application/json", [b"null"]],
+        """[], 400""": [400, b"content-type: application/json", [b"[]"]],
+        """{}, 400""": [400, b"content-type: application/json", [b"{}"]],
+        """1, 400""": [400, b"content-type: application/json", [b"1"]],
+        """3.14, 400""": [400, b"content-type: application/json", [b"3.14"]],
+        """[None, 1, "foo"], 400""": [
+            400,
+            b"content-type: application/json",
+            [b'[null,1,"foo"]'],
+        ],
+        """{'count': 8}, 400""": [400, b"content-type: application/json", [b'{"count":8}']],
+        # JSON, 3-tuples
+        """None, 400, {}""": [400, b"content-type: application/json", [b"null"]],
+        """[], 400, {}""": [400, b"content-type: application/json", [b"[]"]],
+        """{}, 400, {}""": [400, b"content-type: application/json", [b"{}"]],
+        """1, 400, {}""": [400, b"content-type: application/json", [b"1"]],
+        """3.14, 400, {}""": [400, b"content-type: application/json", [b"3.14"]],
+        """[None, 1, "foo"], 400, {}""": [
+            400,
+            b"content-type: application/json",
+            [b'[null,1,"foo"]'],
+        ],
+        """{'count': 8}, 400, {}""": [400, b"content-type: application/json", [b'{"count":8}']],
+    }
+
     HELLO = """
 def hello(r):
     if r.method != "GET":
@@ -159,6 +200,17 @@ hello(request())
             client_instance.set("/code", code)
             response = python.py_http(client_instance, "/code", "GET", "/")
             self.assertEqual(response, expected)
+
+
+    def test_json_response(self):
+        client_instance = client.get_instance()
+        for code, expected in self.JSON_RESPONSES.items():
+            print(code, expected)
+            client_instance.set("/code", code)
+            response = python.py_http(client_instance, "/code", "GET", "/")
+            self.assertEqual(response, expected)
+            # can be loaded as JSON
+            json.loads(expected[-1][0])
 
     def test_hello(self):
         client_instance = client.get_instance()

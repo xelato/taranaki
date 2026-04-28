@@ -1713,6 +1713,7 @@ dependencies = [
  "num-bigint",
  "redis-module",
  "redis-module-macros",
+ "serde_json",
  "serde_urlencoded",
  "url",
 ]
