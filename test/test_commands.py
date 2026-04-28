@@ -5,6 +5,7 @@ from taranaki import client, python
 
 class TestCommands(unittest.TestCase):
     EXAMPLES = {
+        "__name__, __name__ == '__main__'": ("__main__", True),
         # exists
         "exists()": TypeError("wrong number of arguments for 'exists' command"),
         "exists([])": TypeError(

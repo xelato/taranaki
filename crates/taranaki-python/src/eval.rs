@@ -57,7 +57,9 @@ fn eval_with_commands(commander: &Commander, code: String) -> Result<MontyObject
 
             RunProgress::NameLookup(nl) => {
                 let result: NameLookupResult;
-                if commander.is_command(&nl.name) {
+                if &nl.name == "__name__" {
+                    result = NameLookupResult::Value(MontyObject::String("__main__".into()))
+                } else if commander.is_command(&nl.name) {
                     result = NameLookupResult::Value(MontyObject::Function {
                         name: nl.name.to_owned(),
                         docstring: None,
