@@ -33,8 +33,8 @@ var runCmd = &cobra.Command{
 			log.Fatalf("invalid db number %d", taranakiDb)
 		}
 		fmt.Println(args)
-		fmt.Println("Starting proxy for", taranakiHost, ":", taranakiPort, "#", taranakiDb)
-		fmt.Println("Target key:", targetKey)
+		fmt.Printf("Starting proxy for %s:%d #%d\n", taranakiHost, taranakiPort, taranakiDb)
+		fmt.Printf("Target key: %s\n", targetKey)
 	},
 }
 
