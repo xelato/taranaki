@@ -12,6 +12,9 @@ var taranakiHost string
 var taranakiPort int
 var taranakiDb int
 
+// target key
+var targetKey string
+
 var rootCmd = &cobra.Command{
 	Use:   "taranaki-proxy",
 	Short: "Taranaki proxy server",
@@ -30,9 +33,8 @@ var runCmd = &cobra.Command{
 			log.Fatalf("invalid db number %d", taranakiDb)
 		}
 		fmt.Println(args)
-		key, _ := cmd.Flags().GetString("key")
 		fmt.Println("Starting proxy for", taranakiHost, ":", taranakiPort, "#", taranakiDb)
-		fmt.Println("Target key:", key)
+		fmt.Println("Target key:", targetKey)
 	},
 }
 
@@ -43,8 +45,10 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&taranakiDb, "taranaki-db", 0, "Taranaki db number (default 0)")
 
 	// run
-	runCmd.Flags().StringP("key", "", "", "Target key")
+	runCmd.Flags().StringVar(&targetKey, "key", "", "Target key")
 	runCmd.MarkFlagRequired("key")
+
+	// subcommands
 	rootCmd.AddCommand(runCmd)
 }
 
