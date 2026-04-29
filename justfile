@@ -87,11 +87,12 @@ cli:
 
 # clean-up work tree
 clean:
-    rm -rf .venv
-    rm -rf .ruff_cache
+    rm -rf .venv/
+    rm -rf .ruff_cache/
     find . -name "__pycache__" | xargs -n1 rm -rf
-    rm -rf dist
-    rm -rf .pytest_cache
+    rm -rf dist/
+    rm -rf .pytest_cache/
+    rm -rf bin/
 
 # check for errors
 check:
@@ -99,7 +100,7 @@ check:
     uvx ruff check
     cargo fmt --all
     cargo fmt --check
-    go fmt
+    go fmt taranaki.dev/proxy/...
 
 # test
 pytest:
