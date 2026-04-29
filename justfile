@@ -99,6 +99,7 @@ check:
     uvx ruff check
     cargo fmt --all
     cargo fmt --check
+    go fmt
 
 # test
 pytest:
@@ -116,3 +117,17 @@ docker-run:
         --name taranaki \
         -p 127.0.0.1:6379:6379 \
         taranaki:latest
+
+go:
+    go build -o bin/taranaki-proxy
+
+go-dev:
+    # go install github.com/spf13/cobra-cli@latest
+    mkdir -p .go
+    docker run --rm -it \
+        --name go \
+        --memory 1G \
+        --volume $PWD:/app \
+        --volume .go/:/go \
+        golang:1.26-trixie \
+        bash
