@@ -23,7 +23,12 @@ var runCmd = &cobra.Command{
 	Short: "run proxy server",
 	Long:  `Run proxy server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		validate()
+		if !isValidPort(taranakiPort) {
+			log.Fatalf("invalid port: %d", taranakiPort)
+		}
+		if !isValidDb(taranakiDb) {
+			log.Fatalf("invalid db number %d", taranakiDb)
+		}
 		fmt.Println(args)
 		key, _ := cmd.Flags().GetString("key")
 		fmt.Println("Starting proxy for", taranakiHost, ":", taranakiPort, "#", taranakiDb)
@@ -41,15 +46,6 @@ func init() {
 	runCmd.Flags().StringP("key", "", "", "Target key")
 	runCmd.MarkFlagRequired("key")
 	rootCmd.AddCommand(runCmd)
-}
-
-func validate() {
-	if !isValidPort(taranakiPort) {
-		log.Fatalf("invalid port: %d", taranakiPort)
-	}
-	if !isValidDb(taranakiDb) {
-		log.Fatalf("invalid db number %d", taranakiDb)
-	}
 }
 
 func isValidPort(port int) bool {
