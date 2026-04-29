@@ -23,19 +23,23 @@ var runCmd = &cobra.Command{
 	Short: "run proxy server",
 	Long:  `Run proxy server`,
 	Run: func(cmd *cobra.Command, args []string) {
+		validate()
 		fmt.Println(args)
-		fmt.Println("Starting proxy...")
+		key, _ := cmd.Flags().GetString("key")
+		fmt.Println("Starting proxy for", taranakiHost, ":", taranakiPort, "#", taranakiDb)
+		fmt.Println("Target key:", key)
 	},
 }
 
 func init() {
 	// global flags
-	rootCmd.PersistentFlags().StringVar(&taranakiHost, "host", "localhost", "Taranaki host")
-	rootCmd.PersistentFlags().IntVar(&taranakiPort, "port", 6379, "Taranaki port")
-	rootCmd.PersistentFlags().IntVar(&taranakiDb, "db", 0, "Taranaki db number")
+	rootCmd.PersistentFlags().StringVar(&taranakiHost, "taranaki-host", "localhost", "Taranaki host")
+	rootCmd.PersistentFlags().IntVar(&taranakiPort, "taranaki-port", 6379, "Taranaki port")
+	rootCmd.PersistentFlags().IntVar(&taranakiDb, "taranaki-db", 0, "Taranaki db number (default 0)")
 
 	// run
 	runCmd.Flags().StringP("key", "", "", "Target key")
+	runCmd.MarkFlagRequired("key")
 	rootCmd.AddCommand(runCmd)
 }
 
@@ -61,6 +65,4 @@ func main() {
 	if err != nil {
 		os.Exit(1)
 	}
-
-	validate()
 }
