@@ -177,7 +177,7 @@ if __name__ == "__main__":
 ### @taranaki.http() decorator
 Define an HTTP handler, deploy to a server.
 
-## Road to 1.0.0
+## Road to 1.0
 This project is still an early experiment. Best practices have yet to be figured out. As an example, a single-threaded server design is usually the opposite of how a web-server works. No testing has been done in cluster mode, too.
 
 Success of the project is tied to the maturity and stability of [Monty](https://github.com/pydantic/monty), consider contributing directly to it.
