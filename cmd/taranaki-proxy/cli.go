@@ -25,9 +25,9 @@ var runCmd = &cobra.Command{
 		if !isValidDb(taranakiDb) {
 			log.Fatalf("invalid db number %d", taranakiDb)
 		}
-		fmt.Println(args)
-		fmt.Printf("Starting proxy for %s:%d #%d\n", taranakiHost, taranakiPort, taranakiDb)
-		fmt.Printf("Target key: %s\n", targetKey)
+		proxy := NewProxy(taranakiHost, taranakiPort, taranakiDb)
+		proxy.AddRoute("/", targetKey)
+		proxy.Run("127.0.0.1:8080")
 	},
 }
 
