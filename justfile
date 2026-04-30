@@ -120,7 +120,9 @@ docker-run:
         taranaki:latest
 
 go:
-    go build -o bin/ ./cmd/taranaki-proxy
+    go build -o bin/ \
+        -ldflags "-X 'taranaki.dev/proxy/cmd/taranaki-proxy.Version=1.2.3'" \
+        ./cmd/taranaki-proxy
 
 go-dev:
     # go install github.com/spf13/cobra-cli@latest

@@ -38,6 +38,17 @@ var runCmd = &cobra.Command{
 	},
 }
 
+// Version is set via ldflags at build time
+var Version = "dev"
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the program version",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("%s\n", Version)
+	},
+}
+
 func init() {
 	// global flags
 	rootCmd.PersistentFlags().StringVar(&taranakiHost, "taranaki-host", "localhost", "Taranaki host")
@@ -50,6 +61,7 @@ func init() {
 
 	// subcommands
 	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(versionCmd)
 }
 
 func isValidPort(port int) bool {
