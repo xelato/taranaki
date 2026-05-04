@@ -87,11 +87,12 @@ cli:
 
 # clean-up work tree
 clean:
-    rm -rf .venv
-    rm -rf .ruff_cache
+    rm -rf .venv/
+    rm -rf .ruff_cache/
     find . -name "__pycache__" | xargs -n1 rm -rf
-    rm -rf dist
-    rm -rf .pytest_cache
+    rm -rf dist/
+    rm -rf .pytest_cache/
+    rm -rf bin/
 
 # check for errors
 check:
@@ -99,6 +100,7 @@ check:
     uvx ruff check
     cargo fmt --all
     cargo fmt --check
+    go fmt taranaki.dev/proxy/...
 
 # test
 pytest:
@@ -116,3 +118,22 @@ docker-run:
         --name taranaki \
         -p 127.0.0.1:6379:6379 \
         taranaki:latest
+
+go:
+    go build -o bin/ \
+        -ldflags "-X 'taranaki.dev/proxy/cmd/taranaki-proxy.Version=1.2.3'" \
+        ./cmd/taranaki-proxy
+
+go-dev:
+    # go install github.com/spf13/cobra-cli@latest
+    mkdir -p .go
+    docker run --rm -it \
+        --name go \
+        --memory 1G \
+        --volume $PWD:/app \
+        --volume .go/:/go \
+        golang:1.26-trixie \
+        bash
+
+proxy:
+    ./bin/taranaki-proxy run --key /app/hello
