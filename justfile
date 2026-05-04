@@ -134,3 +134,6 @@ go-dev:
         --volume .go/:/go \
         golang:1.26-trixie \
         bash
+
+proxy:
+    ./bin/taranaki-proxy run --key /app/hello

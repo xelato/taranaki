@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"log"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -26,7 +27,7 @@ var runCmd = &cobra.Command{
 			log.Fatalf("invalid db number %d", taranakiDb)
 		}
 		proxy := NewProxy(taranakiHost, taranakiPort, taranakiDb)
-		proxy.AddRoute("/", targetKey)
+		proxy.AddRoute("/*", targetKey, false)
 		proxy.Run("127.0.0.1:8080")
 	},
 }
