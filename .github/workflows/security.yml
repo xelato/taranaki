@@ -8,6 +8,7 @@ on:
       - '**/Cargo.lock'
   pull_request:
     branches: [ "main" ]
+    paths:
       - '**/Cargo.toml'
       - '**/Cargo.lock'
   schedule:
