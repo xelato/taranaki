@@ -115,6 +115,7 @@ jobs:
         if [[ ${{ matrix.target }} == "aarch64-unknown-linux-gnu" ]]; then
           export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
         fi
+        cargo install cargo-auditable
         cargo auditable build --release --locked --target ${{ matrix.target }}
         file target/${{ matrix.target }}/release/*.so
         sha256sum target/${{ matrix.target }}/release/*.so
