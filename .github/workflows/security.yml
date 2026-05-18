@@ -8,6 +8,8 @@ on:
       - '**/Cargo.lock'
   pull_request:
     branches: [ "main" ]
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
   schedule:
     - cron: '0 0 * * *'
 
