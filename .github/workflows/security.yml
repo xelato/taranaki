@@ -9,7 +9,7 @@ on:
       - '**/Cargo.toml'
       - '**/Cargo.lock'
   schedule:
-    - cron: '59 23 * * *'
+    - cron: '59 23 * * 1'
 
 jobs:
 
